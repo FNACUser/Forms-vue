@@ -100,15 +100,11 @@
 
       async initialize(){
 
-        const users = await this.$axios.get('http://localhost:5000/api/v1/users');
+        this.getAreas();
+        this.getUsers();
+        this.getNetworks();
+        this.getCycles();
         
-        this.users = users.data;
-        const cycles = await this.$axios.get('http://localhost:5000/api/v1/cycles');
-        this.cycles = cycles.data;
-        const networks = await this.$axios.get('http://localhost:5000/api/v1/networks');
-        this.networks = networks.data;
-        const areas = await this.$axios.get('http://localhost:5000/api/v1/areas');
-        this.areas = areas.data;
 
       },
 
@@ -123,6 +119,37 @@
          }   
 
       },
+
+      async getUsers(){
+
+        const users = await this.$axios.get('http://localhost:5000/api/v1/users');
+        this.users = users.data;
+
+      },
+
+      async getCycles(){
+
+        const cycles = await this.$axios.get('http://localhost:5000/api/v1/cycles');
+        this.cycles = cycles.data;
+
+      },
+
+      async getNetworks(){
+
+        const networks = await this.$axios.get('http://localhost:5000/api/v1/networks');
+        this.networks = networks.data;
+
+      },
+
+      async getAreas(){
+
+        const areas = await this.$axios.get('http://localhost:5000/api/v1/areas');
+        this.areas = areas.data;
+
+      },
+
+
+
 
       resetSelectedVariables(){
 
