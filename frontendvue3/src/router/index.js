@@ -1,11 +1,8 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
-Vue.use(Router)
-
-const router = new Router({
-  
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
@@ -23,4 +20,4 @@ const router = new Router({
   ]
 })
 
-export default router;
+export default router

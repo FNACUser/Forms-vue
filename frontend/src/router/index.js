@@ -1,9 +1,19 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import Vue from 'vue'
+import Router from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import Login from '../views/Auth/Login'
 
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+Vue.use(Router)
+
+const router = new Router({
+  
   routes: [
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login,
+      //beforeEnter: ifNotAuthenticated
+    },
     {
       path: '/',
       name: 'home',
@@ -20,4 +30,4 @@ const router = createRouter({
   ]
 })
 
-export default router
+export default router;

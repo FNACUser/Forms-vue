@@ -1,37 +1,41 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-
+import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-import { loadFonts } from './plugins/webfontloader'
+import Vuetify from 'vuetify'
+import 'vuetify/dist/vuetify.min.css'
 
-// Styles
-import '@mdi/font/css/materialdesignicons.css'
-import 'vuetify/styles'
+Vue.use(Vuetify)
 
-loadFonts()
+Vue.config.productionTip = false
 
-//import './assets/main.css'
+Vue.prototype.$axios = axios;
 
-const vuetify = createVuetify({
-  components,
-  directives,
-})
+window.axios = require('axios');
 
-const axiosInstance = axios.create({
-   // withCredentials: true,
-  })
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-const app = createApp(App)
+window.axios.interceptors.request.use(
+   config => {
+       //const token = localStorageService.getAccessToken();
+       const token =localStorage.getItem('access_token');
+       //console.log(token)
+       if (token) {
+          //config.headers['Authorization'] = 'Bearer ' + token;
+           config.headers['x-access-token'] =  token;
+       }
+       // config.headers['Content-Type'] = 'application/json';
+       return config;
+   },
+   error => {
+       Promise.reject(error)
+   });
 
-app.config.globalProperties.$axios = { ...axiosInstance }
+new Vue({
+  render: h => h(App),
+  vuetify:new Vuetify({
+    theme: { dark: false },
 
-app.use(createPinia())
-app.use(router)
-app.use(vuetify)
-
-app.mount('#app')
+  }),
+  router
+}).$mount('#app')

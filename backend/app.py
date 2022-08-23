@@ -1,15 +1,22 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_security import Security
 from flask_marshmallow import Marshmallow
 from flask_restful import Api, Resource
+from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
+import datetime
+from functools import wraps
+
+from flask_security import login_user, current_user, logout_user, login_required
+from flask_security.utils import hash_password,verify_password
 
 
 from config import Config
 #from defaultapp.miscelaneous import mail, bcrypt, security
-from models import db,ma, user_datastore,Role
+from models import db,ma, user_datastore, Role
 from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas             
 from models import users_schema,cycles_schema,networks_schema, networkmodes_schema,areas_schema
 
@@ -27,35 +34,93 @@ ma.init_app(app)
 #api = Api(app)
 
 
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        print('HOLA')
+        print(request.headers)
+
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+            print('token es...')
+            print("The variable type:", type(token))
+
+        if not token:
+            return jsonify({'message' : 'Token is missing!'}), 401
+
+        try: 
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            print(' data  decoded es...')
+            print(data)
+            current_user = User.query.filter_by(email=data['email']).first()
+        except Exception as e:
+            print(e)
+
+            return jsonify({'message' : 'Token is invalid!'}), 401
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+
+
 @app.route('/', methods=['GET'])
 def home():
     return jsonify('Hello World!')
 
+@app.route('/api/v1/login', methods=['POST'])
+def login():
+    
+    auth = request.get_json()
+    #print(auth['email'])
+
+    if not auth or not auth['email'] or not auth['password']:
+        return make_response('Could not verify 1', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+
+    user = User.query.filter_by(email=auth['email']).first()
+
+    if not user:
+        return make_response('Could not verify 2', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+
+    
+    # if check_password_hash(user.password, auth['password']):
+    if verify_password(auth['password'],user.password):
+       #print('password si coincide!!')
+        token = jwt.encode({'username' : user.username, 'email':user.email, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+        return jsonify({'token' : token})
+
+    return make_response('Could not verify 3', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+   
 
 @app.route('/api/v1/users', methods=['GET'])
-def users():
+@token_required
+def users(current_user):
     resp = User.query.order_by(User.username).all()
     return jsonify(users_schema.dump(resp))
 
 @app.route('/api/v1/cycles', methods=['GET'])
-def cycles():
+@token_required
+def cycles(current_user):
     resp = IRA_Cycles.query.all()
     return jsonify(cycles_schema.dump(resp))
 
 @app.route('/api/v1/networks', methods=['GET'])
-def network():
+@token_required
+def network(current_user):
     resp = IRA_Networks.query.order_by(IRA_Networks.name).all()
     return jsonify(networks_schema.dump(resp))
 
 @app.route('/api/v1/cycle/<int:cycle_id>/network_modes', methods=['GET'])
-def cycle_network_modes(cycle_id):
-    cycle = IRA_Cycles.query.get(cycle_id)
-    
+@token_required
+def cycle_network_modes(current_user,cycle_id):
+    cycle = IRA_Cycles.query.get(cycle_id)   
     resp = cycle.networks_modes
     return jsonify(networkmodes_schema.dump(resp))
 
 @app.route('/api/v1/areas', methods=['GET'])
-def areas():
+@token_required
+def areas(current_user):
     resp = IRA_Organization_areas.query.order_by(IRA_Organization_areas.Organization_area).all()
     return jsonify(areas_schema.dump(resp))
 
