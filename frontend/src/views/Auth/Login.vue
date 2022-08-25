@@ -64,7 +64,8 @@
 
 <script>
 
- 
+import { useMainStore } from '../../store/main'
+import { mapStores} from 'pinia'
 
   export default {
     data(){
@@ -76,27 +77,34 @@
       }
     },
 
+    computed:{
+
+      ...mapStores(useMainStore),
+    },
+
 
     methods: {
 
-    async logIn(){
+     async logIn(){
 
-      let creds = {email:this.email,password:this.password};
+        let creds = {email:this.email,password:this.password};
 
-      this.$axios.post('http://localhost:5000/api/v1/login', creds)
-                .then(response => {
+        this.mainStore.logIn(creds);
 
-                    let accessToken = response.data.token;
-                    localStorage.setItem('access_token', accessToken);
-                    this.$router.push('/');
+    //   this.$axios.post('http://localhost:5000/api/v1/login', creds)
+    //             .then(response => {
 
-                })
-               .catch( error => {
-                    console.log(error.response.data.message);
-                    localStorage.removeItem('access_token');
-                    this.$router.push('/login')
+    //                 let accessToken = response.data.token;
+    //                 localStorage.setItem('access_token', accessToken);
+    //                 this.$router.push('/home');
 
-               });
+    //             })
+    //            .catch( error => {
+    //                 console.log(error.response.data.message);
+    //                 localStorage.removeItem('access_token');
+    //                 this.$router.push('/login')
+
+    //            });
         
      }
 

@@ -5,7 +5,16 @@ import axios from 'axios'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 
+import { createPinia, PiniaVuePlugin } from 'pinia'
+//import { useMainStore } from '@/store/main'
+import { markRaw } from 'vue'
+
+
+
 Vue.use(Vuetify)
+Vue.use(PiniaVuePlugin)
+const pinia = createPinia()
+pinia.use(({ store }) => { store.router = markRaw(router) })
 
 Vue.config.productionTip = false
 
@@ -31,11 +40,28 @@ window.axios.interceptors.request.use(
        Promise.reject(error)
    });
 
+
+   /**
+ * Next we will register the CSRF Token as a common header with Axios so that
+ * all outgoing HTTP requests automatically have it attached. This is just
+ * a simple convenience so we don't have to attach every token manually.
+ */
+
+// let token = document.head.querySelector('meta[name="csrf-token"]');
+
+// if (token) {
+//     window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+// } else {
+//     console.error('CSRF token not found!!');
+// }
+
 new Vue({
   render: h => h(App),
   vuetify:new Vuetify({
-    theme: { dark: false },
+    theme: { dark: true },
 
   }),
-  router
+  router,
+  pinia,
+
 }).$mount('#app')

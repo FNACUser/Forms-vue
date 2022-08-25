@@ -4,6 +4,7 @@
       <v-navigation-drawer 
         v-model="drawer"
         :clipped="$vuetify.breakpoint.lgAndUp"
+        v-if="mainStore.isLoggedIn"
         app
       >
        
@@ -13,7 +14,19 @@
         app
       >
 
-        <v-app-bar-nav-icon @click.stop="drawer = !drawer"/>
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer" v-if="mainStore.isLoggedIn"/>
+        <v-spacer></v-spacer>
+        <v-toolbar-items v-if="mainStore.isLoggedIn">
+
+                <v-btn text v-if="mainStore.isLoggedIn">{{ username }}</v-btn>
+                <v-btn icon>
+                    <v-icon>mdi-bell</v-icon>
+                </v-btn>
+                <v-btn icon @click="mainStore.logout" v-if="mainStore.isLoggedIn">
+                    <v-icon>mdi-logout</v-icon>
+                </v-btn>
+
+            </v-toolbar-items>
 
       </v-app-bar>
 
@@ -25,6 +38,14 @@
         <v-main>
           <v-container fluid>
               <router-view ></router-view>
+              <div>{{mainStore.count}}</div>
+              
+            <v-btn
+              color="primary"
+              elevation="2"
+              @click="mainStore.increment"
+            >incrementar
+            </v-btn>
           </v-container>
         </v-main>
 
@@ -36,6 +57,10 @@
 </template>
 
 <script>
+ 
+ 
+ import { useMainStore } from '@/store/main'
+ import { mapStores} from 'pinia'
 
  export default{
 
@@ -46,7 +71,18 @@
 
     }
 
-  }
+  },
+
+  computed:{
+
+    
+    ...mapStores(useMainStore),
+
+
+
+  },
+
+ 
 
 
  }
