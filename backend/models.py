@@ -312,6 +312,7 @@ class IRA_Questions(db.Model):
     __tablename__ = 'IRA_Questions'
     id_question = db.Column(db.Integer, primary_key=True)
     Question = db.Column(db.String(250), nullable=False)
+    Question_en = db.Column(db.String(250), nullable=False)
     id_question_possible_answers = \
         db.Column(db.Integer,
                   db.ForeignKey(
@@ -335,6 +336,7 @@ class IRA_Questions_possible_answers(db.Model):
     __tablename__ = 'IRA_Questions_possible_answers'
     id_question_possible_answers = db.Column(db.Integer, primary_key=True)
     Question_possible_answers = db.Column(db.String(1000), nullable=False)
+    Question_possible_answers_en = db.Column(db.String(1000), nullable=False)
 
     questions = db.relationship('IRA_Questions',
                                 backref=db.backref('question_possible_answers',
@@ -377,7 +379,9 @@ class IRA_Responses(db.Model):
         return f"IRA_Responses('{self.id_response}','{self.Response}'," \
                f"'{self.id_question}','{self.id_adjacency_input_form}')"
                
-
+#
+# CVF models
+#
 class CVF_Culture_input_form(db.Model):
     __tablename__ = 'CVF_Culture_input_form'
     id = db.Column(db.Integer, primary_key=True)
@@ -547,9 +551,9 @@ class CVF_Themes_responses(db.Model):
                
 
 
-########################################################################################################################################################################              
+####################################################################################################            
 #                               Marshmallow Schemas             
-######################################################################################################################################################################## 
+####################################################################################################
 
 class AreaSchema(ma.SQLAlchemyAutoSchema):
     
@@ -570,6 +574,11 @@ class PostSchema(ma.SQLAlchemyAutoSchema):
 class ResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = IRA_Responses
+
+class NodesSegmentsCategorySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = IRA_Nodes_segments_categories
+nodes_segments_categories_schema = NodesSegmentsCategorySchema(many=True)
 
 class QuestionResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -596,7 +605,7 @@ class CultureFormSchema(ma.SQLAlchemyAutoSchema):
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
-        fields = ("id", "username", "email","id_redmine","roles","id_organization_area")
+        fields = ("id", "username", "email","id_redmine","roles","organization_area")
     
     organization_area = ma.Nested(AreaSchema)
     # posts = ma.List(ma.Nested(PostSchema))
@@ -628,4 +637,43 @@ class NetworkModeSchema(ma.SQLAlchemyAutoSchema):
         model = IRA_Networks_modes
         fields = ("id_network_mode", "id_network","id_node_segment_category","id_network_mode_theme")
 
-networkmodes_schema = NetworkModeSchema(many=True)
+network_modes_schema = NetworkModeSchema(many=True)
+
+
+class NetworksModesThemesSchema(ma.SQLAlchemyAutoSchema):
+    
+    class Meta:
+        model = IRA_Networks_modes_themes
+
+networks_modes_themes_schema = NetworksModesThemesSchema(many=True)
+
+
+class NodesSchema(ma.SQLAlchemyAutoSchema):
+    
+    class Meta:
+        model = IRA_Nodes
+        
+nodes_schema = NodesSchema(many=True)
+
+
+class QuestionsPossibleAnswersSchema(ma.SQLAlchemyAutoSchema):
+    
+    class Meta:
+        model = IRA_Questions_possible_answers
+        fields = ("id_question_possible_answers", "Question_possible_answers", "Question_possible_answers_en")
+
+questions_possible_answers_schema = QuestionsPossibleAnswersSchema(many=True)
+
+
+
+class QuestionsSchema(ma.SQLAlchemyAutoSchema):
+    
+    class Meta:
+        model = IRA_Questions
+        fields = ("id_question", "Question", "Question_en","id_question_possible_answers","question_possible_answers")
+    
+    question_possible_answers = ma.Nested(QuestionsPossibleAnswersSchema)
+
+questions_schema = QuestionsSchema(many=True)
+
+

@@ -7,7 +7,11 @@ export const useMainStore = defineStore('main', {
     return { 
         count: 6,
         isLoggedIn : false,
-        token:''
+        token:'',
+        user:{
+          name:'',
+          email:''
+        }
 
     }
   },
@@ -46,8 +50,6 @@ export const useMainStore = defineStore('main', {
         this.isLoggedIn=false;
         this.router.push('/login')
   
-
-
     }
   },
 })

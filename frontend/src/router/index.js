@@ -1,21 +1,17 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import Login from '../views/Auth/Login'
-import { useMainStore } from '../store/main'
-import { createPinia } from 'pinia'
+import HomeView from '@/views/HomeView.vue'
+import Login from '@/views/Auth/Login'
+import { useMainStore } from '@/store/main'
+import pinia from "@/store/createPinia";
 
-
-const pinia = createPinia();
 
 const ifNotAuthenticated = (to, from, next) => {
 
   const mainStore = useMainStore(pinia);
 
-  
-  
   if (!mainStore.isLoggedIn) {
-      //console.log('ifnotauth : no está logueado!!')
+      
       next()
       return
   }
@@ -25,8 +21,6 @@ const ifNotAuthenticated = (to, from, next) => {
 const ifAuthenticated = (to, from, next) => {
 
   const mainStore = useMainStore(pinia);
-
-  console.log(mainStore);
 
   if (mainStore.isLoggedIn) {
       next()
@@ -41,7 +35,6 @@ const ifAuthenticated = (to, from, next) => {
 Vue.use(Router)
 
 const router = new Router({
-
 
   mode: "history",
   

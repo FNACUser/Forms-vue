@@ -1,29 +1,21 @@
 import Vue from 'vue'
+import { markRaw } from 'vue'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
-
-import { createPinia, PiniaVuePlugin } from 'pinia'
-//import { useMainStore } from '@/store/main'
-import { markRaw } from 'vue'
-
+import pinia from "@/store/createPinia";
 
 
 Vue.use(Vuetify)
-Vue.use(PiniaVuePlugin)
-const pinia = createPinia()
+
 pinia.use(({ store }) => { store.router = markRaw(router) })
 
 Vue.config.productionTip = false
-
 Vue.prototype.$axios = axios;
-
 window.axios = require('axios');
-
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
 window.axios.interceptors.request.use(
    config => {
        //const token = localStorageService.getAccessToken();
@@ -61,7 +53,8 @@ new Vue({
     theme: { dark: true },
 
   }),
-  router,
   pinia,
+  router,
+
 
 }).$mount('#app')

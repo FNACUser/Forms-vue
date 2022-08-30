@@ -17,8 +17,10 @@ from flask_security.utils import hash_password,verify_password
 from config import Config
 #from defaultapp.miscelaneous import mail, bcrypt, security
 from models import db,ma, user_datastore, Role
-from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas             
-from models import users_schema,cycles_schema,networks_schema, networkmodes_schema,areas_schema
+from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
+                    IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,IRA_Questions_possible_answers, IRA_Nodes        
+from models import users_schema, cycles_schema, networks_schema, network_modes_schema, areas_schema, nodes_segments_categories_schema, \
+                    networks_modes_themes_schema,questions_schema,questions_possible_answers_schema, nodes_schema
 
 
 DEBUG=True
@@ -94,35 +96,81 @@ def login():
    
 
 @app.route('/api/v1/users', methods=['GET'])
-@token_required
-def users(current_user):
+#@token_required
+#def users(current_user):
+def users():
     resp = User.query.order_by(User.username).all()
     return jsonify(users_schema.dump(resp))
 
 @app.route('/api/v1/cycles', methods=['GET'])
-@token_required
-def cycles(current_user):
+#@token_required
+#def cycles(current_user):
+def cycles():
     resp = IRA_Cycles.query.all()
     return jsonify(cycles_schema.dump(resp))
 
 @app.route('/api/v1/networks', methods=['GET'])
-@token_required
-def network(current_user):
+#@token_required
+#def network(current_user):
+def network():
     resp = IRA_Networks.query.order_by(IRA_Networks.name).all()
     return jsonify(networks_schema.dump(resp))
 
 @app.route('/api/v1/cycle/<int:cycle_id>/network_modes', methods=['GET'])
-@token_required
-def cycle_network_modes(current_user,cycle_id):
+#@token_required
+#def cycle_network_modes(current_user,cycle_id):
+def cycle_network_modes(cycle_id):   
     cycle = IRA_Cycles.query.get(cycle_id)   
     resp = cycle.networks_modes
     return jsonify(networkmodes_schema.dump(resp))
 
 @app.route('/api/v1/areas', methods=['GET'])
-@token_required
-def areas(current_user):
+#@token_required
+#def areas(current_user):
+def areas():
     resp = IRA_Organization_areas.query.order_by(IRA_Organization_areas.Organization_area).all()
     return jsonify(areas_schema.dump(resp))
+
+
+@app.route('/api/v1/nodes_segments_categories', methods=['GET'])
+#@token_required
+#def nodes_segments_categories(current_user):
+def nodes_segments_categories():
+    resp = IRA_Nodes_segments_categories.query.order_by(IRA_Nodes_segments_categories.Node_segment_category).all()
+    return jsonify(nodes_segments_categories_schema.dump(resp))
+
+
+
+@app.route('/api/v1/networks_modes_themes', methods=['GET'])
+#@token_required
+#def nodes_segments_categories(current_user):
+def networks_modes_themes():
+    resp = IRA_Networks_modes_themes.query.order_by(IRA_Networks_modes_themes.Network_mode_theme).all()
+    return jsonify(networks_modes_themes_schema.dump(resp))
+
+
+@app.route('/api/v1/questions', methods=['GET'])
+#@token_required
+#def questions(current_user):
+def questions():
+    resp = IRA_Questions.query.all()
+    return jsonify(questions_schema.dump(resp))
+
+
+@app.route('/api/v1/questions_possible_answers', methods=['GET'])
+#@token_required
+#def questions(current_user):
+def questions_possible_answers():
+    resp = IRA_Questions_possible_answers.query.all()
+    return jsonify(questions_possible_answers_schema.dump(resp))
+
+
+@app.route('/api/v1/nodes', methods=['GET'])
+#@token_required
+#def questions(current_user):
+def nodes():
+    resp = IRA_Nodes.query.all()
+    return jsonify(nodes_schema.dump(resp))
 
 
 if __name__ == '__main__':

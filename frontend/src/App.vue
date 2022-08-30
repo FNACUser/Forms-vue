@@ -18,7 +18,7 @@
         <v-spacer></v-spacer>
         <v-toolbar-items v-if="mainStore.isLoggedIn">
 
-                <v-btn text v-if="mainStore.isLoggedIn">{{ username }}</v-btn>
+                <v-btn text v-if="mainStore.isLoggedIn">{{ mainStore.user.name }}</v-btn>
                 <v-btn icon>
                     <v-icon>mdi-bell</v-icon>
                 </v-btn>
@@ -38,14 +38,14 @@
         <v-main>
           <v-container fluid>
               <router-view ></router-view>
-              <div>{{mainStore.count}}</div>
+              <!-- <div>{{mainStore.count}}</div>
               
-            <v-btn
-              color="primary"
-              elevation="2"
-              @click="mainStore.increment"
-            >incrementar
-            </v-btn>
+              <v-btn
+                color="primary"
+                elevation="2"
+                @click="mainStore.increment"
+              >incrementar
+              </v-btn> -->
           </v-container>
         </v-main>
 
