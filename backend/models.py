@@ -192,6 +192,9 @@ class IRA_Networks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     
+    networks_modes = db.relationship('IRA_Networks_modes',
+                                      backref=db.backref('network', lazy=True))
+    
     def __repr__(self):
         return f"IRA_Networks('{self.name}')"
     
@@ -640,20 +643,29 @@ class NetworkModeSchema(ma.SQLAlchemyAutoSchema):
 network_modes_schema = NetworkModeSchema(many=True)
 
 
-class NetworksModesThemesSchema(ma.SQLAlchemyAutoSchema):
+class NetworkModeThemeSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Networks_modes_themes
 
-networks_modes_themes_schema = NetworksModesThemesSchema(many=True)
+network_mode_theme_schema = NetworkModeThemeSchema(many=True)
 
 
-class NodesSchema(ma.SQLAlchemyAutoSchema):
+class NodeSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Nodes
         
-nodes_schema = NodesSchema(many=True)
+node_schema = NodeSchema(many=True)
+
+
+class NodeSegmentCategorySchema(ma.SQLAlchemyAutoSchema):
+    
+    class Meta:
+        model = IRA_Nodes_segments_categories
+        fields = ("id_node_segment_category", "Node_segment_category")
+        
+node_segment_category_schema = NodeSegmentCategorySchema(many=True)
 
 
 class QuestionsPossibleAnswersSchema(ma.SQLAlchemyAutoSchema):
@@ -665,7 +677,6 @@ class QuestionsPossibleAnswersSchema(ma.SQLAlchemyAutoSchema):
 questions_possible_answers_schema = QuestionsPossibleAnswersSchema(many=True)
 
 
-
 class QuestionsSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
@@ -675,5 +686,18 @@ class QuestionsSchema(ma.SQLAlchemyAutoSchema):
     question_possible_answers = ma.Nested(QuestionsPossibleAnswersSchema)
 
 questions_schema = QuestionsSchema(many=True)
+
+
+class NetworksModesSchema(ma.SQLAlchemyAutoSchema):
+    
+    class Meta:
+        model = IRA_Networks_modes
+        fields = ("id_network_mode","network","node_segment_category","network_mode_theme")
+    
+    network = ma.Nested(NetworkSchema)
+    node_segment_category = ma.Nested(NodeSegmentCategorySchema)
+    network_mode_theme = ma.Nested(NetworkModeThemeSchema)
+
+networks_modes_schema = NetworksModesSchema(many=True)
 
 

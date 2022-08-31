@@ -50,7 +50,7 @@ window.axios.interceptors.request.use(
 new Vue({
   render: h => h(App),
   vuetify:new Vuetify({
-    theme: { dark: true },
+    theme: { dark: false },
 
   }),
   pinia,

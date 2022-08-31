@@ -18,9 +18,11 @@ from config import Config
 #from defaultapp.miscelaneous import mail, bcrypt, security
 from models import db,ma, user_datastore, Role
 from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
-                    IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,IRA_Questions_possible_answers, IRA_Nodes        
-from models import users_schema, cycles_schema, networks_schema, network_modes_schema, areas_schema, nodes_segments_categories_schema, \
-                    networks_modes_themes_schema,questions_schema,questions_possible_answers_schema, nodes_schema
+                    IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,\
+                    IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes       
+from models import users_schema, cycles_schema, networks_schema, network_modes_schema, areas_schema,\
+                    nodes_segments_categories_schema, networks_modes_schema, \
+                    network_mode_theme_schema,questions_schema,questions_possible_answers_schema, node_schema
 
 
 DEBUG=True
@@ -143,10 +145,10 @@ def nodes_segments_categories():
 
 @app.route('/api/v1/networks_modes_themes', methods=['GET'])
 #@token_required
-#def nodes_segments_categories(current_user):
+#def networks_modes_themes(current_user):
 def networks_modes_themes():
     resp = IRA_Networks_modes_themes.query.order_by(IRA_Networks_modes_themes.Network_mode_theme).all()
-    return jsonify(networks_modes_themes_schema.dump(resp))
+    return jsonify(network_mode_theme_schema.dump(resp))
 
 
 @app.route('/api/v1/questions', methods=['GET'])
@@ -159,18 +161,26 @@ def questions():
 
 @app.route('/api/v1/questions_possible_answers', methods=['GET'])
 #@token_required
-#def questions(current_user):
-def questions_possible_answers():
+#def possible_answer(current_user):
+def possible_answers():
     resp = IRA_Questions_possible_answers.query.all()
     return jsonify(questions_possible_answers_schema.dump(resp))
 
 
 @app.route('/api/v1/nodes', methods=['GET'])
 #@token_required
-#def questions(current_user):
+#def nodes(current_user):
 def nodes():
     resp = IRA_Nodes.query.all()
-    return jsonify(nodes_schema.dump(resp))
+    return jsonify(node_schema.dump(resp))
+
+
+@app.route('/api/v1/networks_modes', methods=['GET'])
+#@token_required
+#def networks_modes(current_user):
+def networks_modes():
+    resp = IRA_Networks_modes.query.all()
+    return jsonify(networks_modes_schema.dump(resp))
 
 
 if __name__ == '__main__':
