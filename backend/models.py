@@ -166,6 +166,9 @@ class IRA_Cycles(db.Model):
                f"'{self.Initial_date}','{self.End_date}','{self.Is_active}')"
 
 
+        
+
+
 class IRA_Employees_interactions(db.Model):
     __tablename__ = 'IRA_Employees_interactions'
     id_employee_interaction = db.Column(db.Integer, primary_key=True)
@@ -608,7 +611,7 @@ class CultureFormSchema(ma.SQLAlchemyAutoSchema):
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
-        fields = ("id", "username", "email","id_redmine","roles","organization_area")
+        fields = ("id", "username", "email","id_redmine","roles","id_organization_area","organization_area")
     
     organization_area = ma.Nested(AreaSchema)
     # posts = ma.List(ma.Nested(PostSchema))
@@ -619,12 +622,14 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
-class CycleSchema(ma.SQLAlchemyAutoSchema):
+# class CycleSchema(ma.SQLAlchemyAutoSchema):
     
-    class Meta:
-        model = IRA_Cycles
+#     class Meta:
+#         model = IRA_Cycles
+        
+#         network_modes = ma.Nested(NetworksModesSchema)
 
-cycles_schema = CycleSchema(many=True)
+# cycles_schema = CycleSchema(many=True)
 
 class NetworkSchema(ma.SQLAlchemyAutoSchema):
     
@@ -692,12 +697,23 @@ class NetworksModesSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Networks_modes
-        fields = ("id_network_mode","network","node_segment_category","network_mode_theme")
+        fields = ("id_network_mode","id_network","network","id_node_segment_category","node_segment_category","id_network_mode_theme","network_mode_theme")
     
     network = ma.Nested(NetworkSchema)
     node_segment_category = ma.Nested(NodeSegmentCategorySchema)
     network_mode_theme = ma.Nested(NetworkModeThemeSchema)
 
 networks_modes_schema = NetworksModesSchema(many=True)
+
+
+class CycleSchema(ma.SQLAlchemyAutoSchema):
+    
+    class Meta:
+        model = IRA_Cycles
+        # fields = ("id_cycle","Cycle","Initial_date","End_date","Is_active","networks_modes")
+        
+        # network_modes = ma.Nested(NetworksModesSchema)
+
+cycles_schema = CycleSchema(many=True)
 
 

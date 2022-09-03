@@ -12,7 +12,7 @@
           item-text="Cycle"
           item-value="id_cycle"
           clearable
-          @change="getNetworkModes"
+          @change="mainStore.getNetworkModes(selected_cycle)"
           @click:clear="resetSelectedVariables"
         ></v-select>
       </v-col>
@@ -23,11 +23,27 @@
         >
           <v-select
             v-model="selected_network"
-            :items="networks"
+            :items="mainStore.networks"
             label="Tipo de Cuestionario"
             item-text="name"
             item-value="id"
             clearable
+          ></v-select>
+      </v-col>
+
+      <v-col
+        cols="3"
+         class="d-flex justify-space-around mb-6 align-end"
+         v-if="filteredNetwokModeThemes"
+        >
+          <v-select
+            v-model="selected_network_mode_theme"
+            :items="filteredNetwokModeThemes"
+            label="Temáticas de las preguntas"
+            item-text="Network_mode_theme"
+            item-value="id_network_mode_theme"
+            clearable
+            
           ></v-select>
       </v-col>
       <v-col
@@ -36,7 +52,7 @@
         >
           <v-select
             v-model="selected_area"
-            :items="areas"
+            :items="mainStore.areas"
             label="Area"
             item-text="Organization_area"
             item-value="id_organization_area"
@@ -52,7 +68,7 @@
       >
         <v-autocomplete
           v-model="selected_user"
-          :items="users"
+          :items="mainStore.users"
           item-text="username"
           item-value="id"
           clearable
@@ -68,85 +84,51 @@
 </template>
 
 <script>
+
+import { useMainStore } from '@/store/main'
+import { mapStores} from 'pinia'
+
+
   export default {
     data() {
       return {
-        users: [],
-        cycles: [],
-        networks:[],
-        areas:[],
+
         selected_user:null,
         selected_cycle:null,
         selected_network:null,
         selected_area:null,
+        selected_node_segment_category:null,
+        selected_network_mode_theme:null
       }
     },
-    async mounted() {
-      this.initialize();
-    },
+   
 
     computed:{
 
       filteredCycles(){
-        return this.cycles.filter(item=> item.Is_active); 
+        return this.mainStore.cycles.filter(item=> item.Is_active); 
+      },
+
+      filteredNetwokModeThemes(){
+
+        //console.log(this.selected_network);
+
+        return this.mainStore.network_modes.map(item=> {
+         if (item.id_network===this.selected_network){
+          console.log('son iguales');
+          return item.network_mode_theme;
+         }
+          
+        });
+
       },
     
+
+      ...mapStores(useMainStore),
 
     },
 
     methods:{
-
-      async initialize(){
-
-        this.getAreas();
-        this.getUsers();
-        this.getNetworks();
-        this.getCycles();
-        
-
-      },
-
-
-      async getNetworkModes(){
-
-         console.log('ingresó a getNetworkModes');
-
-         if(this.selected_cycle){
-            const resp = await this.$axios.get('http://localhost:5000/api/v1/cycle/'+this.selected_cycle +'/network_modes');
-            console.log(resp.data);
-         }   
-
-      },
-
-      async getUsers(){
-
-        const users = await this.$axios.get('http://localhost:5000/api/v1/users');
-        this.users = users.data;
-
-      },
-
-      async getCycles(){
-
-        const cycles = await this.$axios.get('http://localhost:5000/api/v1/cycles');
-        this.cycles = cycles.data;
-
-      },
-
-      async getNetworks(){
-
-        const networks = await this.$axios.get('http://localhost:5000/api/v1/networks');
-        this.networks = networks.data;
-
-      },
-
-      async getAreas(){
-
-        const areas = await this.$axios.get('http://localhost:5000/api/v1/areas');
-        this.areas = areas.data;
-
-      },
-
-
 
 
       resetSelectedVariables(){
@@ -155,6 +137,8 @@
           this.selected_cycle=null;
           this.selected_user=null;
           this.selected_network=null;
+          this.selected_node_segment_category=null;
+          this.selected_network_mode_theme=null;
 
 
         }

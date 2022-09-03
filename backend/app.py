@@ -124,7 +124,7 @@ def network():
 def cycle_network_modes(cycle_id):   
     cycle = IRA_Cycles.query.get(cycle_id)   
     resp = cycle.networks_modes
-    return jsonify(networkmodes_schema.dump(resp))
+    return jsonify(networks_modes_schema.dump(resp))
 
 @app.route('/api/v1/areas', methods=['GET'])
 #@token_required

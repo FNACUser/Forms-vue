@@ -20,7 +20,7 @@
 
                 <v-btn text v-if="mainStore.isLoggedIn">{{ mainStore.user.name }}</v-btn>
                 <v-btn icon>
-                    <v-icon>mdi-bell</v-icon>
+                    <v-icon>mdi-web</v-icon>
                 </v-btn>
                 <v-btn icon @click="mainStore.logout" v-if="mainStore.isLoggedIn">
                     <v-icon>mdi-logout</v-icon>
@@ -65,24 +65,14 @@
  export default{
 
   data(){
-    return {
-
-      drawer: true,
-
-    }
-
+      return {
+        drawer: true,
+      }
   },
 
   computed:{
-
-    
     ...mapStores(useMainStore),
-
-
-
   },
-
- 
 
 
  }
