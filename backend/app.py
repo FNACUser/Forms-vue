@@ -7,6 +7,8 @@ from flask_marshmallow import Marshmallow
 from flask_restful import Api, Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
+import json
+#import jsonpickle
 import datetime
 from functools import wraps
 
@@ -20,8 +22,8 @@ from models import db,ma, user_datastore, Role
 from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
                     IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,\
                     IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes       
-from models import users_schema, cycles_schema, networks_schema, network_modes_schema, areas_schema,\
-                    nodes_segments_categories_schema, networks_modes_schema, \
+from models import  users_schema, user_schema,cycles_schema, networks_schema, network_modes_schema, areas_schema,\
+                    nodes_segments_categories_schema, networks_modes_schema, roles_schema, role_schema,\
                     network_mode_theme_schema,questions_schema,questions_possible_answers_schema, node_schema
 
 
@@ -43,8 +45,8 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        print('HOLA')
-        print(request.headers)
+        # print('HOLA')
+        # print(request.headers)
 
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
@@ -87,11 +89,13 @@ def login():
     if not user:
         return make_response('Could not verify 2', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
-    
+
     # if check_password_hash(user.password, auth['password']):
     if verify_password(auth['password'],user.password):
-       #print('password si coincide!!')
-        token = jwt.encode({'username' : user.username, 'email':user.email, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+        
+        roles = roles_schema.dump(user.roles)
+        print(f'password si coincide!! { roles}')
+        token = jwt.encode({'username' : user.username, 'email':user.email, 'roles': roles, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
         return jsonify({'token' : token})
 
     return make_response('Could not verify 3', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
@@ -142,7 +146,6 @@ def nodes_segments_categories():
     return jsonify(nodes_segments_categories_schema.dump(resp))
 
 
-
 @app.route('/api/v1/networks_modes_themes', methods=['GET'])
 #@token_required
 #def networks_modes_themes(current_user):
@@ -156,6 +159,15 @@ def networks_modes_themes():
 #def questions(current_user):
 def questions():
     resp = IRA_Questions.query.all()
+    return jsonify(questions_schema.dump(resp))
+
+
+@app.route('/api/v1/network_mode/<int:network_mode_id>/questions', methods=['GET'])
+#@token_required
+#def cycle_network_modes(current_user,cycle_id):
+def network_mode_questions(network_mode_id):   
+    network_mode = IRA_Networks_modes.query.get(network_mode_id)   
+    resp = network_mode.questions
     return jsonify(questions_schema.dump(resp))
 
 

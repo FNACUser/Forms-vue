@@ -11,6 +11,7 @@
       </v-navigation-drawer>
       <v-app-bar 
         :clipped-left="$vuetify.breakpoint.lgAndUp"
+        v-if="mainStore.isLoggedIn"
         app
       >
 

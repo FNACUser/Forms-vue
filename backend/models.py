@@ -4,6 +4,7 @@ from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+import json
 
 db = SQLAlchemy()
 ma = Marshmallow()
@@ -71,6 +72,12 @@ class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40))
     description = db.Column(db.String(255))
+    
+    def toJson(self):
+        return json.dumps({'role': self.name}).decode('utf-8')
+        
+    
+    
     
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
@@ -167,8 +174,6 @@ class IRA_Cycles(db.Model):
 
 
         
-
-
 class IRA_Employees_interactions(db.Model):
     __tablename__ = 'IRA_Employees_interactions'
     id_employee_interaction = db.Column(db.Integer, primary_key=True)
@@ -572,6 +577,10 @@ areas_schema = AreaSchema(many=True)
 class RoleSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Role
+        fields = ("id","name")
+
+role_schema = RoleSchema()
+roles_schema = RoleSchema(many=True)
 
 class PostSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
