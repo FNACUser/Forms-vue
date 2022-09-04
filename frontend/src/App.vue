@@ -37,17 +37,9 @@
           
         </header>
         <v-main>
-          <v-container fluid>
+         
               <router-view ></router-view>
-              <!-- <div>{{mainStore.count}}</div>
-              
-              <v-btn
-                color="primary"
-                elevation="2"
-                @click="mainStore.increment"
-              >incrementar
-              </v-btn> -->
-          </v-container>
+         
         </v-main>
 
         <v-footer app>
@@ -74,6 +66,16 @@
   computed:{
     ...mapStores(useMainStore),
   },
+
+  created() {
+
+       
+        if (this.mainStore.isLoggedIn) {
+            //console.log('pasa por aki');
+            this.mainStore.initialize();
+
+        }
+    },
 
 
  }

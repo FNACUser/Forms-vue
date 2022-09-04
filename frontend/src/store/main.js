@@ -7,8 +7,8 @@ export const useMainStore = defineStore('main', {
   state: () => {
     return { 
         count: 6,
-        isLoggedIn : false,
-        token:'',
+        // isLoggedIn : false,
+        token: localStorage.getItem('access_token') || '',
         user:{
           name:'',
           email:'',
@@ -23,6 +23,10 @@ export const useMainStore = defineStore('main', {
         questions:[]
 
     }
+  },
+
+  getters: {
+    isLoggedIn: state => !!state.token,
   },
   // could also be defined as
   // state: () => ({ count: 0 })
@@ -48,13 +52,14 @@ export const useMainStore = defineStore('main', {
                   .then(response => {
                      
                       let accessToken = response.data.token;
-                      let token_decoded = jwt_decode(accessToken);
-                      // console.log(token_decoded);
+                      localStorage.setItem('access_token', accessToken);
+                      this.token = accessToken
                       
+                      let token_decoded = jwt_decode(accessToken);
                       this.setLoggedUser(token_decoded);
 
-                      localStorage.setItem('access_token', accessToken);
-                      this.isLoggedIn=true;
+                     
+                     // this.isLoggedIn=true;
                       this.initialize();
                       this.router.push('/home').catch((e) => {console.log(e)});
                       
@@ -62,7 +67,7 @@ export const useMainStore = defineStore('main', {
                  .catch( error => {
                       console.log(error);
                       localStorage.removeItem('access_token');
-                      this.isLoggedIn=false;
+                      //this.isLoggedIn=false;
                       this.router.push('/login').catch(() => {});
   
                  });
@@ -72,8 +77,14 @@ export const useMainStore = defineStore('main', {
     logout(){
 
         localStorage.removeItem('access_token');
-        this.isLoggedIn=false;
-        this.router.push('/login')
+        this.user={
+          name:'',
+          email:'',
+          role:''
+        };
+        this.token='';
+       // this.isLoggedIn=false;
+       this.router.push('/login').catch(() => {});
   
     },
 

@@ -1,14 +1,5 @@
 <template>
- 
-    <div >
-
-      <br/>
-      <br/>
-
-      <v-row class="back-top"></v-row>
-
-       <v-container fluid >
-       <v-row>
+         <v-container fill-height fluid>
          <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
             <v-card class="elevation-12">
@@ -53,12 +44,9 @@
             </v-card>
           </v-flex>
         </v-layout>
-       </v-row>
-
+        
       </v-container>
-    </div>
-
-  
+    
 
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-<div>
+  <v-container  fluid>
     <v-row >
       <v-col
         class="d-flex justify-space-around mb-6 align-end"
@@ -187,8 +187,8 @@
                     </v-tooltip>
                 </td>
             </tr>
-
-</template>
+         
+          </template>
       
         </v-data-table>
 
@@ -197,10 +197,8 @@
 
     </v-row>
 
-   
-      </div>
+    </v-container>
 </template>
-
 <script>
 
 import { useMainStore } from '@/store/main'
