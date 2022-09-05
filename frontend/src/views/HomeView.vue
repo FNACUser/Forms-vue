@@ -61,6 +61,7 @@
             item-text="Organization_area"
             item-value="id_organization_area"
             clearable
+  
           ></v-select>
       </v-col>
   
@@ -98,9 +99,7 @@
           <v-card
           
           >
-            <div >
-              
-
+            <div>
                 <v-card-title
                   class="text-h5"
                  >Pregunta {{i+1}}</v-card-title>
@@ -128,18 +127,14 @@
                       </div>
                     </v-list-item-group>
                   </v-list>
-                  
                 </v-card-subtitle>                
-              
             </div>
           </v-card>
         </v-col>
 
         <v-col
-         
           cols="12"
         >
-
         <v-data-table
           :headers="tableHeader"
           :items="selected_colleagues"
@@ -148,9 +143,7 @@
         >
         <template v-slot:item="{ item }">
 
-
             <tr>
-
                 <td class="text-xs-left">{{ item.username }}</td>
                 <td class="text-xs-left">{{ item.organization_area.Organization_area }}</td>
                 <template >
@@ -162,7 +155,7 @@
                         item-text="texto"
                         item-value="valor"
                         clearable
-                        @change="setAnswersArray(value,item.id,question.id )"
+                        @change="setAnswersArray($event,item.id,question.id)"
                       >
                     
                     </v-select>
@@ -171,8 +164,6 @@
                     
                 </template>
                 <td>
-                    
-
                     <v-tooltip bottom>
                         <template #activator="{ on }">
                             <v-icon
@@ -230,8 +221,6 @@ import { mapStores} from 'pinia'
           { text: 'Acciones'},
         ],
 
-
-
       }
     },
    
@@ -279,22 +268,20 @@ import { mapStores} from 'pinia'
 
         },
     
-
       ...mapStores(useMainStore),
 
     },
 
+
     methods:{
 
-      setAnswersArray(value,employee_id,question_id){
-
-        console.log(value);
+      setAnswersArray(event,employee_id,question_id){
+        
+        console.log(event);
         console.log(employee_id);
         console.log(question_id);
 
       },
-
-
 
       makeTableHeader(val, defaultHeader, text) {
 
@@ -313,7 +300,7 @@ import { mapStores} from 'pinia'
                 });
             }
 
-            return headers.reduce((acc, val) => acc.concat(val), []); //flattened the array
+            return headers.reduce((acc, val) => acc.concat(val), []); //flattens the array
         },
 
       sortSelectedColleagues(){
@@ -341,7 +328,6 @@ import { mapStores} from 'pinia'
           this.selected_node_segment_category=null;
           this.selected_network_mode_theme=null;
           this.mainStore.questions=[];
-
 
         },
 

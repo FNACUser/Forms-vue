@@ -6,8 +6,9 @@ import axios from 'axios'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import pinia from "@/store/createPinia";
+import VueI18n from 'vue-i18n'
 
-
+Vue.use(VueI18n)
 Vue.use(Vuetify)
 
 pinia.use(({ store }) => { store.router = markRaw(router) })
@@ -47,6 +48,28 @@ window.axios.interceptors.request.use(
 //     console.error('CSRF token not found!!');
 // }
 
+
+// Ready translated locale messages
+const messages = {
+  en: {
+    message: {
+      hello: 'hello world'
+    }
+  },
+  es: {
+    message: {
+      hello: 'Hola mundo'
+    }
+  }
+}
+
+
+// Create VueI18n instance with options
+const i18n = new VueI18n({
+  locale: 'es', // set locale
+  messages, // set locale messages
+})
+
 new Vue({
   render: h => h(App),
   vuetify:new Vuetify({
@@ -55,6 +78,7 @@ new Vue({
   }),
   pinia,
   router,
+  i18n
 
 
 }).$mount('#app')
