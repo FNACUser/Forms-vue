@@ -1,5 +1,16 @@
-{
-  "message": "hello i18n !!",
-  "period": "Period",
-  "active_source":"Active source"
+{  
+  "menus":{
+    "active_source":"Active source",
+    "culture":"Culture",
+    "about": "About"
+  },
+  "main_page":{
+    "period": "Period",
+    "questionaire_type":"Type of questionaire",
+    "question_theme":"Questions Theme",
+    "area":"Area",
+    "user":"User",
+    "question":"Question",
+    "answer":"Answer"
+  }
 }

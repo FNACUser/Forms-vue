@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
+import {i18n} from '../i18n'
 
 
 export const useMainStore = defineStore('main', {
@@ -18,8 +19,7 @@ export const useMainStore = defineStore('main', {
         networks:[],
         areas:[],
         network_modes:[],
-        questions:[],
-        //nodes:[]
+        // questions:[]
 
     }
   },
@@ -118,7 +118,7 @@ export const useMainStore = defineStore('main', {
 
    async getNetworks(){
 
-     const networks = await axios.get(process.env.VUE_APP_BACKEND_URL+'/networks');
+     const networks = await axios.get(process.env.VUE_APP_BACKEND_URL+'/networks/'+i18n.locale);
      this.networks = networks.data;
 
    },

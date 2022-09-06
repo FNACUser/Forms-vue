@@ -198,13 +198,15 @@ class IRA_Employees_interactions(db.Model):
 class IRA_Networks(db.Model):
     __tablename__ = 'IRA_Networks'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    code = db.Column(db.String(100), nullable=False)
+    name_es = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
     
     networks_modes = db.relationship('IRA_Networks_modes',
                                       backref=db.backref('network', lazy=True))
     
     def __repr__(self):
-        return f"IRA_Networks('{self.name}')"
+        return f"IRA_Networks('{self.code}')"
     
 
 class IRA_Networks_modes(db.Model):
@@ -308,7 +310,8 @@ class IRA_Nodes_segments_categories(db.Model):
 class IRA_Organization_areas(db.Model):
     __tablename__ = 'IRA_Organization_areas'
     id_organization_area = db.Column(db.Integer, primary_key=True)
-    Organization_area = db.Column(db.String(100), nullable=False)
+    Organization_area_es = db.Column(db.String(100), nullable=False)
+    Organization_area_en = db.Column(db.String(100), nullable=False)
 
     employees = \
         db.relationship('User',
@@ -347,7 +350,7 @@ class IRA_Questions(db.Model):
 class IRA_Questions_possible_answers(db.Model):
     __tablename__ = 'IRA_Questions_possible_answers'
     id_question_possible_answers = db.Column(db.Integer, primary_key=True)
-    Question_possible_answers = db.Column(db.String(1000), nullable=False)
+    Question_possible_answers_es = db.Column(db.String(1000), nullable=False)
     Question_possible_answers_en = db.Column(db.String(1000), nullable=False)
 
     questions = db.relationship('IRA_Questions',
@@ -571,7 +574,7 @@ class AreaSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Organization_areas
-        fields = ("id_organization_area", "Organization_area")
+        #fields = ("id_organization_area", "Organization_area")
 
 areas_schema = AreaSchema(many=True)
 
@@ -642,7 +645,7 @@ class NetworkSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Networks
-        fields = ("id", "name")
+        # fields = ("id", "name_es","name")
 
 networks_schema = NetworkSchema(many=True)
 
@@ -694,7 +697,7 @@ class QuestionsPossibleAnswersSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Questions_possible_answers
-        fields = ("id_question_possible_answers", "Question_possible_answers", "Question_possible_answers_en")
+        fields = ("id_question_possible_answers", "Question_possible_answers_es", "Question_possible_answers_en")
 
 questions_possible_answers_schema = QuestionsPossibleAnswersSchema(many=True)
 

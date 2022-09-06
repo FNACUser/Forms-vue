@@ -115,11 +115,12 @@ def cycles():
     resp = IRA_Cycles.query.all()
     return jsonify(cycles_schema.dump(resp))
 
-@app.route('/api/v1/networks', methods=['GET'])
+@app.route('/api/v1/networks/<lang>', methods=['GET'])
 #@token_required
 #def network(current_user):
-def network():
-    resp = IRA_Networks.query.order_by(IRA_Networks.name).all()
+def network(lang):
+    attribute_name = 'name_'+lang
+    resp = IRA_Networks.query.order_by(getattr(IRA_Networks,attribute_name)).all()
     return jsonify(networks_schema.dump(resp))
 
 @app.route('/api/v1/cycle/<int:cycle_id>/network_modes', methods=['GET'])
@@ -134,7 +135,9 @@ def cycle_network_modes(cycle_id):
 #@token_required
 #def areas(current_user):
 def areas():
-    resp = IRA_Organization_areas.query.order_by(IRA_Organization_areas.Organization_area).all()
+    #resp = IRA_Organization_areas.query.order_by(IRA_Organization_areas.Organization_area).all()
+    
+    resp = IRA_Organization_areas.query.all()
     return jsonify(areas_schema.dump(resp))
 
 
@@ -164,7 +167,7 @@ def questions():
 
 @app.route('/api/v1/network_mode/<int:network_mode_id>/questions', methods=['GET'])
 #@token_required
-#def cycle_network_modes(current_user,cycle_id):
+#def network_mode_questions(current_user,cycle_id):
 def network_mode_questions(network_mode_id):   
     network_mode = IRA_Networks_modes.query.get(network_mode_id)   
     resp = network_mode.questions
@@ -173,7 +176,7 @@ def network_mode_questions(network_mode_id):
 
 @app.route('/api/v1/network_mode/<int:network_mode_id>/nodes', methods=['GET'])
 #@token_required
-#def cycle_network_modes(current_user,cycle_id):
+#def network_mode_nodes((current_user,cycle_id):
 def network_mode_nodes(network_mode_id):   
     network_mode = IRA_Networks_modes.query.get(network_mode_id)   
     resp = network_mode.nodes
