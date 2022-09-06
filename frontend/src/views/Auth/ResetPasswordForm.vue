@@ -81,7 +81,7 @@ export default {
 
         resetPassword() {
 
-          axios.post("api/reset-password", {
+          this.$axios.post("api/reset-password", {
                 token: this.$route.params.token,
                 email: this.$route.params.email,
                 password: this.password,
@@ -89,7 +89,7 @@ export default {
             })
             .then(response => {
                 console.log(response);
-                let result=  this.$store.dispatch('login', {
+                this.$store.dispatch('login', {
                   email:this.$route.params.email,
                   password:this.password
                   });
@@ -97,7 +97,7 @@ export default {
             })
             .catch(error => {
 
-              //console.log(error.response);
+              console.log(error.response);
 
               this.setFlashMessage({message:error.response.data.message, type:'error'});
 

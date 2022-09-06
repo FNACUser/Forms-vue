@@ -6,9 +6,8 @@ import axios from 'axios'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import pinia from "@/store/createPinia";
-import VueI18n from 'vue-i18n'
+import {i18n} from './i18n'
 
-Vue.use(VueI18n)
 Vue.use(Vuetify)
 
 pinia.use(({ store }) => { store.router = markRaw(router) })
@@ -34,11 +33,11 @@ window.axios.interceptors.request.use(
    });
 
 
-   /**
- * Next we will register the CSRF Token as a common header with Axios so that
- * all outgoing HTTP requests automatically have it attached. This is just
- * a simple convenience so we don't have to attach every token manually.
- */
+/**
+* Next we will register the CSRF Token as a common header with Axios so that
+* all outgoing HTTP requests automatically have it attached. This is just
+* a simple convenience so we don't have to attach every token manually.
+*/
 
 // let token = document.head.querySelector('meta[name="csrf-token"]');
 
@@ -49,36 +48,16 @@ window.axios.interceptors.request.use(
 // }
 
 
-// Ready translated locale messages
-const messages = {
-  en: {
-    message: {
-      hello: 'hello world'
-    }
-  },
-  es: {
-    message: {
-      hello: 'Hola mundo'
-    }
-  }
-}
-
-
-// Create VueI18n instance with options
-const i18n = new VueI18n({
-  locale: 'es', // set locale
-  messages, // set locale messages
-})
 
 new Vue({
-  render: h => h(App),
-  vuetify:new Vuetify({
-    theme: { dark: false },
+    
+        vuetify:new Vuetify({
+            theme: { dark: false },
 
-  }),
-  pinia,
-  router,
-  i18n
+            }),
+        pinia,
+        i18n,
+        router,
+        render: h => h(App),
 
-
-}).$mount('#app')
+    }).$mount('#app')

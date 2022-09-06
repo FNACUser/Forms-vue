@@ -8,7 +8,7 @@
         <v-select
           v-model="selected_cycle"
           :items="filteredCycles"
-          label="Periodo"
+          :label="$t('period')"
           item-text="Cycle"
           item-value="id_cycle"
           clearable
@@ -95,14 +95,14 @@
 
       <v-col cols="3">
 
-        <div v-for="(item, i) in mainStore.questions" :key="i" >
+        <div v-for="(item, i) in questions" :key="i" >
 
           <v-card >
             
                 <v-card-title
                   class="text-h5"
                  >Pregunta {{i+1}}</v-card-title>
-                <v-card-text>{{item.Question}}</v-card-text>
+                <v-card-text>{{item[`Question_${$i18n.locale}`]}}</v-card-text>
 
                 <!-- <v-card-subtitle >
 
@@ -273,6 +273,7 @@ import { mapStores} from 'pinia'
         selected_area:null,
         selected_node_segment_category:null,
         selected_network_mode_theme:null,
+        questions:[],
         answers:{},
         nodes:[],
        
@@ -332,7 +333,7 @@ import { mapStores} from 'pinia'
       },
 
       tableHeader() {
-            return this.makeTableHeader(this.mainStore.questions, this.defaultHeader, 'Pregunta');
+            return this.makeTableHeader(this.questions, this.defaultHeader, 'Pregunta');
 
         },
     
@@ -401,7 +402,7 @@ import { mapStores} from 'pinia'
           this.selected_network=null;
           this.selected_node_segment_category=null;
           this.selected_network_mode_theme=null;
-          this.mainStore.questions=[];
+          this.questions=[];
           this.nodes=[];
 
         },
@@ -409,7 +410,7 @@ import { mapStores} from 'pinia'
 
         clearVariables(){
 
-          this.mainStore.questions=[];
+          this.questions=[];
           this.selected_network_mode_theme=null;
           this.nodes=[];
 
@@ -422,11 +423,20 @@ import { mapStores} from 'pinia'
 
         },
 
+        async getNetworkModeQuestions(selected_network_mode){
+
+          if(selected_network_mode){
+            const resp = await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/network_mode/'+selected_network_mode +'/questions');
+            this.questions=resp.data;
+          }   
+
+        },
+
 
        async getQuestions(){
 
         let network_mode=null;
-        this.mainStore.questions=[];
+        this.questions=[];
         if(this.selected_network && this.selected_network.name==='Actor' && this.filteredNetwokModeThemes) {
 
           if(this.selected_network_mode_theme){
@@ -441,7 +451,7 @@ import { mapStores} from 'pinia'
         }
 
         if(network_mode){
-          this.mainStore.getNetworkModeQuestions(network_mode.id_network_mode)
+          this.getNetworkModeQuestions(network_mode.id_network_mode)
         }
         
        } 

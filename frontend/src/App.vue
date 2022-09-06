@@ -75,31 +75,7 @@
         <v-toolbar-items v-if="mainStore.isLoggedIn">
 
                 <v-btn text v-if="mainStore.isLoggedIn">{{ mainStore.user.name }}</v-btn>
-                <v-menu
-                    bottom
-                    left
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                       
-                        icon
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                      <v-icon>mdi-web</v-icon>{{mainStore.selected_language}}
-                      </v-btn>
-                    </template>
-
-                    <v-list>
-                      <v-list-item >
-                        <v-list-item-title @click="setLanguage('EN')">EN</v-list-item-title>
-                      </v-list-item>
-                      <v-list-item >
-                        <v-list-item-title @click="setLanguage('ES')">ES</v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                </v-menu>
-               
+                <LocaleSwitcher/>
                 <v-btn icon @click="mainStore.logout" v-if="mainStore.isLoggedIn">
                     <v-icon>mdi-logout</v-icon>
                 </v-btn>
@@ -131,63 +107,62 @@
  
  import { useMainStore } from '@/store/main'
  import { mapStores} from 'pinia'
+ import LocaleSwitcher from './components/LocaleSwitcher.vue';
 
  export default{
-
-  data(){
-      return {
-        drawer: true,
-
-        menus: [
-                {   icon: 'mdi-list', 
-                    text: 'Fuente activa', 
-                    route: 'Home', 
-                    roles: ['Admin']
+    data() {
+        return {
+            drawer: true,
+            menus: [
+                { 
+                  icon: "mdi-list",
+                  text: this.$t("active_source"), 
+                  route: "Home", 
+                  roles: ["Admin"]
                 },
+                
                 {
-                    icon: 'mdi-pie',
-                    text: 'Fuente pasiva',
-                    route: 'About',
-                    roles: ['Admin']
-                },
-                {
-                    icon: 'mdi-account_balance',
-                    text: 'Cultura',
-                    route: 'About',
-                    roles: ['Admin']
+                    icon: "mdi-account_balance",
+                    text: "Cultura",
+                    route: "About",
+                    roles: ["Admin"]
                 }
-              ]
-      }
-  },
-
-  computed:{
-    ...mapStores(useMainStore),
-  },
-
-  created() {
-
-       
+            ]
+        };
+    },
+    
+    created() {
         if (this.mainStore.isLoggedIn) {
-            
             this.mainStore.initialize();
             this.mainStore.setLoggedUser();
-
         }
     },
 
-  methods:{
+    computed: {
+        ...mapStores(useMainStore),
+    },
 
-    setLanguage(newlang){
+    watch:{
 
-      this.mainStore.selected_language=newlang;
+      '$i18n.locale'(){
 
-    }
-
-
-  }
+       this.translateMenus();
 
 
- }
+      },
+
+    },
+    methods: {
+
+      translateMenus(){
+
+        this.menus[0].text=this.$t("active_source");
+
+      }
+        
+    },
+    components: { LocaleSwitcher }
+}
 
 </script>
 

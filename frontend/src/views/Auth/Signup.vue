@@ -68,7 +68,7 @@
               email:this.email,
               password:this.password});
              if(this.getToken) {
-                axios.defaults.headers.common['Authorization'] = "Bearer " + this.getToken;
+                this.$axios.defaults.headers.common['Authorization'] = "Bearer " + this.getToken;
                 this.$store.dispatch('initializeStore')
               }  
 

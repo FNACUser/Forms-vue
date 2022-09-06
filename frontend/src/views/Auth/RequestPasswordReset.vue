@@ -77,13 +77,14 @@ export default {
         requestResetPassword() {
 
         
-            axios.post("api/forgot-password", {email: this.email})
+            this.$axios.post("api/forgot-password", {email: this.email})
             .then(response => { 
+                console.log(response.data);
                 this.setFlashMessage({message:'Un correo ha sido enviado a su cuenta para restablecer su contraseña: ' +this.email, type:'success'});
                 this.$router.replace("/");
             })
             .catch(error => {
-
+              console.log(error);
                 this.setFlashMessage({message:'No existe la dirección de correo: ' +this.email, type:'error'});
                 this.email="";
             });

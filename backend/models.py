@@ -323,7 +323,7 @@ class IRA_Organization_areas(db.Model):
 class IRA_Questions(db.Model):
     __tablename__ = 'IRA_Questions'
     id_question = db.Column(db.Integer, primary_key=True)
-    Question = db.Column(db.String(250), nullable=False)
+    Question_es = db.Column(db.String(250), nullable=False)
     Question_en = db.Column(db.String(250), nullable=False)
     id_question_possible_answers = \
         db.Column(db.Integer,
@@ -703,7 +703,7 @@ class QuestionsSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Questions
-        fields = ("id_question", "Question", "Question_en","id_question_possible_answers","question_possible_answers")
+        fields = ("id_question", "Question_es", "Question_en","id_question_possible_answers","question_possible_answers")
     
     question_possible_answers = ma.Nested(QuestionsPossibleAnswersSchema)
 

@@ -13,7 +13,6 @@ export const useMainStore = defineStore('main', {
           email:'',
           role:''
         },
-        selected_language:'ES',
         employees:[],
         cycles: [],
         networks:[],
@@ -102,15 +101,6 @@ export const useMainStore = defineStore('main', {
 
    },
 
-
-   async getNetworkModeQuestions(selected_network_mode){
-
-    if(selected_network_mode){
-       const resp = await axios.get(process.env.VUE_APP_BACKEND_URL+'/network_mode/'+selected_network_mode +'/questions');
-       this.questions=resp.data;
-    }   
-
- },
 
    async getEmployees(){
 
