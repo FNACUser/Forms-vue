@@ -8,7 +8,7 @@
         <v-select
           v-model="selected_cycle"
           :items="filteredCycles"
-          :label="$t('period')"
+          :label="$t('main_page.period')"
           item-text="Cycle"
           item-value="id_cycle"
           clearable
@@ -23,8 +23,8 @@
           <v-select
             v-model="selected_network"
             :items="mainStore.networks"
-            label="Tipo de Cuestionario"
-            item-text="name"
+            :label="$t('main_page.questionaire_type')"
+            :item-text="`name_${$i18n.locale}`"
             item-value="id"
             clearable
             return-object
@@ -40,7 +40,7 @@
           <v-select
             v-model="selected_network_mode_theme"
             :items="filteredNetwokModeThemes"
-            label="Temáticas de las preguntas"
+            :label="$t('main_page.question_theme')"
             item-text="Network_mode_theme"
             item-value="id_network_mode_theme"
             clearable
@@ -51,7 +51,7 @@
           ></v-select>
       </v-col>
       </v-row>
-      <v-row v-if="selected_network && selected_network.name==='Actor'"> 
+      <v-row v-if="selected_network && selected_network.code==='actor'"> 
       <v-col
         cols="3"
         class="d-flex justify-space-around mb-6 align-end"
@@ -59,8 +59,8 @@
           <v-select
             v-model="selected_area"
             :items="mainStore.areas"
-            label="Area"
-            item-text="Organization_area"
+            :label="$t('main_page.area')"
+            :item-text="`Organization_area_${$i18n.locale}`"
             item-value="id_organization_area"
             clearable
   
@@ -77,7 +77,7 @@
           item-text="username"
           item-value="id"
           clearable
-          label="Empleado"
+          :label="$t('main_page.user')"
           persistent-hint
           dense
           deletable-chips
@@ -101,30 +101,8 @@
             
                 <v-card-title
                   class="text-h5"
-                 >Pregunta {{i+1}}</v-card-title>
-                <v-card-text>{{item[`Question_${$i18n.locale}`]}}</v-card-text>
-
-                <!-- <v-card-subtitle >
-
-                  <v-list disabled>
-                    <v-subheader>Posibles respuestas:</v-subheader>
-                    <v-list-item-group
-                    class="text-h8"
-                    >
-                      <div
-                        v-for="(possanswer, j) in JSON.parse(item.question_possible_answers.Question_possible_answers)"
-                        :key="j"
-                      >
-                        <v-list-item-content>
-                          <v-list-item-title >
-                            - {{possanswer['texto']}}
-                          </v-list-item-title>
-                        </v-list-item-content>
-                      </div>
-                    </v-list-item-group>
-                  </v-list>
-                </v-card-subtitle>                 -->
-            
+                 >{{$t('main_page.question')}} {{i+1}}</v-card-title>
+                <v-card-text>{{item[`Question_${$i18n.locale}`]}}</v-card-text>            
           </v-card>
          <br/>
         </div>
@@ -132,7 +110,7 @@
 
         <v-col
           cols="9"
-          v-if="selected_network && selected_network.name==='Actor'"
+          v-if="selected_network && selected_network.code==='actor'"
         >
           <v-data-table
                 :headers="tableHeader"
@@ -145,14 +123,14 @@
 
                 <tr>
                       <td class="text-xs-left">{{ item.username }}</td>
-                      <td class="text-xs-left">{{ item.organization_area.Organization_area }}</td>
+                      <td class="text-xs-left">{{ item.organization_area[`Organization_area_${$i18n.locale}`] }}</td>
                         <template >
-                          <td v-for="(question,index) in mainStore.questions" :key="index">
+                          <td v-for="(question,index) in questions" :key="index">
                             
                           <v-select
                               :id="`sel_${selected_network_mode_theme}_${question.id_question}_${item.id}`"
                               v-model="answers[`${selected_network_mode_theme}_${question.id_question}_${item.id}`]"
-                              :items="JSON.parse(question.question_possible_answers.Question_possible_answers)"
+                              :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
                               item-text="texto"
                               item-value="valor"
                               clearable
@@ -193,7 +171,7 @@
 
         <v-col
           cols="9"
-          v-if="selected_network && selected_network.name!=='Actor'"
+          v-if="selected_network && selected_network.code!=='actor'"
         >
           <v-data-table
                 :headers="tableHeader"
@@ -208,7 +186,7 @@
                       <td class="text-xs-left">{{ item.username }}</td>
                       <td class="text-xs-left">{{ item.organization_area.Organization_area }}</td>
                         <template >
-                          <td v-for="(question,index) in mainStore.questions" :key="index">
+                          <td v-for="(question,index) in questions" :key="index">
                             
                           <v-select
                               :id="`sel_${selected_network_mode_theme}_${question.id_question}_${item.id}`"
@@ -285,7 +263,7 @@ import { mapStores} from 'pinia'
             align: 'start',
             value: 'username',
           },
-          { text: 'Area', value: 'organization_area.Organization_area' },
+          { text: 'Area', value: 'organization_area[`Organization_area_${this.$i18n.locale}`]' },
           
           { text: 'Acciones'},
         ],
@@ -333,7 +311,7 @@ import { mapStores} from 'pinia'
       },
 
       tableHeader() {
-            return this.makeTableHeader(this.questions, this.defaultHeader, 'Pregunta');
+            return this.makeTableHeader(this.questions, this.defaultHeader, this.$t('main_page.question'));
 
         },
     
@@ -437,13 +415,13 @@ import { mapStores} from 'pinia'
 
         let network_mode=null;
         this.questions=[];
-        if(this.selected_network && this.selected_network.name==='Actor' && this.filteredNetwokModeThemes) {
+        if(this.selected_network && this.selected_network.code==='actor' && this.filteredNetwokModeThemes) {
 
           if(this.selected_network_mode_theme){
              network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id && item.id_network_mode_theme===this.selected_network_mode_theme)[0];
           }
         }
-        else if(this.selected_network && this.selected_network.name!=='Actor'){
+        else if(this.selected_network && this.selected_network.code!=='actor'){
           
           network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id)[0];
           await this.getNodes(network_mode.id_network_mode);
