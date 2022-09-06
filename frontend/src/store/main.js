@@ -6,21 +6,21 @@ import jwt_decode from "jwt-decode";
 export const useMainStore = defineStore('main', {
   state: () => {
     return { 
-        count: 6,
-        // isLoggedIn : false,
+        
         token: localStorage.getItem('access_token') || '',
         user:{
           name:'',
           email:'',
           role:''
         },
+        selected_language:'ES',
         employees:[],
-        //users: [],
         cycles: [],
         networks:[],
         areas:[],
         network_modes:[],
-        questions:[]
+        questions:[],
+        //nodes:[]
 
     }
   },
@@ -31,9 +31,7 @@ export const useMainStore = defineStore('main', {
   // could also be defined as
   // state: () => ({ count: 0 })
   actions: {
-    increment() {
-      this.count++
-    },
+    
 
     async initialize(){
 
@@ -48,26 +46,21 @@ export const useMainStore = defineStore('main', {
     async logIn(credentials){
 
   
-        axios.post(process.env.VUE_APP_BACKEND_URL+'login', credentials)
+        axios.post(process.env.VUE_APP_BACKEND_URL+'/login', credentials)
                   .then(response => {
                      
                       let accessToken = response.data.token;
                       localStorage.setItem('access_token', accessToken);
-                      this.token = accessToken
-                      
-                      let token_decoded = jwt_decode(accessToken);
-                      this.setLoggedUser(token_decoded);
-
-                     
-                     // this.isLoggedIn=true;
+                      this.token = accessToken;
+                      this.setLoggedUser();
                       this.initialize();
                       this.router.push('/home').catch((e) => {console.log(e)});
                       
                   })
                  .catch( error => {
                       console.log(error);
+                      this.$reset();
                       localStorage.removeItem('access_token');
-                      //this.isLoggedIn=false;
                       this.router.push('/login').catch(() => {});
   
                  });
@@ -76,6 +69,7 @@ export const useMainStore = defineStore('main', {
 
     logout(){
 
+        this.$reset();
         localStorage.removeItem('access_token');
         this.user={
           name:'',
@@ -83,27 +77,26 @@ export const useMainStore = defineStore('main', {
           role:''
         };
         this.token='';
-       // this.isLoggedIn=false;
+       
        this.router.push('/login').catch(() => {});
   
     },
 
-    setLoggedUser(token){
 
-      this.user.name=token.username;
-      this.user.email=token.email;
-      this.user.role=token.roles[0].name;
+    setLoggedUser(){
+
+      let decoded_token = jwt_decode(this.token);
+      this.user.name=decoded_token.username;
+      this.user.email=decoded_token.email;
+      this.user.role=decoded_token.roles[0].name;
 
     },
 
 
     async getNetworkModes(selected_cycle){
 
-      console.log('ingresó a getNetworkModes');
-
       if(selected_cycle){
-         const resp = await axios.get(process.env.VUE_APP_BACKEND_URL+'cycle/'+selected_cycle +'/network_modes');
-        // console.log(resp.data);
+         const resp = await axios.get(process.env.VUE_APP_BACKEND_URL+'/cycle/'+selected_cycle +'/network_modes');
          this.network_modes=resp.data;
       }   
 
@@ -112,11 +105,8 @@ export const useMainStore = defineStore('main', {
 
    async getNetworkModeQuestions(selected_network_mode){
 
-    console.log('ingresó a ggetNetworkModeQuestions');
-
     if(selected_network_mode){
-       const resp = await axios.get(process.env.VUE_APP_BACKEND_URL+'network_mode/'+selected_network_mode +'/questions');
-       console.log(resp.data);
+       const resp = await axios.get(process.env.VUE_APP_BACKEND_URL+'/network_mode/'+selected_network_mode +'/questions');
        this.questions=resp.data;
     }   
 
@@ -124,31 +114,33 @@ export const useMainStore = defineStore('main', {
 
    async getEmployees(){
 
-     const employees = await axios.get(process.env.VUE_APP_BACKEND_URL+'users');
+     const employees = await axios.get(process.env.VUE_APP_BACKEND_URL+'/users');
      this.employees = employees.data;
 
    },
 
    async getCycles(){
 
-     const cycles = await axios.get(process.env.VUE_APP_BACKEND_URL+'cycles');
+     const cycles = await axios.get(process.env.VUE_APP_BACKEND_URL+'/cycles');
      this.cycles = cycles.data;
 
    },
 
    async getNetworks(){
 
-     const networks = await axios.get(process.env.VUE_APP_BACKEND_URL+'networks');
+     const networks = await axios.get(process.env.VUE_APP_BACKEND_URL+'/networks');
      this.networks = networks.data;
 
    },
 
    async getAreas(){
 
-     const areas = await axios.get(process.env.VUE_APP_BACKEND_URL+'areas');
+     const areas = await axios.get(process.env.VUE_APP_BACKEND_URL+'/areas');
      this.areas = areas.data;
 
    },
+
+   
 
   },
 })

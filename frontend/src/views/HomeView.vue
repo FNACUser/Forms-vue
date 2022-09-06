@@ -1,6 +1,6 @@
 <template>
   <v-container  fluid>
-    <v-row >
+    <v-row dense>
       <v-col
         class="d-flex justify-space-around mb-6 align-end"
         cols="3"
@@ -27,7 +27,9 @@
             item-text="name"
             item-value="id"
             clearable
+            return-object
             @click:clear="clearVariables"
+            @change="getQuestions"
           ></v-select>
       </v-col>
       <v-col
@@ -49,7 +51,7 @@
           ></v-select>
       </v-col>
       </v-row>
-      <v-row> 
+      <v-row v-if="selected_network && selected_network.name==='Actor'"> 
       <v-col
         cols="3"
         class="d-flex justify-space-around mb-6 align-end"
@@ -79,7 +81,7 @@
           persistent-hint
           dense
           deletable-chips
-          chips
+          small-chips
           multiple
           return-object
           @change="sortSelectedColleagues"
@@ -89,26 +91,20 @@
       
     </v-row>
 
-    <v-row>
+    <v-row dense justify="space-around">
 
-      <v-col
-          v-for="(item, i) in mainStore.questions"
-          :key="i"
-          cols="3"
-        >
-          <v-card
-          
-          >
-            <div>
+      <v-col cols="3">
+
+        <div v-for="(item, i) in mainStore.questions" :key="i" >
+
+          <v-card >
+            
                 <v-card-title
                   class="text-h5"
                  >Pregunta {{i+1}}</v-card-title>
-                <v-card-title
-                  
-                  v-text="item.Question"
-                ></v-card-title>
+                <v-card-text>{{item.Question}}</v-card-text>
 
-                <v-card-subtitle >
+                <!-- <v-card-subtitle >
 
                   <v-list disabled>
                     <v-subheader>Posibles respuestas:</v-subheader>
@@ -127,63 +123,134 @@
                       </div>
                     </v-list-item-group>
                   </v-list>
-                </v-card-subtitle>                
-            </div>
+                </v-card-subtitle>                 -->
+            
           </v-card>
+         <br/>
+        </div>
         </v-col>
 
         <v-col
-          cols="12"
+          cols="9"
+          v-if="selected_network && selected_network.name==='Actor'"
         >
-        <v-data-table
-          :headers="tableHeader"
-          :items="selected_colleagues"
-          :items-per-page="5"
-          class="elevation-1"
-        >
-        <template v-slot:item="{ item }">
+          <v-data-table
+                :headers="tableHeader"
+                :items="selected_colleagues"
+                :items-per-page="5"
+                class="elevation-1"
+                v-if="selected_colleagues.length>0"
+          >
+              <template v-slot:item="{ item }">
 
-            <tr>
-                <td class="text-xs-left">{{ item.username }}</td>
-                <td class="text-xs-left">{{ item.organization_area.Organization_area }}</td>
-                <template >
-                    <td v-for="(question,index) in mainStore.questions" :key="index">
-                      
-                    <v-select
-                        
-                        :items="JSON.parse(question.question_possible_answers.Question_possible_answers)"
-                        item-text="texto"
-                        item-value="valor"
-                        clearable
-                        @change="setAnswersArray($event,item.id,question.id)"
-                      >
-                    
-                    </v-select>
-
-                    </td>
-                    
-                </template>
-                <td>
-                    <v-tooltip bottom>
-                        <template #activator="{ on }">
-                            <v-icon
-                                v-on="on"
-                                small
-                                @click="deleteColleague(item)"
+                <tr>
+                      <td class="text-xs-left">{{ item.username }}</td>
+                      <td class="text-xs-left">{{ item.organization_area.Organization_area }}</td>
+                        <template >
+                          <td v-for="(question,index) in mainStore.questions" :key="index">
+                            
+                          <v-select
+                              :id="`sel_${selected_network_mode_theme}_${question.id_question}_${item.id}`"
+                              v-model="answers[`${selected_network_mode_theme}_${question.id_question}_${item.id}`]"
+                              :items="JSON.parse(question.question_possible_answers.Question_possible_answers)"
+                              item-text="texto"
+                              item-value="valor"
+                              clearable
+                              @change="setAnswersArray($event,item.id,question.id_question)"
+                              multiple
+                              deletable-chips
+                              small-chips
                             >
-                                mdi-delete
-                            </v-icon>
+                          
+                          </v-select>
+                            
+                          </td>
+                          
                         </template>
-                        <span>Borrar</span>
-                    </v-tooltip>
-                </td>
-            </tr>
-         
-          </template>
-      
-        </v-data-table>
+                      <td>
+                          <v-tooltip bottom>
+                              <template #activator="{ on }">
+                                  <v-icon
+                                      v-on="on"
+                                      small
+                                      @click="deleteColleague(item)"
+                                      color="orange"
+                                  >
+                                      mdi-delete
+                                  </v-icon>
+                              </template>
+                              <span>Borrar</span>
+                          </v-tooltip>
+                      </td>
+                  </tr>
+              
+              </template>
+            
+          </v-data-table>
 
         </v-col>
+
+
+        <v-col
+          cols="9"
+          v-if="selected_network && selected_network.name!=='Actor'"
+        >
+          <v-data-table
+                :headers="tableHeader"
+                :items="nodes"
+                :items-per-page="5"
+                class="elevation-1"
+                v-if="nodes"
+          >
+              <template v-slot:item="{ item }">
+
+                <tr>
+                      <td class="text-xs-left">{{ item.username }}</td>
+                      <td class="text-xs-left">{{ item.organization_area.Organization_area }}</td>
+                        <template >
+                          <td v-for="(question,index) in mainStore.questions" :key="index">
+                            
+                          <v-select
+                              :id="`sel_${selected_network_mode_theme}_${question.id_question}_${item.id}`"
+                              v-model="answers[`${selected_network_mode_theme}_${question.id_question}_${item.id}`]"
+                              :items="JSON.parse(question.question_possible_answers.Question_possible_answers)"
+                              item-text="texto"
+                              item-value="valor"
+                              clearable
+                              @change="setAnswersArray($event,item.id,question.id_question)"
+                              multiple
+                              deletable-chips
+                              small-chips
+                            >
+                          
+                          </v-select>
+                            
+                          </td>
+                          
+                        </template>
+                      <td>
+                          <v-tooltip bottom>
+                              <template #activator="{ on }">
+                                  <v-icon
+                                      v-on="on"
+                                      small
+                                      @click="deleteColleague(item)"
+                                      color="orange"
+                                  >
+                                      mdi-delete
+                                  </v-icon>
+                              </template>
+                              <span>Eliminar</span>
+                          </v-tooltip>
+                      </td>
+                  </tr>
+              
+              </template>
+            
+          </v-data-table>
+
+        </v-col>
+
 
 
     </v-row>
@@ -206,13 +273,14 @@ import { mapStores} from 'pinia'
         selected_area:null,
         selected_node_segment_category:null,
         selected_network_mode_theme:null,
-        selected_answers:[],
+        answers:{},
+        nodes:[],
        
         //interactingColleagues:[],
 
         defaultHeader:[
           {
-            text: 'Nombre Colega',
+            text: 'Nombre',
             align: 'start',
             value: 'username',
           },
@@ -248,7 +316,7 @@ import { mapStores} from 'pinia'
 
         if(this.selected_network){
 
-          let filteredArr = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network && item.network_mode_theme);
+          let filteredArr = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id && item.network_mode_theme);
           
           if (filteredArr && filteredArr.length){
             return filteredArr.map(item=> {
@@ -276,10 +344,16 @@ import { mapStores} from 'pinia'
     methods:{
 
       setAnswersArray(event,employee_id,question_id){
-        
+
         console.log(event);
-        console.log(employee_id);
-        console.log(question_id);
+
+        this.$set(this.answers, `${this.selected_network_mode_theme}_${question_id}_${employee_id}`, event);
+
+        console.log(this.answers);
+        
+        // console.log(event);
+        // console.log(employee_id);
+        // console.log(question_id);
 
       },
 
@@ -289,7 +363,7 @@ import { mapStores} from 'pinia'
             //console.log('entro a makeTableheader');
 
             if (val && val.length > 0) {
-              console.log(val.length);
+           //   console.log(val.length);
                 //headers.splice(2, 1);
                 val.forEach((question, index) => {
                     headers.splice(2 + index, 0, {
@@ -328,6 +402,7 @@ import { mapStores} from 'pinia'
           this.selected_node_segment_category=null;
           this.selected_network_mode_theme=null;
           this.mainStore.questions=[];
+          this.nodes=[];
 
         },
 
@@ -335,27 +410,38 @@ import { mapStores} from 'pinia'
         clearVariables(){
 
           this.mainStore.questions=[];
+          this.selected_network_mode_theme=null;
+          this.nodes=[];
+
+        },
+
+        async getNodes(network_mode_id){
+
+          const nodes = await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/network_mode/'+network_mode_id +'/nodes');
+          this.nodes = nodes.data;
 
         },
 
 
-        // setInteractingColleagues(){
-
-        //   if(this.selected_employees){
-
-        //     this.interactingColleagues=[...this.selected_employees];
-
-        //   }
-
-        // },
-
        async getQuestions(){
-        if(this.selected_network && this.selected_network_mode_theme){
 
-          let network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network && item.id_network_mode_theme===this.selected_network_mode_theme)[0];
-          //console.log(network_mode);
+        let network_mode=null;
+        this.mainStore.questions=[];
+        if(this.selected_network && this.selected_network.name==='Actor' && this.filteredNetwokModeThemes) {
+
+          if(this.selected_network_mode_theme){
+             network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id && item.id_network_mode_theme===this.selected_network_mode_theme)[0];
+          }
+        }
+        else if(this.selected_network && this.selected_network.name!=='Actor'){
+          
+          network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id)[0];
+          await this.getNodes(network_mode.id_network_mode);
+         
+        }
+
+        if(network_mode){
           this.mainStore.getNetworkModeQuestions(network_mode.id_network_mode)
-         //console.log(this.mainStore.questions);
         }
         
        } 

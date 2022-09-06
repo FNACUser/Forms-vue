@@ -23,8 +23,8 @@ from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
                     IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,\
                     IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes       
 from models import  users_schema, user_schema,cycles_schema, networks_schema, network_modes_schema, areas_schema,\
-                    nodes_segments_categories_schema, networks_modes_schema, roles_schema, role_schema,\
-                    network_mode_theme_schema,questions_schema,questions_possible_answers_schema, node_schema
+                    networks_modes_schema, roles_schema, role_schema,node_segment_category_schema,\
+                    network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema
 
 
 DEBUG=True
@@ -143,7 +143,7 @@ def areas():
 #def nodes_segments_categories(current_user):
 def nodes_segments_categories():
     resp = IRA_Nodes_segments_categories.query.order_by(IRA_Nodes_segments_categories.Node_segment_category).all()
-    return jsonify(nodes_segments_categories_schema.dump(resp))
+    return jsonify(node_segment_category_schema.dump(resp))
 
 
 @app.route('/api/v1/networks_modes_themes', methods=['GET'])
@@ -171,6 +171,15 @@ def network_mode_questions(network_mode_id):
     return jsonify(questions_schema.dump(resp))
 
 
+@app.route('/api/v1/network_mode/<int:network_mode_id>/nodes', methods=['GET'])
+#@token_required
+#def cycle_network_modes(current_user,cycle_id):
+def network_mode_nodes(network_mode_id):   
+    network_mode = IRA_Networks_modes.query.get(network_mode_id)   
+    resp = network_mode.nodes
+    return jsonify(nodes_schema.dump(resp))
+
+
 @app.route('/api/v1/questions_possible_answers', methods=['GET'])
 #@token_required
 #def possible_answer(current_user):
@@ -184,7 +193,7 @@ def possible_answers():
 #def nodes(current_user):
 def nodes():
     resp = IRA_Nodes.query.all()
-    return jsonify(node_schema.dump(resp))
+    return jsonify(nodes_schema.dump(resp))
 
 
 @app.route('/api/v1/networks_modes', methods=['GET'])

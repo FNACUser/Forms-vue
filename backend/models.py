@@ -255,6 +255,7 @@ class IRA_Nodes(db.Model):
     __tablename__ = 'IRA_Nodes'
     id_node = db.Column(db.Integer, primary_key=True)
     Node = db.Column(db.String(100), nullable=False)
+    Node_en = db.Column(db.String(100), nullable=False)
     id_node_segment = db.Column(db.Integer,
                                 db.ForeignKey(
                                     'IRA_Nodes_segments.id_node_segment'),
@@ -589,11 +590,8 @@ class PostSchema(ma.SQLAlchemyAutoSchema):
 class ResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = IRA_Responses
+        
 
-class NodesSegmentsCategorySchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = IRA_Nodes_segments_categories
-nodes_segments_categories_schema = NodesSegmentsCategorySchema(many=True)
 
 class QuestionResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -665,12 +663,10 @@ class NetworkModeThemeSchema(ma.SQLAlchemyAutoSchema):
 network_mode_theme_schema = NetworkModeThemeSchema(many=True)
 
 
-class NodeSchema(ma.SQLAlchemyAutoSchema):
-    
+class NodeSegmentSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = IRA_Nodes
-        
-node_schema = NodeSchema(many=True)
+        model = IRA_Nodes_segments
+node_segment_schema = NodeSegmentSchema(many=True)
 
 
 class NodeSegmentCategorySchema(ma.SQLAlchemyAutoSchema):
@@ -680,6 +676,18 @@ class NodeSegmentCategorySchema(ma.SQLAlchemyAutoSchema):
         fields = ("id_node_segment_category", "Node_segment_category")
         
 node_segment_category_schema = NodeSegmentCategorySchema(many=True)
+
+
+class NodeSchema(ma.SQLAlchemyAutoSchema):
+    
+    class Meta:
+        model = IRA_Nodes
+        fields = ("id_node", "Node","Node_en","id_node_segment","node_segment")
+    
+    node_segment = ma.Nested(NodeSegmentSchema)
+        
+nodes_schema = NodeSchema(many=True)
+
 
 
 class QuestionsPossibleAnswersSchema(ma.SQLAlchemyAutoSchema):
