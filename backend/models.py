@@ -243,20 +243,22 @@ class IRA_Networks_modes(db.Model):
 class IRA_Networks_modes_themes(db.Model):
     __tablename__ = 'IRA_Networks_modes_themes'
     id_network_mode_theme = db.Column(db.Integer, primary_key=True)
-    Network_mode_theme = db.Column(db.String(100), nullable=False)
+    code = db.Column(db.String(100), nullable=False)
+    Network_mode_theme_es = db.Column(db.String(100), nullable=False)
+    Network_mode_theme_en = db.Column(db.String(100), nullable=False)
 
     network_modes = db.relationship('IRA_Networks_modes',
                                     backref=db.backref('network_mode_theme', lazy=True))
 
     def __repr__(self):
         return f"IRA_Networks_modes_themes('{self.id_network_mode_theme}', \
-            '{self.Network_mode_theme}')"
+            '{self.code}')"
 
 
 class IRA_Nodes(db.Model):
     __tablename__ = 'IRA_Nodes'
     id_node = db.Column(db.Integer, primary_key=True)
-    Node = db.Column(db.String(100), nullable=False)
+    Node_es = db.Column(db.String(100), nullable=False)
     Node_en = db.Column(db.String(100), nullable=False)
     id_node_segment = db.Column(db.Integer,
                                 db.ForeignKey(
@@ -649,13 +651,13 @@ class NetworkSchema(ma.SQLAlchemyAutoSchema):
 
 networks_schema = NetworkSchema(many=True)
 
-class NetworkModeSchema(ma.SQLAlchemyAutoSchema):
+# class NetworkModeSchema(ma.SQLAlchemyAutoSchema):
     
-    class Meta:
-        model = IRA_Networks_modes
-        fields = ("id_network_mode", "id_network","id_node_segment_category","id_network_mode_theme")
+#     class Meta:
+#         model = IRA_Networks_modes
+#         fields = ("id_network_mode", "id_network","id_node_segment_category","id_network_mode_theme")
 
-network_modes_schema = NetworkModeSchema(many=True)
+# network_modes_schema = NetworkModeSchema(many=True)
 
 
 class NetworkModeThemeSchema(ma.SQLAlchemyAutoSchema):
@@ -685,7 +687,7 @@ class NodeSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Nodes
-        fields = ("id_node", "Node","Node_en","id_node_segment","node_segment")
+        fields = ("id_node", "Node_es","Node_en","id_node_segment","node_segment")
     
     node_segment = ma.Nested(NodeSegmentSchema)
         
@@ -713,7 +715,7 @@ class QuestionsSchema(ma.SQLAlchemyAutoSchema):
 questions_schema = QuestionsSchema(many=True)
 
 
-class NetworksModesSchema(ma.SQLAlchemyAutoSchema):
+class NetworkModeSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Networks_modes
@@ -723,7 +725,7 @@ class NetworksModesSchema(ma.SQLAlchemyAutoSchema):
     node_segment_category = ma.Nested(NodeSegmentCategorySchema)
     network_mode_theme = ma.Nested(NetworkModeThemeSchema)
 
-networks_modes_schema = NetworksModesSchema(many=True)
+network_mode_schema = NetworkModeSchema(many=True)
 
 
 class CycleSchema(ma.SQLAlchemyAutoSchema):

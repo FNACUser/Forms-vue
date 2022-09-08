@@ -22,8 +22,8 @@ from models import db,ma, user_datastore, Role
 from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
                     IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,\
                     IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes       
-from models import  users_schema, user_schema,cycles_schema, networks_schema, network_modes_schema, areas_schema,\
-                    networks_modes_schema, roles_schema, role_schema,node_segment_category_schema,\
+from models import  users_schema, user_schema,cycles_schema, networks_schema, network_mode_schema, areas_schema,\
+                    roles_schema, role_schema,node_segment_category_schema,\
                     network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema
 
 
@@ -129,7 +129,7 @@ def network(lang):
 def cycle_network_modes(cycle_id):   
     cycle = IRA_Cycles.query.get(cycle_id)   
     resp = cycle.networks_modes
-    return jsonify(networks_modes_schema.dump(resp))
+    return jsonify(network_mode_schema.dump(resp))
 
 @app.route('/api/v1/areas', methods=['GET'])
 #@token_required
@@ -153,7 +153,8 @@ def nodes_segments_categories():
 #@token_required
 #def networks_modes_themes(current_user):
 def networks_modes_themes():
-    resp = IRA_Networks_modes_themes.query.order_by(IRA_Networks_modes_themes.Network_mode_theme).all()
+    #resp = IRA_Networks_modes_themes.query.order_by(IRA_Networks_modes_themes.Network_mode_theme).all()
+    resp = IRA_Networks_modes_themes.query.all()
     return jsonify(network_mode_theme_schema.dump(resp))
 
 
@@ -204,7 +205,7 @@ def nodes():
 #def networks_modes(current_user):
 def networks_modes():
     resp = IRA_Networks_modes.query.all()
-    return jsonify(networks_modes_schema.dump(resp))
+    return jsonify(network_mode_schema.dump(resp))
 
 
 if __name__ == '__main__':

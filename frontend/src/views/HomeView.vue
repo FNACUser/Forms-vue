@@ -41,7 +41,7 @@
             v-model="selected_network_mode_theme"
             :items="filteredNetwokModeThemes"
             :label="$t('main_page.question_theme')"
-            item-text="Network_mode_theme"
+            :item-text="`Network_mode_theme_${$i18n.locale}`"
             item-value="id_network_mode_theme"
             clearable
             @change="getQuestions"
