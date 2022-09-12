@@ -354,6 +354,7 @@ class IRA_Questions_possible_answers(db.Model):
     id_question_possible_answers = db.Column(db.Integer, primary_key=True)
     Question_possible_answers_es = db.Column(db.String(1000), nullable=False)
     Question_possible_answers_en = db.Column(db.String(1000), nullable=False)
+    multiple = db.Column(db.Boolean, default=False, nullable=False)
 
     questions = db.relationship('IRA_Questions',
                                 backref=db.backref('question_possible_answers',
@@ -699,7 +700,7 @@ class QuestionsPossibleAnswersSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Questions_possible_answers
-        fields = ("id_question_possible_answers", "Question_possible_answers_es", "Question_possible_answers_en")
+        #fields = ("id_question_possible_answers", "Question_possible_answers_es", "Question_possible_answers_en")
 
 questions_possible_answers_schema = QuestionsPossibleAnswersSchema(many=True)
 

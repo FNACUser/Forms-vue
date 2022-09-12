@@ -45,7 +45,6 @@
             item-value="id_network_mode_theme"
             clearable
             @change="getQuestions"
-
             @click:clear="clearVariables"
             
           ></v-select>
@@ -62,8 +61,7 @@
             :label="$t('main_page.area')"
             :item-text="`Organization_area_${$i18n.locale}`"
             item-value="id_organization_area"
-            clearable
-  
+            clearable 
           ></v-select>
       </v-col>
   
@@ -87,18 +85,13 @@
           @change="sortSelectedColleagues"
          
         ></v-autocomplete>
-      </v-col>
-      
+      </v-col>     
     </v-row>
 
     <v-row dense justify="space-around">
-
       <v-col cols="3">
-
         <div v-for="(item, i) in questions" :key="i" >
-
-          <v-card >
-            
+          <v-card >           
                 <v-card-title
                   class="text-h5"
                  >{{$t('main_page.question')}} {{i+1}}</v-card-title>
@@ -107,7 +100,6 @@
          <br/>
         </div>
         </v-col>
-
         <v-col
           cols="9"
           v-if="selected_network && selected_network.code==='actor'"
@@ -135,15 +127,13 @@
                               item-value="valor"
                               clearable
                               @change="setAnswersArray($event,item.id,question.id_question)"
-                              multiple
+                              :multiple="question.question_possible_answers.multiple"
                               deletable-chips
                               small-chips
-                            >
-                          
-                          </v-select>
-                            
-                          </td>
-                          
+                            >                         
+                          </v-select>  
+                           
+                          </td>                         
                         </template>
                       <td>
                           <v-tooltip bottom>
@@ -160,14 +150,10 @@
                               <span>Borrar</span>
                           </v-tooltip>
                       </td>
-                  </tr>
-              
-              </template>
-            
+                  </tr>             
+              </template>           
           </v-data-table>
-
         </v-col>
-
 
         <v-col
           cols="9"
@@ -181,7 +167,6 @@
                 v-if="nodes"
           >
               <template v-slot:item="{ item }">
-
                 <tr>
                       <td class="text-xs-left">{{ item.username }}</td>
                       <td class="text-xs-left">{{ item.organization_area.Organization_area }}</td>
@@ -196,7 +181,7 @@
                               item-value="valor"
                               clearable
                               @change="setAnswersArray($event,item.id,question.id_question)"
-                              multiple
+                              :multiple="question.question_possible_answers.multiple"
                               deletable-chips
                               small-chips
                             >
@@ -221,16 +206,10 @@
                               <span>Eliminar</span>
                           </v-tooltip>
                       </td>
-                  </tr>
-              
+                </tr>
               </template>
-            
           </v-data-table>
-
         </v-col>
-
-
-
     </v-row>
 
     </v-container>
