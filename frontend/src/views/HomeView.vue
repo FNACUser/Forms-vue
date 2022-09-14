@@ -74,11 +74,11 @@
           :items="filteredEmployees"
           item-text="username"
           item-value="id"
-          clearable
+          
           :label="$t('main_page.user')"
           persistent-hint
           dense
-          deletable-chips
+          
           small-chips
           multiple
           return-object
@@ -241,6 +241,7 @@ import { mapStores} from 'pinia'
         questions:[],
         answers:{},
         nodes:[],
+        current_network_mode:null,
        
         //interactingColleagues:[],
 
@@ -296,10 +297,10 @@ import { mapStores} from 'pinia'
 
         if(this.selected_network){
 
-          let filteredArr = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id && item.network_mode_theme);
+          let filteredArr = this.mainStore.network_modes.filter(item =>  item.id_network === this.selected_network.id && item.network_mode_theme);
           
           if (filteredArr && filteredArr.length){
-            return filteredArr.map(item=> {
+            return filteredArr.map(item => {
               return item.network_mode_theme;
               
               });
@@ -329,11 +330,13 @@ import { mapStores} from 'pinia'
         this.$set(this.answers, `${this.selected_network_mode_theme}_${question_id}_${employee_id}`, event);
 
         const data={
+            "cycle_id":this.selected_cycle,
             "user_email":this.mainStore.logged_user.email,
-            "employee_id":employee_id,
+            "actor_id":employee_id,
             "question_id":question_id,
+            "network_mode_id":this.current_network_mode.id_network_mode,
             "network_mode_theme_id":this.selected_network_mode_theme,
-            "answer_id":event
+            "selected_option":event
         };
 
         this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/save_answer', data)
@@ -368,7 +371,6 @@ import { mapStores} from 'pinia'
 
 
             return headers;
-
 
            // return headers.reduce((acc, val) => acc.concat(val), []); //flattens the array
         },
@@ -439,6 +441,7 @@ import { mapStores} from 'pinia'
           this.selected_network_mode_theme=null;
           this.questions=[];
           this.nodes=[];
+          this.current_network_mode=null;
 
         },
 
@@ -447,6 +450,7 @@ import { mapStores} from 'pinia'
 
           this.questions=[];
           this.selected_network_mode_theme=null;
+          this.current_network_mode=null;
           this.nodes=[];
 
         },
@@ -470,23 +474,23 @@ import { mapStores} from 'pinia'
 
        async getQuestions(){
 
-        let network_mode=null;
+       // let network_mode=null;
         this.questions=[];
         if(this.selected_network && this.selected_network.code==='actor' && this.filteredNetwokModeThemes) {
 
           if(this.selected_network_mode_theme){
-             network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id && item.id_network_mode_theme===this.selected_network_mode_theme)[0];
+             this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id && item.id_network_mode_theme===this.selected_network_mode_theme)[0];
           }
         }
         else if(this.selected_network && this.selected_network.code!=='actor'){
           
-          network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id)[0];
-          await this.getNodes(network_mode.id_network_mode);
+          this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id)[0];
+          await this.getNodes(this.current_network_mode.id_network_mode);
          
         }
 
-        if(network_mode){
-          this.getNetworkModeQuestions(network_mode.id_network_mode)
+        if(this.current_network_mode){
+          this.getNetworkModeQuestions(this.current_network_mode.id_network_mode)
         }
         
        } 

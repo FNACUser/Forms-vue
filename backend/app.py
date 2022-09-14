@@ -22,7 +22,8 @@ from config import Config
 from models import db,ma, user_datastore, Role
 from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
                     IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,\
-                    IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes, IRA_Employees_interactions      
+                    IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes, IRA_Employees_interactions,IRA_Responses,\
+                    IRA_Adjacency_input_form     
 from models import  users_schema, user_schema,cycles_schema, networks_schema, network_mode_schema, areas_schema,\
                     roles_schema, role_schema,node_segment_category_schema,\
                     network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema
@@ -209,14 +210,6 @@ def networks_modes():
     return jsonify(network_mode_schema.dump(resp))
 
 
-@app.route('/api/v1/save_answer', methods=['POST'])
-#@token_required
-#def save_answers(current_user):
-def save_answer():
-    content = request.json
-    print(content)
-    return jsonify("answer was saved correctly!!")
-
 
 @app.route('/api/v1/add_interacting_actor', methods=['POST'])
 @token_required
@@ -241,16 +234,16 @@ def add_interacting_actor(current_user):
             
             db.session.commit()
 
-        remove_ids=list(set(already_saved).difference(data['employee_ids']))
+        # remove_ids=list(set(already_saved).difference(data['employee_ids']))
 
-        print(f"Remove Ids={remove_ids}")
+        # print(f"Remove Ids={remove_ids}")
 
-        if len(remove_ids):
-            for remove_id in remove_ids:
-                actor_interaction = IRA_Employees_interactions.query.filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=remove_id).first()
-                if actor_interaction:
-                    db.session.delete(actor_interaction)
-                    db.session.commit()
+        # if len(remove_ids):
+        #     for remove_id in remove_ids:
+        #         actor_interaction = IRA_Employees_interactions.query.filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=remove_id).first()
+        #         if actor_interaction:
+        #             db.session.delete(actor_interaction)
+        #             db.session.commit()
 
 
          
@@ -264,17 +257,91 @@ def add_interacting_actor(current_user):
 def delete_interacting_actor(current_user):
 
     data = request.json
-
+    
+    #if(data['user_email']==current_user.email and current_user.has_role("encuestado")):
     if(data['user_email']==current_user.email):
         
         actor_interaction = IRA_Employees_interactions.query.filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=data['actor_id']).first()
-       
+        adjacency_input_forms_ids= IRA_Adjacency_input_form.query.with_entities(IRA_Adjacency_input_form.id_adjacency_input_form).filter_by(id_cycle=data['cycle_id'],id_employee=current_user.id).all()
+        adjacency_codes = list(itertools.chain(*adjacency_input_forms_ids))
+        
         if actor_interaction:
             db.session.delete(actor_interaction)
-            db.session.commit()
+        
+        if (adjacency_codes):
+            for code in adjacency_codes:
+                existing_responses = IRA_Responses.query.filter_by(id_adjacency_input_form=code).all()
+                for response in existing_responses:
+                    if(response):
+                        current_response=json.loads(response.Response)
+                        #print(current_response)
+                        existing_actor=next(filter(lambda x: x['id_actor'] == data['actor_id'],current_response),None)
+                        if( existing_actor is not  None):
+                            current_response = list(filter(lambda x: x['id_actor'] != data['actor_id'], current_response))
+                            response.Response=json.dumps(current_response)
+        db.session.commit()
             
           
-    return jsonify("interacting actor was deleted and all its related answers(not yet) !!")
+    return jsonify("interacting actor was deleted and all answers related to this actor !!")
+
+
+
+@app.route('/api/v1/save_answer', methods=['POST'])
+@token_required
+def save_answer(current_user):
+
+    data = request.json
+    #print(data)
+    #print(current_user.has_role("admin"))
+
+    #if(data['user_email']==current_user.email and current_user.has_role("encuestado")):
+    
+    if(data['user_email']==current_user.email ):
+        
+        new_response={
+            "id_actor":data['actor_id'],
+            "valor":data["selected_option"]
+        }
+        
+        # print(data["selected_option"])
+        adjacency_input_form_code=str(data['cycle_id']) +'-'+ str(current_user.id) + '-' + str(data['network_mode_id'])
+        #print(adjacency_input_form_code)
+        existing_response = IRA_Responses.query.filter_by(id_question = data['question_id'],id_adjacency_input_form=adjacency_input_form_code).first()
+        print(existing_response)
+        if(existing_response):
+            current_responses=json.loads(existing_response.Response)
+            print(current_responses)
+            existing_actor=next(filter(lambda x: x['id_actor'] == data['actor_id'],current_responses),None)
+            if(data["selected_option"] is not None and existing_actor is None):
+                current_responses.append(new_response)        
+            elif(data["selected_option"] is not None and existing_actor is not  None):
+                current_responses = list(filter(lambda x: x['id_actor'] != data['actor_id'], current_responses))
+                current_responses.append(new_response)
+            elif(data["selected_option"] is None and existing_actor is not  None):
+                current_responses = list(filter(lambda x: x['id_actor'] != data['actor_id'], current_responses))
+            
+           # print(current_responses)
+            existing_response.Response=json.dumps(current_responses)
+            db.session.commit()
+        else:
+            if(data["selected_option"] is not None):
+                adjacency_input_form = IRA_Adjacency_input_form.query.get(adjacency_input_form_code)
+                if(adjacency_input_form is None):
+                    db.session.add(IRA_Adjacency_input_form(id_adjacency_input_form = adjacency_input_form_code ,id_employee=current_user.id, id_cycle=data['cycle_id'], id_network_mode=data['network_mode_id'], Is_concluded=0))
+                    db.session.commit()    
+                response = []
+                response.append(new_response)
+                #print(response)
+                db.session.add(IRA_Responses(id_question = data['question_id'],id_adjacency_input_form = adjacency_input_form_code ,Response = json.dumps(response)))
+                db.session.commit()    
+        
+            
+          
+    return jsonify("answer was saved correctly!!")
+
+
+
+
 
 
 if __name__ == '__main__':
