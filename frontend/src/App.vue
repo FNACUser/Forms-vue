@@ -74,7 +74,7 @@
         <v-spacer></v-spacer>
         <v-toolbar-items v-if="mainStore.isLoggedIn">
 
-                <v-btn text v-if="mainStore.isLoggedIn">{{ mainStore.user.name }}</v-btn>
+                <v-btn text v-if="mainStore.isLoggedIn">{{ mainStore.logged_user.name }}</v-btn>
                 <LocaleSwitcher/>
                 <v-btn icon @click="mainStore.logout" v-if="mainStore.isLoggedIn">
                     <v-icon>mdi-logout</v-icon>

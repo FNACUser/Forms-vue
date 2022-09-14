@@ -70,7 +70,7 @@
         cols="3"
       >
         <v-autocomplete
-          v-model="selected_colleagues"
+          v-model="selected_actors"
           :items="filteredEmployees"
           item-text="username"
           item-value="id"
@@ -82,7 +82,7 @@
           small-chips
           multiple
           return-object
-          @change="sortSelectedColleagues"
+          @change="addInteractingActor()"
          
         ></v-autocomplete>
       </v-col>     
@@ -91,10 +91,18 @@
     <v-row dense justify="space-around">
       <v-col cols="3">
         <div v-for="(item, i) in questions" :key="i" >
-          <v-card >           
+          <v-card > 
+            <v-app-bar
+            flat
+            color="blue"
+            >          
                 <v-card-title
-                  class="text-h5"
-                 >{{$t('main_page.question')}} {{i+1}}</v-card-title>
+                  class="white--text"
+                  
+                 >
+                 {{$t('main_page.question')}} {{i+1}}
+                </v-card-title>
+            </v-app-bar>    
                 <v-card-text>{{item[`Question_${$i18n.locale}`]}}</v-card-text>            
           </v-card>
          <br/>
@@ -106,10 +114,10 @@
         >
           <v-data-table
                 :headers="tableHeader"
-                :items="selected_colleagues"
+                :items="selected_actors"
                 :items-per-page="5"
                 class="elevation-1"
-                v-if="selected_colleagues.length>0"
+                v-if="selected_actors.length>0"
           >
               <template v-slot:item="{ item }">
 
@@ -126,7 +134,7 @@
                               item-text="texto"
                               item-value="valor"
                               clearable
-                              @change="setAnswersArray($event,item.id,question.id_question)"
+                              @change="saveAnswersArray($event,item.id,question.id_question)"
                               :multiple="question.question_possible_answers.multiple"
                               deletable-chips
                               small-chips
@@ -141,7 +149,7 @@
                                   <v-icon
                                       v-on="on"
                                       small
-                                      @click="deleteColleague(item)"
+                                      @click="deleteActor(item)"
                                       color="orange"
                                   >
                                       mdi-delete
@@ -180,7 +188,7 @@
                               item-text="texto"
                               item-value="valor"
                               clearable
-                              @change="setAnswersArray($event,item.id,question.id_question)"
+                              @change="saveAnswersArray($event,item.id,question.id_question)"
                               :multiple="question.question_possible_answers.multiple"
                               deletable-chips
                               small-chips
@@ -197,7 +205,7 @@
                                   <v-icon
                                       v-on="on"
                                       small
-                                      @click="deleteColleague(item)"
+                                      @click="deleteActor(item)"
                                       color="orange"
                                   >
                                       mdi-delete
@@ -224,7 +232,7 @@ import { mapStores} from 'pinia'
     data() {
       return {
 
-        selected_colleagues:[],
+        selected_actors:[],
         selected_cycle:null,
         selected_network:null,
         selected_area:null,
@@ -242,9 +250,9 @@ import { mapStores} from 'pinia'
             align: 'start',
             value: 'username',
           },
-          { text: 'Area', value: 'organization_area[`Organization_area_${this.$i18n.locale}`]' },
+          { text: 'Area', value: 'id_organization_area' },
           
-          { text: 'Acciones'},
+          { text: 'Acciones',sortable: false},
         ],
 
       }
@@ -252,6 +260,20 @@ import { mapStores} from 'pinia'
    
 
     computed:{
+
+
+      interactingPeopleIds(){
+
+
+        if(this.selected_actors){
+
+          return this.selected_actors.map(a => a.id);
+
+        }  
+
+        return [];
+      },
+
 
       filteredCycles(){
         return this.mainStore.cycles.filter(item=> item.Is_active); 
@@ -301,19 +323,32 @@ import { mapStores} from 'pinia'
 
     methods:{
 
-      setAnswersArray(event,employee_id,question_id){
+      saveAnswersArray(event,employee_id,question_id){
 
-        console.log(event);
+        //key:value 
 
         this.$set(this.answers, `${this.selected_network_mode_theme}_${question_id}_${employee_id}`, event);
 
-        console.log(this.answers);
-        
-        // console.log(event);
-        // console.log(employee_id);
-        // console.log(question_id);
+        const data={
+            "user_email":this.mainStore.logged_user.email,
+            "employee_id":employee_id,
+            "question_id":question_id,
+            "network_mode_theme_id":this.selected_network_mode_theme,
+            "answer_id":event
+        };
+
+        this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/save_answer', data)
+        .then(response => console.log(response.data))
+        .catch(error => {
+          
+          console.error('There was an error!', error.message);
+       });
 
       },
+
+
+
+     
 
       makeTableHeader(val, defaultHeader, text) {
 
@@ -321,8 +356,7 @@ import { mapStores} from 'pinia'
             //console.log('entro a makeTableheader');
 
             if (val && val.length > 0) {
-           //   console.log(val.length);
-                //headers.splice(2, 1);
+           
                 val.forEach((question, index) => {
                     headers.splice(2 + index, 0, {
                         text: `${text} ${index + 1}`,
@@ -332,22 +366,72 @@ import { mapStores} from 'pinia'
                 });
             }
 
-            return headers.reduce((acc, val) => acc.concat(val), []); //flattens the array
+            
+
+            headers[0].text = this.$t('main_page.actor_table.name');
+            headers[1].text = this.$t('main_page.actor_table.area');
+            headers[headers.length-1].text = this.$t('main_page.actor_table.actions');
+
+
+            return headers;
+
+
+           // return headers.reduce((acc, val) => acc.concat(val), []); //flattens the array
         },
 
       sortSelectedColleagues(){
-        this.selected_colleagues.sort((a,b) => 
+        this.selected_actors.sort((a,b) => 
           (a.username.toLowerCase() < b.username.toLowerCase()) ? -1 : ((b.username.toLowerCase() > a.username.toLowerCase()) ? 1 : 0));
 
       },
 
-      deleteColleague(item) {
-           // this.item_index = this.items.indexOf(item)
-            let item_index = this.selected_colleagues.findIndex(object => {
+
+
+      async addInteractingActor(){
+
+      
+          // gets last selected person pushed into the list 
+          const data={
+              "user_email":this.mainStore.logged_user.email,
+              "employee_ids":this.interactingPeopleIds,
+              "cycle_id":this.selected_cycle           
+          };
+
+          console.log(data);
+
+          await this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/add_interacting_actor', data)
+          .then(response => console.log(response.data))
+          .catch(error => {
+            
+            console.error('There was an error!', error.message);
+          });
+
+          this.sortSelectedColleagues();
+
+          },
+
+      async deleteActor(item) {
+           
+            let item_index = this.selected_actors.findIndex(object => {
                 return object.id==item.id});
 
-            this.selected_colleagues.splice(item_index,1);
-            
+            const data={
+                  "user_email":this.mainStore.logged_user.email,
+                  "actor_id":item.id,
+                  "cycle_id":this.selected_cycle           
+              };
+
+          
+            await this.$axios.delete(process.env.VUE_APP_BACKEND_URL+'/delete_interacting_actor', {data:data})
+              .then(response => {
+                console.log(response.data);
+                this.selected_actors.splice(item_index,1);
+              })
+              .catch(error => {
+                
+                console.error('There was an error!', error.message);
+              });
+     
       },
 
 
@@ -355,7 +439,7 @@ import { mapStores} from 'pinia'
 
           this.selected_area=null;
           this.selected_cycle=null;
-          this.selected_colleagues=null;
+          this.selected_actors=null;
           this.selected_network=null;
           this.selected_node_segment_category=null;
           this.selected_network_mode_theme=null;

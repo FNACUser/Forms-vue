@@ -46,6 +46,8 @@ class User(db.Model, UserMixin):
 
     culture_input_forms = db.relationship('CVF_Culture_input_form',
                                           backref=db.backref('users', lazy=True))
+    
+    #interacting_persons = db.relationship('IRA_Employees_interactions', backref=db.backref('users', lazy=True))
 
     def get_reset_token(self, expires_sec=1800):
         s = Serializer(current_app.config['SECRET_KEY'], expires_sec)
@@ -76,9 +78,7 @@ class Role(db.Model, RoleMixin):
     def toJson(self):
         return json.dumps({'role': self.name}).decode('utf-8')
         
-    
-    
-    
+       
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 
@@ -108,6 +108,7 @@ cycles_vs_networks_modes = \
              db.Column('id_network_mode', db.Integer,
                        db.ForeignKey('IRA_Networks_modes.id_network_mode')))
 
+        
 nodes_vs_networks_modes = \
     db.Table('nodes_vs_networks_modes',
              db.Column('id_node', db.Integer,
@@ -176,7 +177,12 @@ class IRA_Cycles(db.Model):
         
 class IRA_Employees_interactions(db.Model):
     __tablename__ = 'IRA_Employees_interactions'
+    __table_args__ = (
+        db.UniqueConstraint('id_cycle', 'id_responding_employee','id_interacting_employee', name='unique_cycle_responding_interacting'),
+    )
+    
     id_employee_interaction = db.Column(db.Integer, primary_key=True)
+    
     id_cycle = db.Column(db.Integer,
                          db.ForeignKey('IRA_Cycles.id_cycle'),
                          nullable=True)

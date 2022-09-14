@@ -11,6 +11,7 @@ import json
 #import jsonpickle
 import datetime
 from functools import wraps
+import itertools
 
 from flask_security import login_user, current_user, logout_user, login_required
 from flask_security.utils import hash_password,verify_password
@@ -21,7 +22,7 @@ from config import Config
 from models import db,ma, user_datastore, Role
 from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
                     IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,\
-                    IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes       
+                    IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes, IRA_Employees_interactions      
 from models import  users_schema, user_schema,cycles_schema, networks_schema, network_mode_schema, areas_schema,\
                     roles_schema, role_schema,node_segment_category_schema,\
                     network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema
@@ -50,16 +51,16 @@ def token_required(f):
 
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
-            print('token es...')
-            print("The variable type:", type(token))
+            # print('token es...')
+            # print("The variable type:", type(token))
 
         if not token:
             return jsonify({'message' : 'Token is missing!'}), 401
 
         try: 
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            print(' data  decoded es...')
-            print(data)
+            # print(' data  decoded es...')
+            # print(data)
             current_user = User.query.filter_by(email=data['email']).first()
         except Exception as e:
             print(e)
@@ -206,6 +207,62 @@ def nodes():
 def networks_modes():
     resp = IRA_Networks_modes.query.all()
     return jsonify(network_mode_schema.dump(resp))
+
+
+@app.route('/api/v1/save_answer', methods=['POST'])
+#@token_required
+#def save_answers(current_user):
+def save_answer():
+    content = request.json
+    print(content)
+    return jsonify("answer was saved correctly!!")
+
+
+@app.route('/api/v1/add_interacting_actor', methods=['POST'])
+@token_required
+def add_interacting_actor(current_user):
+# def add_interacting_person():
+    data = request.json
+    print(data)
+
+    if(data['user_email']==current_user.email):
+        
+        interactions = IRA_Employees_interactions.query.with_entities(IRA_Employees_interactions.id_interacting_employee).filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id).all()
+       
+        already_saved = list(itertools.chain(*interactions))
+        
+        new_ids=list(set(data['employee_ids']).difference(already_saved))
+        
+        print(new_ids)
+        
+        if len(new_ids):
+            for new_id in new_ids:
+                db.session.add(IRA_Employees_interactions(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=new_id))
+            
+            db.session.commit()
+            
+          
+    return jsonify("interacting person was saved correctly!!")
+
+
+
+@app.route('/api/v1/delete_interacting_actor', methods=['DELETE'])
+@token_required
+def delete_interacting_actor(current_user):
+
+    data = request.json
+    print(data)
+
+    if(data['user_email']==current_user.email):
+        
+        actor_interaction = IRA_Employees_interactions.query.filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=data['actor_id']).first()
+       
+        if actor_interaction:
+            db.session.delete(actor_interaction)
+            db.session.commit()
+            
+          
+    return jsonify("interacting person was deleted and all related answers !!")
 
 
 if __name__ == '__main__':

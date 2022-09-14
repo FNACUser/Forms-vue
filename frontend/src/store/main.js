@@ -9,7 +9,7 @@ export const useMainStore = defineStore('main', {
     return { 
         
         token: localStorage.getItem('access_token') || '',
-        user:{
+        logged_user:{
           name:'',
           email:'',
           role:''
@@ -70,7 +70,7 @@ export const useMainStore = defineStore('main', {
 
         this.$reset();
         localStorage.removeItem('access_token');
-        this.user={
+        this.logged_user={
           name:'',
           email:'',
           role:''
@@ -85,9 +85,9 @@ export const useMainStore = defineStore('main', {
     setLoggedUser(){
 
       let decoded_token = jwt_decode(this.token);
-      this.user.name=decoded_token.username;
-      this.user.email=decoded_token.email;
-      this.user.role=decoded_token.roles[0].name;
+      this.logged_user.name=decoded_token.username;
+      this.logged_user.email=decoded_token.email;
+      this.logged_user.role=decoded_token.roles[0].name;
 
     },
 

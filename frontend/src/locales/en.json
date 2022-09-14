@@ -6,11 +6,17 @@
   },
   "main_page":{
     "period": "Period",
+    "area":"Area",
     "questionaire_type":"Type of questionaire",
     "question_theme":"Questions Theme",
-    "area":"Area",
     "user":"User",
     "question":"Question",
-    "answer":"Answer"
+    "answer":"Answer",
+    "actor_table":{
+          "name":"Name",
+          "area":"Area",
+          "actions":"Actions"
+        }
   }
+  
 }
