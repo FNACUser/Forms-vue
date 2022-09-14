@@ -232,17 +232,30 @@ def add_interacting_actor(current_user):
         already_saved = list(itertools.chain(*interactions))
         
         new_ids=list(set(data['employee_ids']).difference(already_saved))
-        
-        print(new_ids)
-        
+ 
+        print(f"New Ids={new_ids}")
+    
         if len(new_ids):
             for new_id in new_ids:
                 db.session.add(IRA_Employees_interactions(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=new_id))
             
             db.session.commit()
-            
+
+        remove_ids=list(set(already_saved).difference(data['employee_ids']))
+
+        print(f"Remove Ids={remove_ids}")
+
+        if len(remove_ids):
+            for remove_id in remove_ids:
+                actor_interaction = IRA_Employees_interactions.query.filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=remove_id).first()
+                if actor_interaction:
+                    db.session.delete(actor_interaction)
+                    db.session.commit()
+
+
+         
           
-    return jsonify("interacting person was saved correctly!!")
+    return jsonify("interacting actors updated correctly!!")
 
 
 
@@ -251,7 +264,6 @@ def add_interacting_actor(current_user):
 def delete_interacting_actor(current_user):
 
     data = request.json
-    print(data)
 
     if(data['user_email']==current_user.email):
         
@@ -262,7 +274,7 @@ def delete_interacting_actor(current_user):
             db.session.commit()
             
           
-    return jsonify("interacting person was deleted and all related answers !!")
+    return jsonify("interacting actor was deleted and all its related answers(not yet) !!")
 
 
 if __name__ == '__main__':

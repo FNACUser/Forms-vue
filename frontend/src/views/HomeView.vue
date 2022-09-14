@@ -325,8 +325,7 @@ import { mapStores} from 'pinia'
 
       saveAnswersArray(event,employee_id,question_id){
 
-        //key:value 
-
+    
         this.$set(this.answers, `${this.selected_network_mode_theme}_${question_id}_${employee_id}`, event);
 
         const data={
@@ -347,9 +346,6 @@ import { mapStores} from 'pinia'
       },
 
 
-
-     
-
       makeTableHeader(val, defaultHeader, text) {
 
             let headers = Object.assign([], defaultHeader);
@@ -365,8 +361,6 @@ import { mapStores} from 'pinia'
                     });
                 });
             }
-
-            
 
             headers[0].text = this.$t('main_page.actor_table.name');
             headers[1].text = this.$t('main_page.actor_table.area');
