@@ -3,17 +3,19 @@ import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import {i18n} from '../i18n'
 
+const null_user={
+  id:'',
+  name:'',
+  email:'',
+  role:''
+};
 
 export const useMainStore = defineStore('main', {
   state: () => {
     return { 
         
-        token: localStorage.getItem('access_token') || '',
-        logged_user:{
-          name:'',
-          email:'',
-          role:''
-        },
+        token: localStorage.getItem('access_token') || '',    
+        logged_user:null_user,
         employees:[],
         cycles: [],
         networks:[],
@@ -70,11 +72,7 @@ export const useMainStore = defineStore('main', {
 
         this.$reset();
         localStorage.removeItem('access_token');
-        this.logged_user={
-          name:'',
-          email:'',
-          role:''
-        };
+        this.logged_user=null_user;
         this.token='';
        
        this.router.push('/login').catch(() => {});
@@ -85,6 +83,7 @@ export const useMainStore = defineStore('main', {
     setLoggedUser(){
 
       let decoded_token = jwt_decode(this.token);
+      this.logged_user.id = decoded_token.id;
       this.logged_user.name=decoded_token.username;
       this.logged_user.email=decoded_token.email;
       this.logged_user.role=decoded_token.roles[0].name;

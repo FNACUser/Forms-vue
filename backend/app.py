@@ -97,7 +97,7 @@ def login():
         
         roles = roles_schema.dump(user.roles)
         print(f'password si coincide!! { roles}')
-        token = jwt.encode({'username' : user.username, 'email':user.email, 'roles': roles, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+        token = jwt.encode({'id':user.id, 'username' : user.username, 'email':user.email, 'roles': roles, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
         return jsonify({'token' : token})
 
     return make_response('Could not verify 3', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
@@ -179,7 +179,7 @@ def network_mode_questions(network_mode_id):
 
 @app.route('/api/v1/network_mode/<int:network_mode_id>/nodes', methods=['GET'])
 #@token_required
-#def network_mode_nodes((current_user,cycle_id):
+#def network_mode_nodes(current_user,cycle_id):
 def network_mode_nodes(network_mode_id):   
     network_mode = IRA_Networks_modes.query.get(network_mode_id)   
     resp = network_mode.nodes
@@ -208,6 +208,42 @@ def nodes():
 def networks_modes():
     resp = IRA_Networks_modes.query.all()
     return jsonify(network_mode_schema.dump(resp))
+
+
+@app.route('/api/v1/user/<int:user_id>/cycle/<int:cycle_id>/interacting_actors', methods=['GET'])
+# @token_required
+# def interacting_actors(current_user,user_id,cycle_id):
+def get_interacting_actors(user_id,cycle_id):
+
+    # data = request.json
+    # print(data)
+    actors_ids=[]
+
+    # if(data['user_email']==current_user.email):
+        
+    interactions = IRA_Employees_interactions.query.with_entities(IRA_Employees_interactions.id_interacting_employee).filter_by(id_cycle=cycle_id,id_responding_employee=user_id).all()
+    actors_ids = list(itertools.chain(*interactions))
+        
+    
+    return jsonify(actors_ids)
+
+
+@app.route('/api/v1/user/<int:user_id>/cycle/<int:cycle_id>/responses', methods=['GET'])
+# @token_required
+# def interacting_actors(current_user,user_id,cycle_id):
+def get_user_responses(user_id,cycle_id):
+
+    # data = request.json
+    # print(data)
+    actors_ids=[]
+
+    # if(data['user_email']==current_user.email):
+        
+    interactions = IRA_Responses.query.filter_by(id_cycle=cycle_id,id_responding_employee=user_id).all()
+    actors_ids = list(itertools.chain(*interactions))
+        
+    
+    return jsonify(actors_ids)
 
 
 

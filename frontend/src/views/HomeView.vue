@@ -12,7 +12,7 @@
           item-text="Cycle"
           item-value="id_cycle"
           clearable
-          @change="mainStore.getNetworkModes(selected_cycle)"
+          @change="initialize"
           @click:clear="resetSelectedVariables"
         ></v-select>
       </v-col>
@@ -258,6 +258,12 @@ import { mapStores} from 'pinia'
 
       }
     },
+
+    mounted(){
+
+      
+
+    },
    
 
     computed:{
@@ -462,6 +468,53 @@ import { mapStores} from 'pinia'
 
         },
 
+
+       async getActors(){
+
+          await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/interacting_actors')
+              .then(response => {
+                console.log(response.data);
+                //this.selected_actors.splice(item_index,1);
+
+                const actor_ids = response.data;
+
+                console.log(Array.isArray(actor_ids))
+
+                this.selected_actors = this.mainStore.employees.filter(item =>  actor_ids.includes(item.id));
+
+
+              })
+              .catch(error => {
+                
+                console.error('There was an error!', error.message);
+              });
+
+        },
+
+
+        async getUserResponses(){
+
+          await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/responses')
+              .then(response => {
+                console.log(response.data);
+                //this.selected_actors.splice(item_index,1);
+
+                const actor_ids = response.data;
+
+                console.log(Array.isArray(actor_ids))
+
+                this.selected_actors = this.mainStore.employees.filter(item =>  actor_ids.includes(item.id));
+
+
+              })
+              .catch(error => {
+                
+                console.error('There was an error!', error.message);
+              });
+
+},
+
+
         async getNetworkModeQuestions(selected_network_mode){
 
           if(selected_network_mode){
@@ -472,29 +525,39 @@ import { mapStores} from 'pinia'
         },
 
 
-       async getQuestions(){
+      async getQuestions(){
 
-       // let network_mode=null;
-        this.questions=[];
-        if(this.selected_network && this.selected_network.code==='actor' && this.filteredNetwokModeThemes) {
+          // let network_mode=null;
+            this.questions=[];
+            if(this.selected_network && this.selected_network.code==='actor' && this.filteredNetwokModeThemes) {
 
-          if(this.selected_network_mode_theme){
-             this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id && item.id_network_mode_theme===this.selected_network_mode_theme)[0];
-          }
-        }
-        else if(this.selected_network && this.selected_network.code!=='actor'){
-          
-          this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id)[0];
-          await this.getNodes(this.current_network_mode.id_network_mode);
-         
-        }
+              if(this.selected_network_mode_theme){
+                this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id && item.id_network_mode_theme===this.selected_network_mode_theme)[0];
+              }
+            }
+            else if(this.selected_network && this.selected_network.code!=='actor'){
+              
+              this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id)[0];
+              await this.getNodes(this.current_network_mode.id_network_mode);
+            
+            }
 
-        if(this.current_network_mode){
-          this.getNetworkModeQuestions(this.current_network_mode.id_network_mode)
-        }
-        
-       } 
+            if(this.current_network_mode){
+              this.getNetworkModeQuestions(this.current_network_mode.id_network_mode)
+            }
+            
+      },
+      
+      
+      async initialize(){
+
+        await this.getActors();
+        await this.mainStore.getNetworkModes(this.selected_cycle);
+
+      }
     }
+
+
   }
 </script>
 
