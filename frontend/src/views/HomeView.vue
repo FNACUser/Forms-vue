@@ -250,18 +250,24 @@ import { mapStores} from 'pinia'
             text: 'Nombre',
             align: 'start',
             value: 'username',
+            class: "white--text"
           },
-          { text: 'Area', value: 'id_organization_area' },
+          { 
+            text: 'Area', 
+            value: 'id_organization_area',
+            class: "white--text" 
+          },
           
-          { text: 'Acciones',sortable: false},
+          { 
+            text: 'Acciones',
+            class: "white--text",
+            sortable: false},
         ],
 
       }
     },
 
     mounted(){
-
-      
 
     },
    
@@ -366,6 +372,7 @@ import { mapStores} from 'pinia'
                     headers.splice(2 + index, 0, {
                         text: `${text} ${index + 1}`,
                         align: 'center',
+                        class: 'white--text',
                         sortable: false,
                     });
                 });
@@ -448,6 +455,7 @@ import { mapStores} from 'pinia'
           this.questions=[];
           this.nodes=[];
           this.current_network_mode=null;
+          this.answers=[];
 
         },
 
@@ -458,6 +466,7 @@ import { mapStores} from 'pinia'
           this.selected_network_mode_theme=null;
           this.current_network_mode=null;
           this.nodes=[];
+          this.answers=[]
 
         },
 
@@ -473,16 +482,8 @@ import { mapStores} from 'pinia'
 
           await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/interacting_actors')
               .then(response => {
-                console.log(response.data);
-                //this.selected_actors.splice(item_index,1);
-
                 const actor_ids = response.data;
-
-                console.log(Array.isArray(actor_ids))
-
                 this.selected_actors = this.mainStore.employees.filter(item =>  actor_ids.includes(item.id));
-
-
               })
               .catch(error => {
                 
@@ -497,14 +498,32 @@ import { mapStores} from 'pinia'
           await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/responses')
               .then(response => {
                 console.log(response.data);
+
+                const responses = response.data;
+
+                if(responses){
+
+                 responses.forEach(response => {
+
+
+                  const resp_content=JSON.parse(response.Response);
+
+                  resp_content.forEach(content =>{
+
+                      this.answers[`${response.adjacency_input_form['network_mode.id_network_mode_theme']}_${response.id_question}_${content.id_actor}`]= content.valor
+
+
+                  })
+
+
+                 });
+
+
+                }
                 //this.selected_actors.splice(item_index,1);
-
-                const actor_ids = response.data;
-
-                console.log(Array.isArray(actor_ids))
-
-                this.selected_actors = this.mainStore.employees.filter(item =>  actor_ids.includes(item.id));
-
+                // const actor_ids = response.data;
+                // console.log(Array.isArray(actor_ids))
+                // this.selected_actors = this.mainStore.employees.filter(item =>  actor_ids.includes(item.id));
 
               })
               .catch(error => {
@@ -512,7 +531,7 @@ import { mapStores} from 'pinia'
                 console.error('There was an error!', error.message);
               });
 
-},
+        },
 
 
         async getNetworkModeQuestions(selected_network_mode){
@@ -547,12 +566,16 @@ import { mapStores} from 'pinia'
             }
             
       },
-      
-      
+
       async initialize(){
 
-        await this.getActors();
-        await this.mainStore.getNetworkModes(this.selected_cycle);
+        if(this.selected_cycle){
+
+          await this.getActors();
+          await this.mainStore.getNetworkModes(this.selected_cycle);
+          await this.getUserResponses();
+        }
+
 
       }
     }
@@ -560,4 +583,12 @@ import { mapStores} from 'pinia'
 
   }
 </script>
+
+<style>
+
+.v-data-table-header {
+  background: #2196f3!important;
+}
+
+</style>
 

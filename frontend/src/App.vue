@@ -92,6 +92,7 @@
         <v-main>
          
               <router-view ></router-view>
+              <loader></loader>
          
         </v-main>
 
@@ -108,6 +109,8 @@
  import { useMainStore } from '@/store/main'
  import { mapStores} from 'pinia'
  import LocaleSwitcher from './components/LocaleSwitcher.vue';
+ import Loader from './components/partials/_loader';
+// import flashMessage from './components/partials/flashMessage'
 
  export default{
     data() {
@@ -136,6 +139,27 @@
             this.mainStore.initialize();
             this.mainStore.setLoggedUser();
         }
+
+        this.$axios.interceptors.request.use((config) => {
+            // Do something before request is sent
+            this.mainStore.loader= true;
+            return config;
+        }, (error) => {
+            // Do something with request error
+            this.mainStore.loader = false;
+            return Promise.reject(error);
+        });
+
+        // Add a response interceptor
+        this.$axios.interceptors.response.use((response) => {
+            // Do something with response data
+            this.mainStore.loader = false;
+            return response;
+        }, (error) => {
+            // Do something with response error
+            this.mainStore.loader=false;
+            return Promise.reject(error);
+        });
     },
 
     computed: {
@@ -162,7 +186,11 @@
       }
         
     },
-    components: { LocaleSwitcher }
+    components: { 
+        LocaleSwitcher,
+        Loader,
+       // flashMessage
+    }
 }
 
 </script>

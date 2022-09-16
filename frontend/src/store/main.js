@@ -21,6 +21,7 @@ export const useMainStore = defineStore('main', {
         networks:[],
         areas:[],
         network_modes:[],
+        loader: false
         // questions:[]
 
     }

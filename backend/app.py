@@ -26,7 +26,7 @@ from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
                     IRA_Adjacency_input_form     
 from models import  users_schema, user_schema,cycles_schema, networks_schema, network_mode_schema, areas_schema,\
                     roles_schema, role_schema,node_segment_category_schema,\
-                    network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema
+                    network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema,responses_schema
 
 
 DEBUG=True
@@ -235,15 +235,18 @@ def get_user_responses(user_id,cycle_id):
 
     # data = request.json
     # print(data)
-    actors_ids=[]
+    existing_responses = []
 
     # if(data['user_email']==current_user.email):
-        
-    interactions = IRA_Responses.query.filter_by(id_cycle=cycle_id,id_responding_employee=user_id).all()
-    actors_ids = list(itertools.chain(*interactions))
-        
     
-    return jsonify(actors_ids)
+    adjacency_input_forms_ids= IRA_Adjacency_input_form.query.with_entities(IRA_Adjacency_input_form.id_adjacency_input_form).filter_by(id_cycle=cycle_id,id_employee=user_id).all()
+    adjacency_codes = list(itertools.chain(*adjacency_input_forms_ids))
+         
+    if (adjacency_codes):
+        existing_responses = IRA_Responses.query.filter(IRA_Responses.id_adjacency_input_form.in_(adjacency_codes)).all()
+    
+    
+    return jsonify(responses_schema.dump(existing_responses))
 
 
 
@@ -252,7 +255,7 @@ def get_user_responses(user_id,cycle_id):
 def add_interacting_actor(current_user):
 # def add_interacting_person():
     data = request.json
-    print(data)
+    #print(data)
 
     if(data['user_email']==current_user.email):
         

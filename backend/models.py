@@ -137,6 +137,7 @@ class IRA_Adjacency_input_form(db.Model):
     responses = db.relationship('IRA_Responses',
                                 backref=db.backref('adjacency_input_form',
                                                    lazy=True))
+    
 
     db.UniqueConstraint('id_employee', 'id_cycle', 'id_network_mode',
                         name='uix_1')
@@ -615,11 +616,7 @@ class ThemeResponseSchema(ma.SQLAlchemyAutoSchema):
         
     questions_responses = ma.List(ma.Nested(QuestionResponseSchema))
         
-class AdjacencyFormSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = IRA_Adjacency_input_form
-        
-    responses = ma.List(ma.Nested(ResponseSchema))
+
         
 class CultureFormSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -735,6 +732,15 @@ class NetworkModeSchema(ma.SQLAlchemyAutoSchema):
 network_mode_schema = NetworkModeSchema(many=True)
 
 
+class AdjacencyFormSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = IRA_Adjacency_input_form
+        fields = ("id_employee","id_cycle","id_network_mode","network_mode.id_network_mode_theme","Is_concluded")
+        
+   # responses = ma.List(ma.Nested(ResponseSchema))
+    network_mode = ma.Nested(NetworkModeSchema)
+
+
 class CycleSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
@@ -744,5 +750,18 @@ class CycleSchema(ma.SQLAlchemyAutoSchema):
         # network_modes = ma.Nested(NetworksModesSchema)
 
 cycles_schema = CycleSchema(many=True)
+
+
+
+class ResponseSchema(ma.SQLAlchemyAutoSchema):
+    
+    class Meta:
+        model = IRA_Responses
+        fields = ("id_response","id_question","id_adjacency_input_form","Response","adjacency_input_form")
+    
+    adjacency_input_form = ma.Nested(AdjacencyFormSchema)
+        
+
+responses_schema = ResponseSchema(many=True)
 
 
