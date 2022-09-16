@@ -53,6 +53,9 @@ new Vue({
     
         vuetify:new Vuetify({
             theme: { dark: false },
+            lang: {
+                t: (key, ...params) => i18n.t(key, params),
+              },
 
             }),
         pinia,
