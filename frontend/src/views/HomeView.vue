@@ -149,7 +149,7 @@
                                   <v-icon
                                       v-on="on"
                                       small
-                                      @click="deleteActor(item)"
+                                      @click="showdeleteActorModal(item)"
                                       color="orange"
                                   >
                                       mdi-delete
@@ -205,7 +205,7 @@
                                   <v-icon
                                       v-on="on"
                                       small
-                                      @click="deleteActor(item)"
+                                     
                                       color="orange"
                                   >
                                       mdi-delete
@@ -219,6 +219,21 @@
           </v-data-table>
         </v-col>
     </v-row>
+    <!-- DeleteConfirmationModal -->
+    
+
+    <!-- <vue-final-modal v-model="showDeleteConfirmationModal" name="DeleteConfirmationModal">
+        <template v-slot:title>Borrar Actor</template>
+        <template v-slot="{ params }">
+          Está seguro de eliminar el Actor {{ params.userName }}
+        </template>
+    </vue-final-modal> -->
+
+    <custom-modal v-model="showDeleteConfirmationModal" @confirm="confirmDelete" @cancel="cancelDelete">
+      <template v-slot:title>Hello, vue-final-modal</template>
+      <p>Vue Final Modal is a renderless, stackable, detachable and lightweight modal component.</p>
+    </custom-modal>
+   
 
     </v-container>
 </template>
@@ -226,9 +241,15 @@
 
 import { useMainStore } from '@/store/main'
 import { mapStores} from 'pinia'
+import CustomModal from '@/components/partials/CustomModal.vue';
 
 
   export default {
+
+    components: { 
+      CustomModal
+    },
+
     data() {
       return {
 
@@ -242,6 +263,8 @@ import { mapStores} from 'pinia'
         answers:{},
         nodes:[],
         current_network_mode:null,
+        showDeleteConfirmationModal:false,
+        deleteActorConfirmed:false,
        
         //interactingColleagues:[],
 
@@ -336,6 +359,25 @@ import { mapStores} from 'pinia'
 
     methods:{
 
+
+      // showdeleteActorModal(item){
+
+       
+
+      // },
+
+      confirmDelete(){
+
+
+      },
+
+      cancelDelete(close){
+
+        close();
+
+
+      },
+
       saveAnswersArray(event,employee_id,question_id){
 
     
@@ -421,25 +463,32 @@ import { mapStores} from 'pinia'
 
       async deleteActor(item) {
            
-            let item_index = this.selected_actors.findIndex(object => {
-                return object.id==item.id});
+            // let item_index = this.selected_actors.findIndex(object => {
+            //     return object.id==item.id});
 
-            const data={
-                  "user_email":this.mainStore.logged_user.email,
-                  "actor_id":item.id,
-                  "cycle_id":this.selected_cycle           
-              };
+            // const data={
+            //       "user_email":this.mainStore.logged_user.email,
+            //       "actor_id":item.id,
+            //       "cycle_id":this.selected_cycle           
+            //   };
 
+              console.log(item);
+              this.showDeleteConfirmationModal=true;
+
+              // this.$vfm.show('DeleteConfirmationModal', { userName: item.userName })
+              //   .then(() => {
+              //     // do something on modal opened
+              //   })
           
-            await this.$axios.delete(process.env.VUE_APP_BACKEND_URL+'/delete_interacting_actor', {data:data})
-              .then(response => {
-                console.log(response.data);
-                this.selected_actors.splice(item_index,1);
-              })
-              .catch(error => {
+            // await this.$axios.delete(process.env.VUE_APP_BACKEND_URL+'/delete_interacting_actor', {data:data})
+            //   .then(response => {
+            //     console.log(response.data);
+            //     this.selected_actors.splice(item_index,1);
+            //   })
+            //   .catch(error => {
                 
-                console.error('There was an error!', error.message);
-              });
+            //     console.error('There was an error!', error.message);
+            //   });
      
       },
 

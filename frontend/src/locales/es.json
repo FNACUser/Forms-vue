@@ -17,18 +17,5 @@
           "area":"Area",
           "actions":"Acciones"
         }
-  },
-  "$vuetify": {
-    "dataIterator": {
-      "rowsPerPageText": "Elementos por página:",
-      "pageText": "{0}-{1} de {2}"
-      },
-    "dataTable":{
-      "itemsPerPageText":"Registros por página:"
-    },
-    "dataFooter":{
-      "pageText":"{0}-{1} de {2}",
-      "itemsPerPageAll":"Todos"
-    }
   }
 }

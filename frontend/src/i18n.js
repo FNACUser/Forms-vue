@@ -1,19 +1,36 @@
-import Vue from 'vue'
-import VueI18n from 'vue-i18n'
+import Vue from 'vue';
+import VueI18n from 'vue-i18n';
+import {en,es} from 'vuetify/lib/locale';
+
 
 Vue.use(VueI18n)
 
+
+function loadVuetifyLocales(messages){
+
+  messages['en']['$vuetify']= en;
+  messages['es']['$vuetify']= es;
+
+  return messages;
+
+}
+
 function loadLocaleMessages () {
   const locales = require.context('./locales', true, /[A-Za-z0-9-_,\s]+\.json$/i)
-  const messages = {}
+ // console.log(locales.keys())
+  let messages = {}
   locales.keys().forEach(key => {
     const matched = key.match(/([A-Za-z0-9-_]+)\./i)
+  //  console.log(matched);
     if (matched && matched.length > 1) {
       const locale = matched[1]
+  //    console.log(locales(key))
       messages[locale] = locales(key)
     }
-  })
- // console.log(messages);
+  });
+
+  messages=loadVuetifyLocales(messages);
+
   return messages
 }
 

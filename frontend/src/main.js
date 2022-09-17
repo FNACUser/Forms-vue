@@ -1,18 +1,22 @@
-import Vue from 'vue'
-import { markRaw } from 'vue'
-import App from './App.vue'
-import router from './router'
-import axios from 'axios'
-import Vuetify from 'vuetify'
-import 'vuetify/dist/vuetify.min.css'
+import Vue from 'vue';
+import { markRaw } from 'vue';
+import App from './App.vue';
+import router from './router';
+import axios from 'axios';
+import Vuetify from 'vuetify';
+import 'vuetify/dist/vuetify.min.css';
 import pinia from "@/store/createPinia";
-import {i18n} from './i18n'
+import {i18n} from './i18n';
+import { vfmPlugin } from 'vue-final-modal';
 
-Vue.use(Vuetify)
 
-pinia.use(({ store }) => { store.router = markRaw(router) })
 
-Vue.config.productionTip = false
+Vue.use(vfmPlugin);
+Vue.use(Vuetify);
+
+pinia.use(({ store }) => { store.router = markRaw(router) });
+
+Vue.config.productionTip = false;
 Vue.prototype.$axios = axios;
 window.axios = require('axios');
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
