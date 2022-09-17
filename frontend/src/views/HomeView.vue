@@ -149,7 +149,7 @@
                                   <v-icon
                                       v-on="on"
                                       small
-                                      @click="showdeleteActorModal(item)"
+                                      @click="delRecord(item)"
                                       color="orange"
                                   >
                                       mdi-delete
@@ -219,20 +219,11 @@
           </v-data-table>
         </v-col>
     </v-row>
-    <!-- DeleteConfirmationModal -->
     
 
-    <!-- <vue-final-modal v-model="showDeleteConfirmationModal" name="DeleteConfirmationModal">
-        <template v-slot:title>Borrar Actor</template>
-        <template v-slot="{ params }">
-          Está seguro de eliminar el Actor {{ params.userName }}
-        </template>
-    </vue-final-modal> -->
-
-    <custom-modal v-model="showDeleteConfirmationModal" @confirm="confirmDelete" @cancel="cancelDelete">
-      <template v-slot:title>Hello, vue-final-modal</template>
-      <p>Vue Final Modal is a renderless, stackable, detachable and lightweight modal component.</p>
-    </custom-modal>
+    <confirmation-dialog ref="confirmDeleteActor">
+      
+    </confirmation-dialog>
    
 
     </v-container>
@@ -241,13 +232,13 @@
 
 import { useMainStore } from '@/store/main'
 import { mapStores} from 'pinia'
-import CustomModal from '@/components/partials/CustomModal.vue';
+import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
 
   export default {
 
     components: { 
-      CustomModal
+      ConfirmationDialog
     },
 
     data() {
@@ -263,10 +254,6 @@ import CustomModal from '@/components/partials/CustomModal.vue';
         answers:{},
         nodes:[],
         current_network_mode:null,
-        showDeleteConfirmationModal:false,
-        deleteActorConfirmed:false,
-       
-        //interactingColleagues:[],
 
         defaultHeader:[
           {
@@ -317,7 +304,6 @@ import CustomModal from '@/components/partials/CustomModal.vue';
 
       filteredEmployees(){
 
-        //console.log(this.selected_area);
 
         if(this.selected_area){
 
@@ -360,23 +346,6 @@ import CustomModal from '@/components/partials/CustomModal.vue';
     methods:{
 
 
-      // showdeleteActorModal(item){
-
-       
-
-      // },
-
-      confirmDelete(){
-
-
-      },
-
-      cancelDelete(close){
-
-        close();
-
-
-      },
 
       saveAnswersArray(event,employee_id,question_id){
 
@@ -448,8 +417,7 @@ import CustomModal from '@/components/partials/CustomModal.vue';
               "cycle_id":this.selected_cycle           
           };
 
-          console.log(data);
-
+    
           await this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/add_interacting_actor', data)
           .then(response => console.log(response.data))
           .catch(error => {
@@ -461,34 +429,41 @@ import CustomModal from '@/components/partials/CustomModal.vue';
 
           },
 
+
+      async delRecord(item) {
+        if (
+          await this.$refs.confirmDeleteActor.open(
+            this.$t('menus.delete_record_title'),
+            this.$t('menus.delete_record_text'),
+            {color:"red lighten-3"}
+          )
+        ) {
+          await this.deleteActor(item);
+        }
+      },
+
+
+
       async deleteActor(item) {
            
-            // let item_index = this.selected_actors.findIndex(object => {
-            //     return object.id==item.id});
+            let item_index = this.selected_actors.findIndex(object => {
+                return object.id==item.id});
 
-            // const data={
-            //       "user_email":this.mainStore.logged_user.email,
-            //       "actor_id":item.id,
-            //       "cycle_id":this.selected_cycle           
-            //   };
-
-              console.log(item);
-              this.showDeleteConfirmationModal=true;
-
-              // this.$vfm.show('DeleteConfirmationModal', { userName: item.userName })
-              //   .then(() => {
-              //     // do something on modal opened
-              //   })
+            const data={
+                  "user_email":this.mainStore.logged_user.email,
+                  "actor_id":item.id,
+                  "cycle_id":this.selected_cycle           
+              };
           
-            // await this.$axios.delete(process.env.VUE_APP_BACKEND_URL+'/delete_interacting_actor', {data:data})
-            //   .then(response => {
-            //     console.log(response.data);
-            //     this.selected_actors.splice(item_index,1);
-            //   })
-            //   .catch(error => {
+            await this.$axios.delete(process.env.VUE_APP_BACKEND_URL+'/delete_interacting_actor', {data:data})
+              .then(response => {
+                console.log(response.data);
+                this.selected_actors.splice(item_index,1);
+              })
+              .catch(error => {
                 
-            //     console.error('There was an error!', error.message);
-            //   });
+                console.error('There was an error!', error.message);
+              });
      
       },
 
@@ -546,34 +521,24 @@ import CustomModal from '@/components/partials/CustomModal.vue';
 
           await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/responses')
               .then(response => {
-                console.log(response.data);
-
+               
                 const responses = response.data;
 
                 if(responses){
 
                  responses.forEach(response => {
 
-
                   const resp_content=JSON.parse(response.Response);
 
                   resp_content.forEach(content =>{
 
                       this.answers[`${response.adjacency_input_form['network_mode.id_network_mode_theme']}_${response.id_question}_${content.id_actor}`]= content.valor
-
-
                   })
-
 
                  });
 
-
                 }
-                //this.selected_actors.splice(item_index,1);
-                // const actor_ids = response.data;
-                // console.log(Array.isArray(actor_ids))
-                // this.selected_actors = this.mainStore.employees.filter(item =>  actor_ids.includes(item.id));
-
+                
               })
               .catch(error => {
                 
@@ -595,7 +560,6 @@ import CustomModal from '@/components/partials/CustomModal.vue';
 
       async getQuestions(){
 
-          // let network_mode=null;
             this.questions=[];
             if(this.selected_network && this.selected_network.code==='actor' && this.filteredNetwokModeThemes) {
 

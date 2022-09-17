@@ -2,9 +2,13 @@
   "menus":{
     "active_source":"Active source",
     "culture":"Culture",
-    "about": "About"
+    "about": "About",
+    "delete_record_text":"Are you sure you want to delete this record?",
+    "delete_record_title":"Delete record",
+    "cancel":"Cancel"
   },
   "main_page":{
+   
     "period": "Period",
     "area":"Area",
     "questionaire_type":"Type of questionaire",

@@ -7,11 +7,8 @@ import Vuetify from 'vuetify';
 import 'vuetify/dist/vuetify.min.css';
 import pinia from "@/store/createPinia";
 import {i18n} from './i18n';
-import { vfmPlugin } from 'vue-final-modal';
 
 
-
-Vue.use(vfmPlugin);
 Vue.use(Vuetify);
 
 pinia.use(({ store }) => { store.router = markRaw(router) });
