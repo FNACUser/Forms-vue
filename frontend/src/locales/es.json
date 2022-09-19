@@ -22,5 +22,21 @@
           "area":"Area",
           "actions":"Acciones"
         }
+  },
+  "login":{
+     
+      "email_required":"E-mail es requerido!",
+      "pwd_required":"Contraseña es requerida!",
+      "password":"Contraseña",
+      "forgot_pwd":"¿Olvidó su contraseña?",
+      "min_pwd":"Contraseña debe ser mínimo de 5 caracteres!",
+      "email_not_valid":"E-mail no es válido!",
+      "pwd_not_valid":"Contraseña no es válida!",
+      "missing_token":"Token no está presente!",
+      "invalid_token":"Token inválido!",
+      "missing_credentials": "Faltan las credenciales!",
+      "user_not_registered": "Usuario no está registrado!",
+      "bad_credentials":"Credenciales incorrectas!"
+
   }
 }

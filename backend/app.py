@@ -56,7 +56,7 @@ def token_required(f):
             # print("The variable type:", type(token))
 
         if not token:
-            return jsonify({'message' : 'Token is missing!'}), 401
+            return jsonify({'message' : 'login.missing_token'}), 401
 
         try: 
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
@@ -66,7 +66,7 @@ def token_required(f):
         except Exception as e:
             print(e)
 
-            return jsonify({'message' : 'Token is invalid!'}), 401
+            return jsonify({'message' : 'login.invalid_token'}), 401
 
         return f(current_user, *args, **kwargs)
 
@@ -84,23 +84,23 @@ def login():
     #print(auth['email'])
 
     if not auth or not auth['email'] or not auth['password']:
-        return make_response('Could not verify 1', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+        return make_response('login.missing_credentials', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
     user = User.query.filter_by(email=auth['email']).first()
 
     if not user:
-        return make_response('Could not verify 2', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+        return make_response('login.user_not_registered', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
 
     # if check_password_hash(user.password, auth['password']):
     if verify_password(auth['password'],user.password):
         
         roles = roles_schema.dump(user.roles)
-        print(f'password si coincide!! { roles}')
+        # print(f'password si coincide!! { roles}')
         token = jwt.encode({'id':user.id, 'username' : user.username, 'email':user.email, 'roles': roles, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
         return jsonify({'token' : token})
 
-    return make_response('Could not verify 3', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+    return make_response('login.bad_credentials', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
    
 
 @app.route('/api/v1/users', methods=['GET'])

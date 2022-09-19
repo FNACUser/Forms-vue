@@ -21,8 +21,10 @@ export const useMainStore = defineStore('main', {
         networks:[],
         areas:[],
         network_modes:[],
-        loader: false
-        // questions:[]
+        loader: false,
+        flash_message: '',
+        flash_message_type: ''
+       
 
     }
   },
@@ -37,7 +39,7 @@ export const useMainStore = defineStore('main', {
 
     async initialize(){
 
-      console.log('ENV BACKEND_URL='+ process.env.VUE_APP_BACKEND_URL);
+      //console.log('ENV BACKEND_URL='+ process.env.VUE_APP_BACKEND_URL);
       this.getAreas();
       this.getEmployees();
       this.getNetworks();
@@ -48,7 +50,7 @@ export const useMainStore = defineStore('main', {
     async logIn(credentials){
 
   
-        axios.post(process.env.VUE_APP_BACKEND_URL+'/login', credentials)
+       await  axios.post(process.env.VUE_APP_BACKEND_URL+'/login', credentials)
                   .then(response => {
                      
                       let accessToken = response.data.token;
@@ -60,9 +62,10 @@ export const useMainStore = defineStore('main', {
                       
                   })
                  .catch( error => {
-                      console.log(error);
+                    //  console.log(error);
                       this.$reset();
                       localStorage.removeItem('access_token');
+                      this.setFlashMessage({message:error.response.data,type:'error'});
                       this.router.push('/login').catch(() => {});
   
                  });
@@ -129,6 +132,31 @@ export const useMainStore = defineStore('main', {
      this.areas = areas.data;
 
    },
+
+   setFlashMessage(payload) {
+
+    if(payload.message){
+
+      //console.log(payload.message)
+
+      this.flash_message = i18n.t(`${payload.message}`);
+      this.flash_message_type = payload.type;
+  
+     // console.log(this.flash_message);
+
+
+    }
+
+    else{
+
+      this.flash_message = '';
+      this.flash_message_type = null;
+
+
+    }
+
+ 
+  },
 
    
 

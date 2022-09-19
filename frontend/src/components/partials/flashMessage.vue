@@ -17,7 +17,7 @@
                 </v-alert>
 
             </v-col>
-
+           
         </v-row>
 
 
@@ -25,17 +25,16 @@
 
 <script>
 
-import {mapMutations, mapState} from 'vuex'
+import { useMainStore } from '@/store/main'
+import { mapActions,mapState } from 'pinia'
 
 export default {
-    data: () => ({
-
-    }),
+    
 
     computed: {
-        ...mapState([
-            'flash_message' , 'flash_message_type'
-        ]),
+
+        ...mapState(useMainStore,[ 'flash_message' , 'flash_message_type']),
+        
     },
 
     watch: {
@@ -47,9 +46,9 @@ export default {
     },
 
     methods:{
-        ...mapMutations([
-            'setFlashMessage'
-        ]),
+
+        ...mapActions(useMainStore, ['setFlashMessage']),
+       
 
         onClose() {
             this.setFlashMessage({});
@@ -58,7 +57,3 @@ export default {
 
 }
 </script>
-
-<style scoped>
-
-</style>

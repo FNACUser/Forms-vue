@@ -21,6 +21,22 @@
           "area":"Area",
           "actions":"Actions"
         }
-  }
+  },
+  "login":{
+    "email_required":"E-mail is required!",
+    "pwd_required":"Password is required!",
+    "password":"Password",
+    "forgot_pwd":"Forgot password?",
+    "min_pwd":"Password must be min 5 characters long!",
+    "email_not_valid":"Email is not valid!",
+    "pwd_not_valid":"Password is not valid!",
+    "missing_token":"Missing Token!",
+    "invalid_token":"Invalid Token!",
+    "missing_credentials": "Missing credentials!",
+    "user_not_registered": "User is not registered!",
+    "bad_credentials":"Invalid credentials!"
+   
+
+}
   
 }

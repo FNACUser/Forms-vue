@@ -66,21 +66,25 @@
       </v-navigation-drawer>
       <v-app-bar 
         :clipped-left="$vuetify.breakpoint.lgAndUp"
-        v-if="mainStore.isLoggedIn"
+       
         app
       >
 
         <v-app-bar-nav-icon @click.stop="drawer = !drawer" v-if="mainStore.isLoggedIn"/>
         <v-spacer></v-spacer>
         <v-toolbar-items v-if="mainStore.isLoggedIn">
-
-                <v-btn text v-if="mainStore.isLoggedIn">{{ mainStore.logged_user.name }}</v-btn>
                 <LocaleSwitcher/>
-                <v-btn icon @click="mainStore.logout" v-if="mainStore.isLoggedIn">
+                <v-btn text >{{ mainStore.logged_user.name }}</v-btn>
+                <v-btn icon @click="mainStore.logout" >
                     <v-icon>mdi-logout</v-icon>
                 </v-btn>
 
-            </v-toolbar-items>
+        </v-toolbar-items>
+        <v-toolbar-items v-else>
+
+            <LocaleSwitcher/>
+            
+        </v-toolbar-items>
 
       </v-app-bar>
 
@@ -90,9 +94,9 @@
           
         </header>
         <v-main>
-         
-              <router-view ></router-view>
-              <loader></loader>
+            <flash-message/>
+            <router-view ></router-view>
+            <loader></loader>
          
         </v-main>
 
@@ -110,7 +114,7 @@
  import { mapStores} from 'pinia'
  import LocaleSwitcher from './components/LocaleSwitcher.vue';
  import Loader from './components/partials/_loader';
-// import flashMessage from './components/partials/flashMessage'
+ import flashMessage from './components/partials/flashMessage'
 
  export default{
     data() {
@@ -189,7 +193,7 @@
     components: { 
         LocaleSwitcher,
         Loader,
-       // flashMessage
+        flashMessage
     }
 }
 
