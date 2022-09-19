@@ -15,24 +15,24 @@
                     v-model="email"
                     label="Email"
                     type="text"
-                    :rules="[v => !!v || 'E-mail es requerido!',
-                             v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail no es válido']">
+                    :rules="[v => !!v || $t('login.email_required'),
+                             v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || $t('login.email_not_valid')]">
                     </v-text-field>
                   <v-text-field
                       @keyup.enter="logIn"
                       id="password"
                       prepend-icon ="mdi-lock"
                       v-model="password"
-                      label="Contraseña"
+                      :label="$t('login.password')"
                       :type="show ? 'text' : 'password'"
                       :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
                       @click:append="show = !show"
-                      :rules="[v => !!v || 'Contraseña es requerida!',
-                              v => /^\w(?=.{4,})/.test(v) || 'Contraseña debe ser mínimo de 5 caracteres!']"
+                      :rules="[v => !!v || $t('login.pwd_required'),
+                              v => /^\w(?=.{4,})/.test(v) || $t('login.min_pwd')]"
                     >
                     </v-text-field>
 
-                    <a :href="forgotURL">¿Olvidó su contraseña?</a>
+                    <a :href="forgotURL">{{$t('login.forgot_pwd')}}</a>
 
                   
                 </v-form>
@@ -79,20 +79,6 @@ import { mapStores} from 'pinia'
 
         this.mainStore.logIn(creds);
 
-    //   this.$axios.post('http://localhost:5000/api/v1/login', creds)
-    //             .then(response => {
-
-    //                 let accessToken = response.data.token;
-    //                 localStorage.setItem('access_token', accessToken);
-    //                 this.$router.push('/home');
-
-    //             })
-    //            .catch( error => {
-    //                 console.log(error.response.data.message);
-    //                 localStorage.removeItem('access_token');
-    //                 this.$router.push('/login')
-
-    //            });
         
      }
 
