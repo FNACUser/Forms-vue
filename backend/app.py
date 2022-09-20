@@ -376,7 +376,7 @@ def save_answer(current_user):
         
             
           
-    return jsonify("answer was saved correctly!!")
+    return jsonify("main_page.answer_saved")
 
 
 

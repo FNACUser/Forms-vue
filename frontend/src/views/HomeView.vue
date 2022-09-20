@@ -363,9 +363,15 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
         };
 
         this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/save_answer', data)
-        .then(response => console.log(response.data))
+        .then(response => {
+          //console.log(response.data);
+          this.$alertify.success(this.$t(response.data));
+
+        }
+
+          )
         .catch(error => {
-          
+          this.$alertify.error(this.$t(error.message));
           console.error('There was an error!', error.message);
        });
 

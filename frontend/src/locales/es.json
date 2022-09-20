@@ -5,7 +5,8 @@
     "about": "Acerca de..",
     "delete_record_text":"Está seguro de eliminar este registro?",
     "delete_record_title":"Borrar registro",
-    "cancel":"Cancelar"
+    "cancel":"Cancelar",
+    "loading":"Cargando..."
 
   },
   "main_page":{
@@ -21,7 +22,8 @@
           "name":"Nombre",
           "area":"Area",
           "actions":"Acciones"
-        }
+        },
+    "answer_saved":"Su respuesta ha sido guardada!"
   },
   "login":{
      

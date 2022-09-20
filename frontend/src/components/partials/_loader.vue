@@ -12,7 +12,7 @@
         dark
       >
         <v-card-text>
-          Cargando...
+          {{$t('menus.loading')}}
           <v-progress-linear
             indeterminate
             color="white"
