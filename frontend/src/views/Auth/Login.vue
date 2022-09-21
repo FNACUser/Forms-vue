@@ -3,11 +3,20 @@
          <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
             <v-card class="elevation-12">
-              <v-toolbar dark color="primary">
-                <v-toolbar-title>Login...</v-toolbar-title>
-                <v-spacer></v-spacer>
+              <v-img
+                height="250px"
+                src="images/OA-HUB-cropped.png"
+              >
+              <v-app-bar
+                flat
+                color="rgba(0, 0, 0, 0)"
+              >
+                <!-- <v-toolbar dark color="primary">
+                  <v-toolbar-title>Login...</v-toolbar-title>
+                </v-toolbar> -->
 
-              </v-toolbar>
+              </v-app-bar>
+              </v-img>
               <v-card-text>
                 <v-form>
                    <v-text-field
