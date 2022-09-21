@@ -8,8 +8,10 @@ import 'vuetify/dist/vuetify.min.css';
 import pinia from "@/store/createPinia";
 import {i18n} from './i18n';
 import VueAlertify from 'vue-alertify';
- 
+import VueParticles from 'vue-particles';
 
+
+Vue.use(VueParticles)
 Vue.use(VueAlertify);
 Vue.use(Vuetify);
 

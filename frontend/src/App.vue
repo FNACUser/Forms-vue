@@ -94,27 +94,30 @@
           
         </header>
         <v-main>
-            <flash-message/>
-            <router-view ></router-view>
-            <loader></loader>
-         
+                <vue-particles color="#dedede"/>
+                <flash-message style="height: 5px;"/>
+                <router-view ></router-view>
+                <loader></loader>
+              
+
         </v-main>
 
         <v-footer app>
-          
+
+           
         </v-footer>
 
          </v-app>
 </template>
 
-<script>
- 
- 
+<script >
+
  import { useMainStore } from '@/store/main'
  import { mapStores} from 'pinia'
  import LocaleSwitcher from './components/LocaleSwitcher.vue';
  import Loader from './components/partials/_loader';
- import flashMessage from './components/partials/flashMessage'
+ import flashMessage from './components/partials/flashMessage';
+
 
  export default{
     data() {
@@ -136,6 +139,14 @@
                 }
             ]
         };
+    },
+
+    
+    components: { 
+        LocaleSwitcher,
+        Loader,
+        flashMessage,
+       
     },
     
     created() {
@@ -165,6 +176,9 @@
             return Promise.reject(error);
         });
     },
+    mounted() {
+      
+    },
 
     computed: {
         ...mapStores(useMainStore),
@@ -187,19 +201,35 @@
         this.menus[0].text=this.$t('menus.active_source');
         this.menus[1].text=this.$t('menus.culture');
 
-      }
-        
-    },
-    components: { 
-        LocaleSwitcher,
-        Loader,
-        flashMessage
+      }  
     }
 }
 
 </script>
 
-<style>
+<style scoped>
+
+#particles-js { 
+  /*position: absolute;
+  background-size: cover;
+  top: 0; 
+  bottom: 0; 
+  left: 0;
+  right: 0; 
+  overflow-y: hidden; 
+  z-index: 0;*/
+  width: 100%;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0; 
+}
+
+.v-data-table {
+    position: absolute;
+}
 
 </style>
 

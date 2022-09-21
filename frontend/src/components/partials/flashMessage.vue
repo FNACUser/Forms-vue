@@ -1,5 +1,5 @@
 <template>
-
+    <div >
         <v-row >
             <v-col
                 md="6"
@@ -7,7 +7,7 @@
             >
                 <v-alert
                     :type="flash_message_type"
-                    outlined
+                   
                     text
                     dismissible
                     v-if="flash_message"
@@ -20,7 +20,7 @@
            
         </v-row>
 
-
+    </div>
 </template>
 
 <script>
