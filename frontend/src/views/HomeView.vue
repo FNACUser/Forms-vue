@@ -14,6 +14,7 @@
           clearable
           @change="initialize"
           @click:clear="resetSelectedVariables"
+
         ></v-select>
       </v-col>
        <v-col
@@ -138,6 +139,9 @@
                               :multiple="question.question_possible_answers.multiple"
                               deletable-chips
                               small-chips
+                              solo-inverted
+                              flat
+                              rounded
                             >                         
                           </v-select>  
                            
@@ -192,6 +196,7 @@
                               :multiple="question.question_possible_answers.multiple"
                               deletable-chips
                               small-chips
+                              solo
                             >
                           
                           </v-select>

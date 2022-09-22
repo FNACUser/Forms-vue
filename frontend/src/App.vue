@@ -94,7 +94,7 @@
           
         </header>
         <v-main>
-                <vue-particles color="#dedede"/>
+                <vue-particles color="#7afff6"/>
                 <flash-message style="height: 5px;"/>
                 <router-view ></router-view>
                 <loader></loader>
