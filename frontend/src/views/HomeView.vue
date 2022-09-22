@@ -142,6 +142,8 @@
                               solo-inverted
                               flat
                               rounded
+                              return-object
+                        
                             >                         
                           </v-select>  
                            
@@ -259,6 +261,10 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
         answers:{},
         nodes:[],
         current_network_mode:null,
+        selRules: [
+          
+          v => (v && v.length <= 2) || 'Máximo 2 opciones!! ${v.length}',
+        ],
 
         defaultHeader:[
           {
@@ -354,31 +360,47 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
       saveAnswersArray(event,employee_id,question_id){
 
-    
-        this.$set(this.answers, `${this.selected_network_mode_theme}_${question_id}_${employee_id}`, event);
+        console.log(event);
 
-        const data={
-            "cycle_id":this.selected_cycle,
-            "user_email":this.mainStore.logged_user.email,
-            "actor_id":employee_id,
-            "question_id":question_id,
-            "network_mode_id":this.current_network_mode.id_network_mode,
-            "network_mode_theme_id":this.selected_network_mode_theme,
-            "selected_option":event
-        };
+        if(event.length>=3){
 
-        this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/save_answer', data)
-        .then(response => {
-          //console.log(response.data);
-          this.$alertify.success(this.$t(response.data));
+          this.answers[`${this.selected_network_mode_theme}_${question_id}_${employee_id}`].pop();
+        }
+
+        else{
+
+
+
+              this.$set(this.answers, `${this.selected_network_mode_theme}_${question_id}_${employee_id}`, event);
+
+              const data={
+                  "cycle_id":this.selected_cycle,
+                  "user_email":this.mainStore.logged_user.email,
+                  "actor_id":employee_id,
+                  "question_id":question_id,
+                  "network_mode_id":this.current_network_mode.id_network_mode,
+                  "network_mode_theme_id":this.selected_network_mode_theme,
+                  "selected_option":event
+              };
+
+              this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/save_answer', data)
+              .then(response => {
+                //console.log(response.data);
+                this.$alertify.success(this.$t(response.data));
+
+              }
+
+                )
+              .catch(error => {
+                this.$alertify.error(this.$t(error.message));
+                console.error('There was an error!', error.message);
+            });
+
 
         }
 
-          )
-        .catch(error => {
-          this.$alertify.error(this.$t(error.message));
-          console.error('There was an error!', error.message);
-       });
+    
+        
 
       },
 
