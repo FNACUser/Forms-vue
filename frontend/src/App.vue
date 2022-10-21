@@ -66,7 +66,7 @@
       </v-navigation-drawer>
       <v-app-bar 
         :clipped-left="$vuetify.breakpoint.lgAndUp"
-        src="images/OA-HUB-cropped.png" 
+        color="#00F5FF"
         app
         
       >

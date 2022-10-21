@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import Login from '@/views/Auth/Login'
+import RequestPasswordReset from '@/views/Auth/RequestPasswordReset.vue'
+import ResetPasswordForm from '@/views/Auth/ResetPasswordForm.vue'
 import { useMainStore } from '@/store/main'
 import pinia from "@/store/createPinia";
 
@@ -49,6 +51,23 @@ const router = new Router({
       name: 'Login',
       component: Login,
       beforeEnter: ifNotAuthenticated
+    },
+
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: RequestPasswordReset,
+      meta: {
+        auth:false
+      }
+    },
+    {
+      path: '/reset-password/:email/:token',
+      name: 'reset-password-form',
+      component: ResetPasswordForm,
+      meta: {
+        auth:false
+      }
     },
     {
       path: '/home',

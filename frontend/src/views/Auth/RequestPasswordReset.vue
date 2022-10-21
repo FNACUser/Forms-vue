@@ -14,7 +14,7 @@
               <v-card-text>
                 <v-form v-model="valid_form">
                    <v-text-field
-                    prepend-icon="email"
+                    prepend-icon="mdi-email"
                     v-model="email"
                     label="Email"
                     type="text"
@@ -42,7 +42,7 @@
 
 <script>
 
-import {mapMutations} from 'vuex'
+//import {mapMutations} from 'vuex'
 
 export default {
     data() {
@@ -63,9 +63,9 @@ export default {
     methods: {
 
 
-       ...mapMutations([
-            'setFlashMessage'
-        ]),
+      //  ...mapMutations([
+      //       'setFlashMessage'
+      //   ]),
 
       cancel(){
 
@@ -79,12 +79,14 @@ export default {
         
             this.$axios.post("api/forgot-password", {email: this.email})
             .then(response => { 
-                console.log(response.data);
+              console.log(response)
                 this.setFlashMessage({message:'Un correo ha sido enviado a su cuenta para restablecer su contraseña: ' +this.email, type:'success'});
                 this.$router.replace("/");
             })
             .catch(error => {
-              console.log(error);
+
+                console.log(error)
+
                 this.setFlashMessage({message:'No existe la dirección de correo: ' +this.email, type:'error'});
                 this.email="";
             });

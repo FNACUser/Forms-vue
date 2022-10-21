@@ -70,7 +70,7 @@ import { mapStores} from 'pinia'
         email:null,
         password:null,
         show:false,
-        forgotURL: window.location.origin+"/#/forgot-password"
+        forgotURL: window.location.origin+"/forgot-password"
       }
     },
 

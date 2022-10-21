@@ -300,7 +300,7 @@ def delete_interacting_actor(current_user):
     #if(data['user_email']==current_user.email and current_user.has_role("encuestado")):
     if(data['user_email']==current_user.email):
         
-        actor_interaction = IRA_Employees_interactions.query.filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=data['actor_id']).first()
+        actor_interaction = IRA_Employees_interactions.query.filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=data['item_id']).first()
         adjacency_input_forms_ids= IRA_Adjacency_input_form.query.with_entities(IRA_Adjacency_input_form.id_adjacency_input_form).filter_by(id_cycle=data['cycle_id'],id_employee=current_user.id).all()
         adjacency_codes = list(itertools.chain(*adjacency_input_forms_ids))
         
@@ -314,9 +314,9 @@ def delete_interacting_actor(current_user):
                     if(response):
                         current_response=json.loads(response.Response)
                         #print(current_response)
-                        existing_actor=next(filter(lambda x: x['id_actor'] == data['actor_id'],current_response),None)
+                        existing_actor=next(filter(lambda x: x['item_id'] == data['item_id'],current_response),None)
                         if( existing_actor is not  None):
-                            current_response = list(filter(lambda x: x['id_actor'] != data['actor_id'], current_response))
+                            current_response = list(filter(lambda x: x['item_id'] != data['item_id'], current_response))
                             response.Response=json.dumps(current_response)
         db.session.commit()
             
@@ -338,7 +338,7 @@ def save_answer(current_user):
     if(data['user_email']==current_user.email ):
         
         new_response={
-            "id_actor":data['actor_id'],
+            "item_id":data['item_id'],
             "valor":data["selected_option"]
         }
         
@@ -350,14 +350,14 @@ def save_answer(current_user):
         if(existing_response):
             current_responses=json.loads(existing_response.Response)
             print(current_responses)
-            existing_actor=next(filter(lambda x: x['id_actor'] == data['actor_id'],current_responses),None)
+            existing_actor=next(filter(lambda x: x['item_id'] == data['item_id'],current_responses),None)
             if(data["selected_option"] is not None and existing_actor is None):
                 current_responses.append(new_response)        
             elif(data["selected_option"] is not None and existing_actor is not  None):
-                current_responses = list(filter(lambda x: x['id_actor'] != data['actor_id'], current_responses))
+                current_responses = list(filter(lambda x: x['item_id'] != data['item_id'], current_responses))
                 current_responses.append(new_response)
             elif(data["selected_option"] is None and existing_actor is not  None):
-                current_responses = list(filter(lambda x: x['id_actor'] != data['actor_id'], current_responses))
+                current_responses = list(filter(lambda x: x['item_id'] != data['item_id'], current_responses))
             
            # print(current_responses)
             existing_response.Response=json.dumps(current_responses)

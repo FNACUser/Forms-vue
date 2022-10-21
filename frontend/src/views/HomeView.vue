@@ -126,7 +126,7 @@
                       <td class="text-xs-left">{{ item.username }}</td>
                       <td class="text-xs-left">{{ item.organization_area[`Organization_area_${$i18n.locale}`] }}</td>
                         <template >
-                          <td v-for="(question,index) in questions" :key="index">
+                          <td v-for="(question,index) in questions" :key="index" class="">
                             
                           <v-select
                               :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`"
@@ -139,9 +139,10 @@
                               :multiple="question.question_possible_answers.multiple"
                               deletable-chips
                               small-chips
-                              solo-inverted
+                              outlined
                               flat
                               rounded
+                              class="my-5"
                              
                         
                             >                         
@@ -188,7 +189,7 @@
                           <td v-for="(question,index) in questions" :key="index">
                             
                           <v-select
-                          :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`"
+                              :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`"
                               v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`]"
                               :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
                               item-text="texto"
@@ -198,9 +199,10 @@
                               :multiple="question.question_possible_answers.multiple"
                               deletable-chips
                               small-chips
-                              solo-inverted
+                              outlined
                               flat
                               rounded
+                              class="my-5"
                               
                             >
                           
@@ -288,9 +290,9 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
       }
     },
 
-    mounted(){
+    // mounted(){
 
-    },
+    // },
    
 
     computed:{
@@ -365,7 +367,7 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
 
 
-      saveAnswersArray(event,employee_id,question_id){
+      saveAnswersArray(event,item_id,question_id){
 
         console.log('Entra a SaveAnswerArray');
 
@@ -382,15 +384,15 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
 
 
-              this.$set(this.answers, `${this.current_network_mode.id_network_mode}_${question_id}_${employee_id}`, event);
+              this.$set(this.answers, `${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`, event);
 
               const data={
                   "cycle_id":this.selected_cycle,
                   "user_email":this.mainStore.logged_user.email,
-                  "actor_id":employee_id,
+                  "item_id":item_id,
                   "question_id":question_id,
                   "network_mode_id":this.current_network_mode.id_network_mode,
-                  "network_mode_theme_id":this.selected_network_mode_theme,
+                 // "network_mode_theme_id":this.selected_network_mode_theme,
                   "selected_option": event
               };
 
@@ -515,7 +517,7 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
             const data={
                   "user_email":this.mainStore.logged_user.email,
-                  "actor_id":item.id,
+                  "item_id":item.id,
                   "cycle_id":this.selected_cycle           
               };
           
@@ -602,7 +604,7 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
                   resp_content.forEach(content =>{
 
-                      this.answers[`${response.adjacency_input_form['id_network_mode']}_${response.id_question}_${content.id_actor}`]= content.valor
+                      this.answers[`${response.adjacency_input_form['id_network_mode']}_${response.id_question}_${content.item_id}`]= content.valor
                   })
 
                  });

@@ -16,11 +16,11 @@
 
                 <v-form>
                  
-                  <v-text-field prepend-icon="email" v-model="email" label="Email" type="text" disabled
+                  <v-text-field prepend-icon="mdi-email" v-model="email" label="Email" type="text" disabled
                   :rules="[v => !!v || 'E-mail es requerido!',
                              v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail no es válido']"
                   ></v-text-field>
-                  <v-text-field id="password" prepend-icon="lock" v-model="password" label="Contraseña" 
+                  <v-text-field id="password" prepend-icon="mdi-lock" v-model="password" label="Contraseña" 
                     :type="show_pwd ? 'text' : 'password'"
                     :append-icon="show_pwd ? 'mdi-eye' : 'mdi-eye-off'"
                     @click:append="show_pwd = !show_pwd"
@@ -53,7 +53,7 @@
 
 <script>
 
-import {mapMutations} from 'vuex'
+//import {mapMutations} from 'vuex'
 
 export default {
     data() {
@@ -69,9 +69,9 @@ export default {
     },
     methods: {
 
-       ...mapMutations([
-            'setFlashMessage'
-        ]),
+      //  ...mapMutations([
+      //       'setFlashMessage'
+      //   ]),
 
       cancel(){
 
