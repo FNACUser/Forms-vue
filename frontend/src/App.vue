@@ -66,11 +66,13 @@
       </v-navigation-drawer>
       <v-app-bar 
         :clipped-left="$vuetify.breakpoint.lgAndUp"
-       
+        src="images/OA-HUB-cropped.png" 
         app
+        
       >
-
+    
         <v-app-bar-nav-icon @click.stop="drawer = !drawer" v-if="mainStore.isLoggedIn"/>
+            
         <v-spacer></v-spacer>
         <v-toolbar-items v-if="mainStore.isLoggedIn">
                 <LocaleSwitcher/>
@@ -94,11 +96,11 @@
           
         </header>
         <v-main>
+            
                 <vue-particles color="#7afff6"/>
                 <flash-message style="height: 5px;"/>
                 <router-view ></router-view>
-                <loader></loader>
-              
+                <loader></loader>              
 
         </v-main>
 

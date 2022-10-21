@@ -380,8 +380,5 @@ def save_answer(current_user):
 
 
 
-
-
-
 if __name__ == '__main__':
     app.run()

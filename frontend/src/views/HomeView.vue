@@ -33,6 +33,7 @@
             @change="getQuestions"
           ></v-select>
       </v-col>
+
       <v-col
         cols="3"
          class="d-flex justify-space-around mb-6 align-end"
@@ -52,41 +53,41 @@
       </v-col>
       </v-row>
       <v-row v-if="selected_network && selected_network.code==='actor'"> 
-      <v-col
-        cols="3"
+        <v-col
+          cols="3"
+          class="d-flex justify-space-around mb-6 align-end"
+          >
+            <v-select
+              v-model="selected_area"
+              :items="mainStore.areas"
+              :label="$t('main_page.area')"
+              :item-text="`Organization_area_${$i18n.locale}`"
+              item-value="id_organization_area"
+              clearable 
+            ></v-select>
+        </v-col>
+    
+        <v-col
         class="d-flex justify-space-around mb-6 align-end"
+          cols="3"
         >
-          <v-select
-            v-model="selected_area"
-            :items="mainStore.areas"
-            :label="$t('main_page.area')"
-            :item-text="`Organization_area_${$i18n.locale}`"
-            item-value="id_organization_area"
-            clearable 
-          ></v-select>
-      </v-col>
-  
-      <v-col
-       class="d-flex justify-space-around mb-6 align-end"
-        cols="3"
-      >
-        <v-autocomplete
-          v-model="selected_actors"
-          :items="filteredEmployees"
-          item-text="username"
-          item-value="id"
+          <v-autocomplete
+            v-model="selected_actors"
+            :items="filteredEmployees"
+            item-text="username"
+            item-value="id"
+            
+            :label="$t('main_page.user')"
+            persistent-hint
+            dense
+            
+            small-chips
+            multiple
+            return-object
+            @change="addInteractingActor()"
           
-          :label="$t('main_page.user')"
-          persistent-hint
-          dense
-          
-          small-chips
-          multiple
-          return-object
-          @change="addInteractingActor()"
-         
-        ></v-autocomplete>
-      </v-col>     
+          ></v-autocomplete>
+        </v-col>     
     </v-row>
 
     <v-row dense justify="space-around">
@@ -98,8 +99,7 @@
             color="blue"
             >          
                 <v-card-title
-                  class="white--text"
-                  
+                  class="white--text" 
                  >
                  {{$t('main_page.question')}} {{i+1}}
                 </v-card-title>
@@ -114,9 +114,9 @@
           v-if="selected_network && selected_network.code==='actor'"
         >
           <v-data-table
-                :headers="tableHeader"
+                :headers="tableActorsHeader"
                 :items="selected_actors"
-                :items-per-page="5"
+                :items-per-page="-1"
                 class="elevation-1"
                 v-if="selected_actors.length>0"
           >
@@ -129,8 +129,8 @@
                           <td v-for="(question,index) in questions" :key="index">
                             
                           <v-select
-                              :id="`sel_${selected_network_mode_theme}_${question.id_question}_${item.id}`"
-                              v-model="answers[`${selected_network_mode_theme}_${question.id_question}_${item.id}`]"
+                              :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`"
+                              v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`]"
                               :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
                               item-text="texto"
                               item-value="valor"
@@ -142,7 +142,7 @@
                               solo-inverted
                               flat
                               rounded
-                              return-object
+                             
                         
                             >                         
                           </v-select>  
@@ -174,31 +174,34 @@
           v-if="selected_network && selected_network.code!=='actor'"
         >
           <v-data-table
-                :headers="tableHeader"
+                :headers="tableNodesHeader"
                 :items="nodes"
-                :items-per-page="5"
+                :items-per-page="-1"
                 class="elevation-1"
                 v-if="nodes"
           >
               <template v-slot:item="{ item }">
                 <tr>
-                      <td class="text-xs-left">{{ item.username }}</td>
-                      <td class="text-xs-left">{{ item.organization_area.Organization_area }}</td>
+                      <td class="text-xs-left">{{ item[`Node_${$i18n.locale}`] }}</td>
+                      
                         <template >
                           <td v-for="(question,index) in questions" :key="index">
                             
                           <v-select
-                              :id="`sel_${selected_network_mode_theme}_${question.id_question}_${item.id}`"
-                              v-model="answers[`${selected_network_mode_theme}_${question.id_question}_${item.id}`]"
-                              :items="JSON.parse(question.question_possible_answers.Question_possible_answers)"
+                          :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`"
+                              v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`]"
+                              :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
                               item-text="texto"
                               item-value="valor"
                               clearable
-                              @change="saveAnswersArray($event,item.id,question.id_question)"
+                              @change="saveAnswersArray($event,item.id_node,question.id_question)"
                               :multiple="question.question_possible_answers.multiple"
                               deletable-chips
                               small-chips
-                              solo
+                              solo-inverted
+                              flat
+                              rounded
+                              
                             >
                           
                           </v-select>
@@ -206,21 +209,7 @@
                           </td>
                           
                         </template>
-                      <td>
-                          <v-tooltip bottom>
-                              <template #activator="{ on }">
-                                  <v-icon
-                                      v-on="on"
-                                      small
-                                     
-                                      color="orange"
-                                  >
-                                      mdi-delete
-                                  </v-icon>
-                              </template>
-                              <span>Eliminar</span>
-                          </v-tooltip>
-                      </td>
+                      
                 </tr>
               </template>
           </v-data-table>
@@ -266,7 +255,7 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
           v => (v && v.length <= 2) || 'Máximo 2 opciones!! ${v.length}',
         ],
 
-        defaultHeader:[
+        defaultActorsHeader:[
           {
             text: 'Nombre',
             align: 'start',
@@ -284,6 +273,17 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
             class: "white--text",
             sortable: false},
         ],
+
+
+        defaultNodesHeader:[
+          {
+            text: 'Nombre',
+            align: 'start',
+            value: 'name',
+            class: "white--text"
+          }
+        ],
+
 
       }
     },
@@ -344,8 +344,15 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
       },
 
-      tableHeader() {
-            return this.makeTableHeader(this.questions, this.defaultHeader, this.$t('main_page.question'));
+      tableActorsHeader() {
+        
+            return this.makeActorsTableHeader(this.questions, this.defaultActorsHeader, this.$t('main_page.question'));
+
+        },
+
+      tableNodesHeader() {
+        
+            return this.makeNodesTableHeader(this.questions, this.defaultNodesHeader, this.$t('main_page.question'));
 
         },
     
@@ -360,18 +367,22 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
       saveAnswersArray(event,employee_id,question_id){
 
+        console.log('Entra a SaveAnswerArray');
+
         console.log(event);
 
-        if(event.length>=3){
+        // if(event.length>=3){
 
-          this.answers[`${this.selected_network_mode_theme}_${question_id}_${employee_id}`].pop();
-        }
+        //   this.answers[`${this.current_network_mode.id_network_mode}_${question_id}_${employee_id}`].pop();
+        // }
 
-        else{
+        
+
+        //else{
 
 
 
-              this.$set(this.answers, `${this.selected_network_mode_theme}_${question_id}_${employee_id}`, event);
+              this.$set(this.answers, `${this.current_network_mode.id_network_mode}_${question_id}_${employee_id}`, event);
 
               const data={
                   "cycle_id":this.selected_cycle,
@@ -380,7 +391,7 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
                   "question_id":question_id,
                   "network_mode_id":this.current_network_mode.id_network_mode,
                   "network_mode_theme_id":this.selected_network_mode_theme,
-                  "selected_option":event
+                  "selected_option": event
               };
 
               this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/save_answer', data)
@@ -397,19 +408,15 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
             });
 
 
-        }
-
-    
-        
+       // }
 
       },
 
 
-      makeTableHeader(val, defaultHeader, text) {
+      makeActorsTableHeader(val, defaultHeader, text) {
 
             let headers = Object.assign([], defaultHeader);
-            //console.log('entro a makeTableheader');
-
+          
             if (val && val.length > 0) {
            
                 val.forEach((question, index) => {
@@ -429,8 +436,32 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
             return headers;
 
-           // return headers.reduce((acc, val) => acc.concat(val), []); //flattens the array
+           
         },
+
+
+        makeNodesTableHeader(val, defaultHeader, text) {
+
+          let headers = Object.assign([], defaultHeader);
+          
+          if (val && val.length > 0) {
+
+              val.forEach((question, index) => {
+                  headers.splice(1 + index, 0, {
+                      text: `${text} ${index + 1}`,
+                      align: 'center',
+                      class: 'white--text',
+                      sortable: false,
+                  });
+              });
+          }
+
+          headers[0].text = this.selected_network[`name_${this.$i18n.locale}`];
+         
+          return headers;
+
+          
+          },
 
       sortSelectedColleagues(){
         this.selected_actors.sort((a,b) => 
@@ -532,6 +563,8 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
           const nodes = await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/network_mode/'+network_mode_id +'/nodes');
           this.nodes = nodes.data;
 
+         // console.log(this.nodes);
+
         },
 
 
@@ -557,15 +590,19 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
                
                 const responses = response.data;
 
+               // console.log(responses);
+
                 if(responses){
 
                  responses.forEach(response => {
 
                   const resp_content=JSON.parse(response.Response);
 
+                  //console.log(resp_content);
+
                   resp_content.forEach(content =>{
 
-                      this.answers[`${response.adjacency_input_form['network_mode.id_network_mode_theme']}_${response.id_question}_${content.id_actor}`]= content.valor
+                      this.answers[`${response.adjacency_input_form['id_network_mode']}_${response.id_question}_${content.id_actor}`]= content.valor
                   })
 
                  });
