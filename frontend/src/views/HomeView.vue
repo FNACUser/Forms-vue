@@ -556,7 +556,7 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
           this.selected_network_mode_theme=null;
           this.current_network_mode=null;
           this.nodes=[];
-          this.answers=[]
+          //this.answers=[]
 
         },
 
