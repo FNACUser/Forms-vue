@@ -62,7 +62,7 @@ export const useMainStore = defineStore('main', {
                       
                   })
                  .catch( error => {
-                    //  console.log(error);
+                      console.log(error);
                       this.$reset();
                       localStorage.removeItem('access_token');
                       this.setFlashMessage({message:error.response.data,type:'error'});
