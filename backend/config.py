@@ -26,3 +26,4 @@ class Config:
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
  
 	CORS_ORIGINS = os.getenv("CORS_ORIGINS")
+	DATA_PATH = os.path.join(APP_ROOT, os.getenv("DATA_PATH"))

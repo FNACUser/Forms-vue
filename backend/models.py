@@ -25,7 +25,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    id_redmine = db.Column(db.String(30), nullable=True)
+    id_redmine = db.Column(db.String(100), nullable=True)
     active = db.Column(db.Boolean)
     image_file = db.Column(db.String(20), nullable=True, default='default.jpg')
     password = db.Column(db.String(255), nullable=False)

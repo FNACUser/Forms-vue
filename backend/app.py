@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request, make_response
+from flask.cli import with_appcontext
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from flask_seeder import FlaskSeeder
 from flask_bcrypt import Bcrypt
 from flask_security import Security
 from flask_marshmallow import Marshmallow
@@ -12,6 +14,7 @@ import json
 import datetime
 from functools import wraps
 import itertools
+import click
 
 from flask_security import login_user, current_user, logout_user, login_required
 from flask_security.utils import hash_password,verify_password
@@ -34,12 +37,97 @@ DEBUG=True
 app = Flask(__name__)
 app.config.from_object(Config)
 cors = CORS(app, resources={r"/api/*": {"origins": [Config.CORS_ORIGINS]}})
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 db.init_app(app)
 Bcrypt().init_app(app)
 Security().init_app(app, datastore=user_datastore)
 ma.init_app(app)
+
+seeder = FlaskSeeder()
+seeder.init_app(app, db)
 #api = Api(app)
+
+
+# custom commands
+
+@click.command(name="crear_usuario")
+@with_appcontext
+@click.argument("name", nargs=1)
+@click.argument("email", nargs=1)
+@click.argument("area", nargs=1)
+@click.argument("roles", nargs=-1)
+def crear_usuario(name, email, area, roles):
+    try:
+
+        model_area = IRA_Organization_areas.query.filter_by(Organization_area=area).first()
+
+        if model_area:
+            id_area = model_area.id_organization_area
+        else:
+            id_area = None
+
+        new_user = user_datastore.create_user(username=name, email=email, id_organization_area=id_area,
+                                                password=hash_password(generate_random_string()))
+        db.session.add(new_user)
+        for role in roles:
+            click.echo(f"role {role}")
+            r = Role.query.filter_by(name=role).first()
+            user_datastore.add_role_to_user(new_user, r)
+
+        db.session.commit()
+    except exc.IntegrityError as ei:
+        print('Duplicidad de Email, usuario ya existe!')
+
+    except Exception as ee:
+        print('Se presentó un problema con la creación del usuario!')
+        print(ee)
+
+@click.command(name="eliminar_usuario")
+@with_appcontext
+@click.argument("email", nargs=1)
+def eliminar_usuario(email):
+    user = User.query.filter_by(email=email).first()
+    user_datastore.delete_user(user)
+    db.session.commit()
+
+@click.command(name="agregar_roles_usuario")
+@with_appcontext
+@click.argument("email", nargs=1)
+@click.argument("roles", nargs=-1)
+def agregar_roles_usuario(email, roles):
+    user = User.query.filter_by(email=email).first()
+    if (user):
+        for role in roles:
+            click.echo(f"role {role} fue agregado al usuario")
+            r = Role.query.filter_by(name=role).first()
+            user_datastore.add_role_to_user(user, r)
+
+        db.session.commit()
+    else:
+        print('usuario no existe!')
+
+@click.command(name="remover_roles_usuario")
+@with_appcontext
+@click.argument("email", nargs=1)
+@click.argument("roles", nargs=-1)
+def remover_roles_usuario(email, roles):
+    user = User.query.filter_by(email=email).first()
+    if (user):
+        for role in roles:
+            click.echo(f"role {role} fue removido del usuario")
+            r = Role.query.filter_by(name=role).first()
+            user_datastore.remove_role_from_user(user, r)
+
+        db.session.commit()
+    else:
+        print('usuario no existe!')
+
+# CLI User/Role management
+app.cli.add_command(crear_usuario)
+app.cli.add_command(eliminar_usuario)
+app.cli.add_command(agregar_roles_usuario)
+app.cli.add_command(remover_roles_usuario)
 
 
 
