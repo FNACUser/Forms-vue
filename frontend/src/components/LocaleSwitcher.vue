@@ -7,8 +7,9 @@
                 icon
                 v-bind="attrs"
                 v-on="on"
+                class="white--text"
               >
-                <v-icon>mdi-web</v-icon>{{$i18n.locale}}
+                  <v-icon>mdi-web</v-icon>{{$i18n.locale}}
               </v-btn>
             </template>
             <v-list>

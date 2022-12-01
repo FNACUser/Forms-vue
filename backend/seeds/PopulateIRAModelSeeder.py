@@ -11,7 +11,7 @@ from flask_security.utils import hash_password
 
 
 # All seeders inherit from Seeder
-class PopulateNewIRAQuestionsSeeder(Seeder):
+class PopulateIRAModelSeeder(Seeder):
     def __init__(self, db=None):
         super().__init__(db=db)
         self.priority = 1
@@ -68,7 +68,7 @@ class PopulateNewIRAQuestionsSeeder(Seeder):
                               inplace=True)
         funcionariosXL.drop(columns=['Organization_area_es', 'Organization_area_en','Area_id'], inplace=True)
         
-        funcionariosXL
+        
 
         funcionariosXL.to_sql(name='users', con=db.engine,
                               if_exists='append', index=False)
@@ -94,12 +94,15 @@ class PopulateNewIRAQuestionsSeeder(Seeder):
         conocimientos_en_dict = \
             pd.Series(conocimientos_en.Nombre.values,
                       index=conocimientos_en.id).to_dict()
+            
+        conocimientos_en_dict
+            
         # .-.-.-.-.-.-.-.-. Conocimientos
         segmentos_nodosXL = \
             pd.read_excel(excel_book,
                           sheet_name='Conocimientos')
         segmentos_nodosXL.rename(columns={'Tipo-Conocimiento': 'Node_segment',
-                                          'Nombre': 'Node'}, inplace=True)
+                                          'Nombre': 'Node_es'}, inplace=True)
         segmentos_nodosXL['id_node_segment_category'] = 2
 
         segmentos_nodosXL['Node_en'] = \
@@ -115,7 +118,7 @@ class PopulateNewIRAQuestionsSeeder(Seeder):
 
         segmentos_nodos_recursosXL = pd.read_excel(excel_book, sheet_name='Recursos')
         segmentos_nodos_recursosXL.rename(columns={'Tipo-Recurso': 'Node_segment',
-                                                   'Recursos': 'Node'}, inplace=True)
+                                                   'Recursos': 'Node_es'}, inplace=True)
         segmentos_nodos_recursosXL['id_node_segment_category'] = 3
         segmentos_nodos_recursosXL['Node_en'] = \
             segmentos_nodos_recursosXL.apply(lambda row: \
@@ -183,69 +186,86 @@ class PopulateNewIRAQuestionsSeeder(Seeder):
 
 
         categorias_preguntasXL.rename(columns={'id': 'id_network_mode_theme',
-                                               'Nombre': 'Network_mode_theme'},
+                                               'code':'code',
+                                               'Nombre_es': 'Network_mode_theme_es',
+                                               'Nombre_en': 'Network_mode_theme_en'},
                                       inplace=True)
 
 
         categorias_preguntasXL.to_sql(name='IRA_Networks_modes_themes', con=db.engine,
                                       if_exists='append', index=False)
 
+        #Networs
+        
+        networks_XL = \
+            pd.read_excel(excel_book,
+                          sheet_name='Networks')
+
+
+        networks_XL.rename(columns={'id': 'id',
+                                               'code':'code',
+                                               'Name_es': 'name_es',
+                                               'Name_en': 'name_en'},
+                                      inplace=True)
+        
+        
+        networks_XL.to_sql(name='IRA_Networks', con=db.engine,
+                                     if_exists='append', index=False)
+        
+        
+    
         # .-.-.-.-.-.-.-.-.- network modes
         networks_modes_df = pd.DataFrame({'id_network_mode': [1, 2, 3, 4, 5, 6],
-                                          'Network_mode': ['Modelo educativo', 'Recurso',
-                                                           'Actor', 'Actor', 'Actor',
-                                                           'Actor'],
+                                          'id_network': [1,2,3,3,3,3],
                                           'id_node_segment_category': [2, 3, None, None,
                                                                        None, None],
-                                          'id_network_mode_theme': [None, None, 1, 2,
-                                                                    3, 4]})
+                                          'id_network_mode_theme': [None, None, 1, 2, 3, 4]})
 
         networks_modes_df.to_sql(name='IRA_Networks_modes', con=db.engine,
                                  if_exists='append', index=False)
 
 
         # .-.-.-.-.-.-.-.-.- Questions_posible_answers
-        possible_answers_en = pd.read_excel(excel_book,
-                                            sheet_name='Posibles_rtas_en')
+        # possible_answers_en = pd.read_excel(excel_book,
+        #                                     sheet_name='Posibles_rtas_en')
 
-        possible_answers_en_dict = \
-            pd.Series(possible_answers_en.Descripcion.values,
-                      index=possible_answers_en.id).to_dict()
+        # possible_answers_en_dict = \
+        #     pd.Series(possible_answers_en.Descripcion.values,
+        #               index=possible_answers_en.id).to_dict()
 
         posibles_rtasXL = pd.read_excel(excel_book, sheet_name='Posibles_rtas')
 
         posibles_rtasXL.rename(columns={'id': 'id_question_possible_answers',
-                                        'Descripcion': 'Question_possible_answers'},
+                                        'Descripcion_es': 'Question_possible_answers_es',
+                                        'Descripcion_en': 'Question_possible_answers_en'
+                                        },
                                inplace=True)
-        posibles_rtasXL = posibles_rtasXL[['id_question_possible_answers',
-                                           'Question_possible_answers']]
-
-        posibles_rtasXL['Question_possible_answers_en'] = \
-            posibles_rtasXL.apply(lambda row: \
-                                      possible_answers_en_dict. \
-                                  get(row.id_question_possible_answers),
-                                  axis=1)
+       
 
         posibles_rtasXL.to_sql(name='IRA_Questions_possible_answers',
                                con=db.engine, if_exists='append', index=False)
 
+        
+        
         # .-.-.-.-.-.-.-.-.-.-.-. Questions
-        questions_en = pd.read_excel(excel_book, sheet_name='Preguntas_en')
+        # questions_en = pd.read_excel(excel_book, sheet_name='Preguntas_en')
 
-        questions_en_dict = \
-            pd.Series(questions_en.Descripcion.values,
-                      index=questions_en.id).to_dict()
+        # questions_en_dict = \
+        #     pd.Series(questions_en.Descripcion.values,
+        #               index=questions_en.id).to_dict()
         # questions_en_dict
 
         preguntasXL = pd.read_excel(excel_book, sheet_name='Preguntas')
 
         preguntasXL.drop(columns=['Modalidad'], inplace=True)
-        preguntasXL.rename(columns={'id': 'id_question', 'Descripcion': 'Question',
+        preguntasXL.rename(columns={'id': 'id_question', 
+                                    'Descripcion_es': 'Question_es',
+                                    'Descripcion_en': 'Question_en',
                                     'Posibles_rtas_id': 'id_question_possible_answers'},
                            inplace=True)
-        preguntasXL['Question_en'] = \
-            preguntasXL.apply(lambda row: questions_en_dict.get(row.id_question),
-                              axis=1)
+        # preguntasXL['Question_en'] = \
+        #     preguntasXL.apply(lambda row: questions_en_dict.get(row.id_question),
+        #                       axis=1)
 
         preguntasXL.to_sql(name='IRA_Questions', con=db.engine, if_exists='append',
                            index=False)
@@ -345,134 +365,5 @@ class PopulateNewIRAQuestionsSeeder(Seeder):
         db.session.commit()
 
         #:_:_:_:_:_:_:_:_:_:_:_:_:_:_: Hasta aquí el cargue del modelo IRA
-        #:_:_:_:_:_:_:_:_:_:_:_:_:_:_: Hasta aquí el cargue del modelo IRA
-        #:_:_:_:_:_:_:_:_:_:_:_:_:_:_: Hasta aquí el cargue del modelo IRA
-
-        # .-.-.-.-.-.-.-.-.-. cargue de CVF questions y respuestas simuladas
-        # .-.-.-.-.-.-.-.-.-. cargue de CVF questions y respuestas simuladas
-        # .-.-.-.-.-.-.-.-.-. cargue de CVF questions y respuestas simuladas
-
-
-
-        # .-.-.-.-.-.-.- questions
-
-        excel_preguntas = pathDB /'alcaparrosCVF_Preguntas.xlsx'
-
-        cvf_questions_XL = pd.read_excel(excel_preguntas,
-                                         sheet_name='Preguntas')
-
-
-        cvf_questions_XL_en = pd.read_excel(excel_preguntas,
-                                            sheet_name='Preguntas_en')
-        cvf_questions_XL = pd.concat([cvf_questions_XL, cvf_questions_XL_en], axis=1)
-        # cvf_questions_XL.to_dict('records')
-
-        # .-.-.-.-.-.-.-.-.-.-.-.- prefijos
-        cvf_prefijos_XL = pd.read_excel(excel_preguntas,
-                                        sheet_name='Prefijos')
-        # cvf_prefijos_XL.columns
-        # cvf_prefijos_XL
-        cvf_prefijos_XL_en = pd.read_excel(excel_preguntas,
-                                           sheet_name='Prefijos_en')
-        cvf_prefijos_XL = pd.concat([cvf_prefijos_XL, cvf_prefijos_XL_en], axis=1)
-
-
-        # .-.-.-.-.-.-.-.-.-.-- cuadrantes
-        cvf_cuadrantes_XL = pd.read_excel(excel_preguntas,
-                                          sheet_name='Cuadrantes')
-        # cvf_cuadrantes_XL.columns
-        cvf_cuadrantes_XL_en = pd.read_excel(excel_preguntas,
-                                             sheet_name='Cuadrantes_en')
-        cvf_cuadrantes_XL = pd.concat([cvf_cuadrantes_XL, cvf_cuadrantes_XL_en], axis=1)
-
-        cvf_quadrants_df = cvf_cuadrantes_XL.reset_index()
-        cvf_quadrants_df.rename(columns={'index': 'id',
-                                         'Cuadrante': 'Culture_quadrant',
-                                         'Cuadrante_en': 'Culture_quadrant_en'},
-                                inplace=True)
-        cvf_quadrants_df['id'] = 1 + cvf_quadrants_df['id']
-        # cvf_quadrants_df
-
-        cuadrantes_dict = \
-            cvf_quadrants_df.set_index('Culture_quadrant')['id'].to_dict()
-        # cuadrantes_dict
-
-        # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_modes
-        cvf_culture_modes_df = pd.DataFrame({'id': [1],
-                                             'Culture_mode': ['Colegio']})
-        cvf_culture_modes_df.to_sql(name='CVF_Culture_modes', con=db.engine,
-                                    if_exists='append',
-                                    index=False)
-        # cvf_culture_modes_df.columns
-
-        # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_modes_themes
-        themes = list(cvf_prefijos_XL['Tema'])
-        prefixes = list(cvf_prefijos_XL['Prefijo'])
-
-        themes_en = list(cvf_prefijos_XL['Tema_en'])
-        prefixes_en = list(cvf_prefijos_XL['Prefijo_en'])
-
-
-        cvf_culture_modes_dict = \
-            {'id': [i for i in range(1, 1 + len(themes))],
-             'Culture_mode_theme': themes,
-             'Culture_mode_theme_en': themes_en,
-             'Questions_prefix': prefixes,
-             'Questions_prefix_en': prefixes_en,
-             'id_culture_mode': [1 for i in range(1, 1 + len(themes))]}
-        cvf_culture_modes_themes_df = pd.DataFrame(cvf_culture_modes_dict)
-        # cvf_culture_modes_themes_df.columns
-
-        cvf_culture_modes_themes_df.to_sql(name='CVF_Culture_modes_themes',
-                                           con=db.engine, if_exists='append',
-                                           index=False)
-
-        # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_quadrants
-        cvf_quadrants_df.to_sql(name='CVF_Culture_quadrants', con=db.engine,
-                                if_exists='append', index=False)
-
-        # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_modes_themes_questions
-        def FD_create_CSV_question(xcvf_questions_XL, xcvf_culture_modes_themes_df,
-                                   xcuadrantes_dict):
-            def add_row(xculture_mode_theme_question_id, xtheme,
-                        xquestion, xquestion_en, xquadrant, xquestions_df):
-                # print(xtheme)
-                culture_mode_theme_id = themes_dict.get(xtheme)
-                culture_quadrant_id = xcuadrantes_dict.get(xquadrant)
-                xquestions_df = xquestions_df.append(
-                    pd.DataFrame({'id': [xculture_mode_theme_question_id],
-                                  'Culture_mode_theme_question': [xquestion],
-                                  'Culture_mode_theme_question_en': [xquestion_en],
-                                  'id_culture_mode_theme': [culture_mode_theme_id],
-                                  'id_culture_quadrant': [culture_quadrant_id]}))
-                return xquestions_df
-
-            themes_dict = \
-                cvf_culture_modes_themes_df. \
-                    set_index('Culture_mode_theme')['id'].to_dict()
-            # print(themes_dict)
-
-            questions_df = pd.DataFrame()
-            culture_mode_theme_question_id = 1
-
-            xcvf_questions_XL = xcvf_questions_XL.reset_index()
-
-            for index, row in xcvf_questions_XL.iterrows():
-                questions_df = add_row(culture_mode_theme_question_id, row['Tema'],
-                                       row['Pregunta'], row['Pregunta_en'],
-                                       row['Cuadrante'], questions_df)
-                culture_mode_theme_question_id += 1
-
-            return questions_df
-
-
-
-        # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_modes_themes_questions
-        cvf_culture_modes_themes_questions_df = \
-            FD_create_CSV_question(cvf_questions_XL, cvf_culture_modes_themes_df,
-                                   cuadrantes_dict)
-        cvf_culture_modes_themes_questions_df.to_dict('records')
-
-        cvf_culture_modes_themes_questions_df. \
-            to_sql(name='CVF_Culture_modes_themes_questions', con=db.engine,
-                   if_exists='append', index=False)
+       
+        

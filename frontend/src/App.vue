@@ -66,18 +66,18 @@
       </v-navigation-drawer>
       <v-app-bar 
         :clipped-left="$vuetify.breakpoint.lgAndUp"
-        color="#00F5FF"
+        color="primary"
         app
         
       >
     
-        <v-app-bar-nav-icon @click.stop="drawer = !drawer" v-if="mainStore.isLoggedIn"/>
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer" v-if="mainStore.isLoggedIn"  style="color: white;"/>
             
         <v-spacer></v-spacer>
         <v-toolbar-items v-if="mainStore.isLoggedIn">
                 <LocaleSwitcher/>
-                <v-btn text >{{ mainStore.logged_user.name }}</v-btn>
-                <v-btn icon @click="mainStore.logout" >
+                <v-btn text  class="white--text">{{ mainStore.logged_user.name }}</v-btn>
+                <v-btn icon @click="mainStore.logout" style="color: white;">
                     <v-icon>mdi-logout</v-icon>
                 </v-btn>
 
@@ -133,12 +133,12 @@
                   roles: ["Admin"]
                 },
                 
-                {
-                    icon: "mdi-account_balance",
-                    text: this.$t('menus.culture'), 
-                    route: "About",
-                    roles: ["Admin"]
-                }
+                // {
+                //     icon: "mdi-account_balance",
+                //     text: this.$t('menus.culture'), 
+                //     route: "About",
+                //     roles: ["Admin"]
+                // }
             ]
         };
     },
@@ -188,12 +188,12 @@
 
     watch:{
 
-      '$i18n.locale'(){
+    //   '$i18n.locale'(){
 
-       this.translateMenus();
+    //    this.translateMenus();
 
 
-      },
+    //   },
 
     },
     methods: {
