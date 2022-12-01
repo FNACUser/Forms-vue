@@ -218,25 +218,28 @@ def login():
         
         roles = roles_schema.dump(user.roles)
         app.logger.info(f'password si coincide!! Roles=> {roles}')
+        try:
+            token = jwt.encode({'id':user.id, 'username' : user.username, 'email':user.email, 'roles': roles, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
+            app.logger.info(f'token {token}')
+            return jsonify({'token' : token})
+        except Exception as e:
+            app.logger.info(f'Error=> {e}')
         
-        token = jwt.encode({'id':user.id, 'username' : user.username, 'email':user.email, 'roles': roles, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
-        app.logger.info(f'token {token}')
-        return jsonify({'token' : token})
 
     return make_response('login.bad_credentials', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
    
 
 @app.route('/api/v1/users', methods=['GET'])
-#@token_required
-#def users(current_user):
-def users():
+@token_required
+def users(current_user):
+#def users():
     resp = User.query.order_by(User.username).all()
     return jsonify(users_schema.dump(resp))
 
 @app.route('/api/v1/cycles', methods=['GET'])
-#@token_required
-#def cycles(current_user):
-def cycles():
+@token_required
+def cycles(current_user):
+#def cycles():
     resp = IRA_Cycles.query.all()
     return jsonify(cycles_schema.dump(resp))
 
