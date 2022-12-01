@@ -30,8 +30,8 @@ class PopulateNewIRAQuestionsSeeder(Seeder):
                                 'Nombre_es': 'Organization_area_es',
                                 'Nombre_en': 'Organization_area_en'
                                 }, inplace=True)
-        # areasXL.to_sql(name='IRA_Organization_areas', con=db.engine, if_exists='append',
-        #                index=False)
+        areasXL.to_sql(name='IRA_Organization_areas', con=db.engine, if_exists='append',
+                       index=False)
 
         cycles_df = pd.DataFrame({'id_cycle': [1],
                                   'Cycle': ['junio-2022'],
@@ -41,8 +41,8 @@ class PopulateNewIRAQuestionsSeeder(Seeder):
                                                                      xstring="%Y-%m-%d")],
                                   'Is_active': [True]})
 
-        # cycles_df.to_sql(name='IRA_Cycles', con=db.engine, if_exists='append',
-        #                  index=False)
+        cycles_df.to_sql(name='IRA_Cycles', con=db.engine, if_exists='append',
+                         index=False)
 
         # .-.-.-.-.-.-.-.-.-.-.--.- funcionarios
         funcionariosXL = \

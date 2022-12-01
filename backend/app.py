@@ -5,9 +5,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_seeder import FlaskSeeder
 from flask_bcrypt import Bcrypt
 from flask_security import Security
-from flask_marshmallow import Marshmallow
-from flask_restful import Api, Resource
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_mail import Mail
+#from flask_marshmallow import Marshmallow
+# from flask_restful import Api, Resource
+# from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import json
 #import jsonpickle
@@ -15,6 +16,8 @@ import datetime
 from functools import wraps
 import itertools
 import click
+import os
+import logging
 
 from flask_security import login_user, current_user, logout_user, login_required
 from flask_security.utils import hash_password,verify_password
@@ -32,21 +35,48 @@ from models import  users_schema, user_schema,cycles_schema, networks_schema, ne
                     network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema,responses_schema
 
 
+def setLogger(app):
+    
+    root = os.path.dirname(os.path.abspath(__file__))
+    logdir = os.path.join(root, 'logs')
+    if not os.path.exists(logdir):
+        os.mkdir(logdir)
+    log_file = os.path.join(logdir, 'app.log')
+
+    logFormatStr = '[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
+    logging.basicConfig(format = logFormatStr, filename = log_file, level=logging.ERROR)
+    formatter = logging.Formatter(logFormatStr,'%m-%d %H:%M:%S')
+    fileHandler = logging.FileHandler(log_file)
+    fileHandler.setLevel(logging.ERROR)
+    fileHandler.setFormatter(formatter)
+
+    app.logger.addHandler(fileHandler)
+    app.logger.info("Logging is set up.")
+    
+    
+
 DEBUG=True
 
+
+
 app = Flask(__name__)
+
+setLogger(app)
 app.config.from_object(Config)
 cors = CORS(app, resources={r"/api/*": {"origins": [Config.CORS_ORIGINS]}})
-app.config['CORS_HEADERS'] = 'Content-Type'
+#app.config['CORS_HEADERS'] = 'Content-Type'
 
 db.init_app(app)
 Bcrypt().init_app(app)
 Security().init_app(app, datastore=user_datastore)
+Mail().init_app(app)
 ma.init_app(app)
 
 seeder = FlaskSeeder()
 seeder.init_app(app, db)
 #api = Api(app)
+
+
 
 
 # custom commands
@@ -184,7 +214,7 @@ def login():
     if verify_password(auth['password'],user.password):
         
         roles = roles_schema.dump(user.roles)
-        # print(f'password si coincide!! { roles}')
+        print(f'password si coincide!! { roles}')
         token = jwt.encode({'id':user.id, 'username' : user.username, 'email':user.email, 'roles': roles, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
         return jsonify({'token' : token})
 
