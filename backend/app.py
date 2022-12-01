@@ -200,13 +200,16 @@ def login():
     
     auth = request.get_json()
     #print(auth['email'])
+    app.logger.info("Entra a Login")
 
     if not auth or not auth['email'] or not auth['password']:
+        app.logger.info("missing credentials")
         return make_response('login.missing_credentials', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
     user = User.query.filter_by(email=auth['email']).first()
 
     if not user:
+        app.logger.info("user_not_registered")
         return make_response('login.user_not_registered', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
 
@@ -214,8 +217,10 @@ def login():
     if verify_password(auth['password'],user.password):
         
         roles = roles_schema.dump(user.roles)
-        print(f'password si coincide!! { roles}')
+        app.logger.info(f'password si coincide!! Roles=> {roles}')
+        
         token = jwt.encode({'id':user.id, 'username' : user.username, 'email':user.email, 'roles': roles, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
+        app.logger.info(f'token {token}')
         return jsonify({'token' : token})
 
     return make_response('login.bad_credentials', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
