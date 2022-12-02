@@ -6,6 +6,8 @@ from flask_seeder import FlaskSeeder
 from flask_bcrypt import Bcrypt
 from flask_security import Security
 from flask_mail import Mail
+from flask import url_for, current_app
+from flask_mail import Message
 #from flask_marshmallow import Marshmallow
 # from flask_restful import Api, Resource
 # from werkzeug.security import generate_password_hash, check_password_hash
@@ -18,6 +20,8 @@ import itertools
 import click
 import os
 import logging
+import random
+import string
 
 from flask_security import login_user, current_user, logout_user, login_required
 from flask_security.utils import hash_password,verify_password
@@ -77,9 +81,16 @@ seeder.init_app(app, db)
 #api = Api(app)
 
 
-
-
 # custom commands
+
+def generate_random_string(N = 7):
+    
+    # using random.choices()
+    # generating random strings
+    res = ''.join(random.choices(string.ascii_uppercase +
+                                 string.digits, k=N))
+    return str(res)
+
 
 @click.command(name="crear_usuario")
 @with_appcontext
@@ -182,6 +193,7 @@ def token_required(f):
             # print(data)
             current_user = User.query.filter_by(email=data['email']).first()
         except Exception as e:
+            app.logger.error(f" jwt decode error= {e}")
             print(e)
 
             return jsonify({'message' : 'login.invalid_token'}), 401
@@ -200,17 +212,17 @@ def login():
     
     auth = request.get_json()
     #print(auth['email'])
-    app.logger.info("Entra a Login")
+   # app.logger.info("Entra a Login")
 
     if not auth or not auth['email'] or not auth['password']:
-        app.logger.info("missing credentials")
+       # app.logger.info("missing credentials")
        #return make_response('login.missing_credentials', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
         return make_response('login.missing_credentials', 401)
 
     user = User.query.filter_by(email=auth['email']).first()
 
     if not user:
-        app.logger.info("user_not_registered")
+       # app.logger.info("user_not_registered")
         return make_response('login.user_not_registered', 401)
 
 
@@ -218,16 +230,94 @@ def login():
     if verify_password(auth['password'],user.password):
         
         roles = roles_schema.dump(user.roles)
-        app.logger.info(f'password si coincide!! Roles=> {roles}')
+       # app.logger.info(f'password si coincide!! Roles=> {roles}')
         try:
-            token = jwt.encode({'id':user.id, 'username' : user.username, 'email':user.email, 'roles': roles, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
-            app.logger.info(f'token {token}')
+            token = jwt.encode({'id':user.id, 
+                                'username' : user.username, 
+                                'email':user.email, 
+                                'roles': roles, 
+                                'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, 
+                               app.config['SECRET_KEY'])
+           # app.logger.info(f'token {token}')
             return jsonify({'token' : token})
         except Exception as e:
-            app.logger.info(f'Error=> {e}')
+            app.logger.error(f'Error=> {e}')
         
 
     return make_response('login.bad_credentials', 401)
+
+
+def send_reset_email(user,language='es'):
+    token = user.get_reset_token()
+    app.logger.info(f"reset token= {token}")
+    app.logger.info(f"username= {app.config['MAIL_USERNAME']}")
+    msg = Message('Password Reset Request',
+                  sender=app.config['MAIL_USERNAME'],
+                  recipients=[user.email])
+    href_url=f"{app.config['APP_URL']}/reset-password/{user.email}/{token}"
+    if(language=='es'):
+        msg.html = f'''
+        <h3> Hola {user.username} </h3>
+        <p>Para cambiar su contaseña, haga click en el siguiente enlace: <a href='{href_url}'>Reiniciar contraseña</a></p>
+        <p>Si usted no realizó esta solicitud por favor ignore este mensaje, ninguna modificación a su contraseña será realizada.<p>
+        '''
+    else:
+        msg.html = f'''
+        <h3> Hello {user.username} </h3>
+        <p>To reset your password, visit the following link: <a href='{href_url}'>Reset password</a></p>
+        <p>If you did not make this request then simply ignore this email and no changes will be made.<p>
+        '''
+        
+    Mail().send(msg)
+
+
+
+@app.route('/api/v1/request_password_reset', methods=['POST'])
+def request_password_reset():
+    
+    data = request.get_json()
+    # print(data['email'])
+    # app.logger.info("Entra a request_password_reset")
+
+    if not data or not data['email']:
+        app.logger.info("missing email")
+       #return make_response('login.missing_credentials', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+        return make_response('login.missing_email', 401)
+
+    user = User.query.filter_by(email=data['email']).first()
+
+    if not user:
+        app.logger.info("user_not_registered")
+        return make_response('login.user_not_registered', 401)
+    
+    try:
+        send_reset_email(user,data['lang'])
+        return make_response('login.reset_password.email_sent', 200)
+    except Exception as e:
+        app.logger.error(f'Error=> {e}')
+        return make_response('login.reset_password.email_error', 500)
+    
+
+@app.route("/api/v1/reset_password", methods=['POST'])
+def reset_password():
+    
+    data = request.get_json()
+    app.logger.info(f"data={data}")
+    
+    user = User.verify_reset_token(data['token'])
+    if user is None:
+        return make_response('login.reset_password.invalid_or_expired_token', 401)
+       
+    if (data['password'] == data['confirmation_password']):
+        hashed_password = hash_password(data['password'])
+        user.password = hashed_password
+        db.session.commit()
+        return make_response('login.reset_password.pwd_reset_successful', 200)
+    else:
+        return make_response('login.confirmation_pwd_not_match', 401)
+    
+
+    
    
 
 @app.route('/api/v1/users', methods=['GET'])
@@ -236,6 +326,7 @@ def users(current_user):
 #def users():
     resp = User.query.order_by(User.username).all()
     return jsonify(users_schema.dump(resp))
+
 
 @app.route('/api/v1/cycles', methods=['GET'])
 @token_required
@@ -392,7 +483,7 @@ def add_interacting_actor(current_user):
         
         new_ids=list(set(data['employee_ids']).difference(already_saved))
  
-        print(f"New Ids={new_ids}")
+      #  print(f"New Ids={new_ids}")
     
         if len(new_ids):
             for new_id in new_ids:
@@ -473,10 +564,10 @@ def save_answer(current_user):
         adjacency_input_form_code=str(data['cycle_id']) +'-'+ str(current_user.id) + '-' + str(data['network_mode_id'])
         #print(adjacency_input_form_code)
         existing_response = IRA_Responses.query.filter_by(id_question = data['question_id'],id_adjacency_input_form=adjacency_input_form_code).first()
-        print(existing_response)
+       # print(existing_response)
         if(existing_response):
             current_responses=json.loads(existing_response.Response)
-            print(current_responses)
+           # print(current_responses)
             existing_actor=next(filter(lambda x: x['item_id'] == data['item_id'],current_responses),None)
             if(data["selected_option"] is not None and existing_actor is None):
                 current_responses.append(new_response)        

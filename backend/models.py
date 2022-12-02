@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from flask import  current_app
 from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow

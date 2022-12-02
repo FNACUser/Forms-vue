@@ -1,6 +1,6 @@
 <template>
-         <v-container fill-height fluid>
-         <v-layout align-center justify-center>
+  <v-container fill-height fluid>
+      <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
             <v-card class="elevation-12">
               <v-img
@@ -11,14 +11,11 @@
                 flat
                 color="rgba(0, 0, 0, 0)"
               >
-                <!-- <v-toolbar dark color="primary">
-                  <v-toolbar-title>Login...</v-toolbar-title>
-                </v-toolbar> -->
-
+              
               </v-app-bar>
               </v-img>
               <v-card-text>
-                <v-form>
+                <v-form v-model="valid_form">
                    <v-text-field
                     prepend-icon ="mdi-email"
                     v-model="email"
@@ -48,20 +45,19 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" @click='logIn'>Login</v-btn>
+                <v-btn color="primary" @click='logIn' :disabled="!valid_form" >Login</v-btn>
               </v-card-actions>
             </v-card>
           </v-flex>
-        </v-layout>
-        
-      </v-container>
+      </v-layout>
+  </v-container>
     
 
 </template>
 
 <script>
 
-import { useMainStore } from '../../store/main'
+import { useMainStore } from '@/store/main'
 import { mapStores} from 'pinia'
 
   export default {
@@ -70,7 +66,8 @@ import { mapStores} from 'pinia'
         email:null,
         password:null,
         show:false,
-        forgotURL: window.location.origin+"/forgot-password"
+        forgotURL: window.location.origin+"/forgot-password",
+        valid_form:false
       }
     },
 

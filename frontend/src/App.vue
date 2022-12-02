@@ -98,10 +98,10 @@
         <v-main>
             
                 <vue-particles color="#7afff6"/>
-                <flash-message style="height: 5px;"/>
+                <flash-message style="height: 8px;"/>
                 <router-view ></router-view>
-                <loader></loader>              
-
+                <loader></loader>  
+                      
         </v-main>
 
         <v-footer app>

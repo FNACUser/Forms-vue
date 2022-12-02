@@ -11,6 +11,7 @@ class Config:
 	load_dotenv(dotenv_path)
 	
 	APP_NAME = os.getenv("APP_NAME")
+	APP_URL = os.getenv("APP_URL")
 	FLASK_ENV = os.getenv("FLASK_ENV")
 
 	SECRET_KEY = os.getenv("SECRET_KEY")
@@ -26,4 +27,11 @@ class Config:
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
  
 	CORS_ORIGINS = os.getenv("CORS_ORIGINS")
+
 	DATA_PATH = os.path.join(APP_ROOT, os.getenv("DATA_PATH"))
+ 	
+	MAIL_SERVER = os.getenv("MAIL_SERVER")
+	MAIL_PORT = os.getenv("MAIL_PORT")
+	MAIL_USE_TLS = os.getenv("MAIL_USE_TLS")
+	MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+	MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")

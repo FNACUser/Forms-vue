@@ -72,6 +72,8 @@ export const useMainStore = defineStore('main', {
           
        },
 
+      
+
     logout(){
 
         this.$reset();
@@ -138,8 +140,19 @@ export const useMainStore = defineStore('main', {
     if(payload.message){
 
       //console.log(payload.message)
+      let translated_message = '';
+      if (i18n.te(`${payload.message}`)){
 
-      this.flash_message = i18n.t(`${payload.message}`);
+       translated_message = i18n.t(`${payload.message}`)
+
+      }
+      else{
+
+        translated_message = payload.message;
+
+      }
+
+      this.flash_message = translated_message;
       this.flash_message_type = payload.type;
   
      // console.log(this.flash_message);

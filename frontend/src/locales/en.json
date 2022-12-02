@@ -28,6 +28,7 @@
     "email_required":"E-mail is required!",
     "pwd_required":"Password is required!",
     "password":"Password",
+    "new_password":"New password",
     "forgot_pwd":"Forgot password?",
     "min_pwd":"Password must be min 5 characters long!",
     "email_not_valid":"Email is not valid!",
@@ -36,7 +37,19 @@
     "invalid_token":"Invalid Token!",
     "missing_credentials": "Missing credentials!",
     "user_not_registered": "User is not registered!",
-    "bad_credentials":"Invalid credentials!"
+    "bad_credentials":"Invalid credentials!",
+    "confirmation_pwd_not_match" : "Confirmation password does not match!",
+    "confirmation_password" : "Confirmation password",
+    "reset_password":{
+      "title":"Reset password...",
+      "email_sent":"An email has just been sent to you in order to reset your password!",
+      "email_error":"An error occured while trying to send the email!",
+      "invalid_or_expired_token":"The token is invalid or has already expired!",
+      "pwd_reset_successful":"Your password was reset successfully!",
+      "send_request":"Send request",
+      "change_pwd":"Change password"
+
+    }
    
 
 }

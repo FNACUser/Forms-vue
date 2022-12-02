@@ -25,7 +25,6 @@ window.axios.interceptors.request.use(
    config => {
        //const token = localStorageService.getAccessToken();
        const token =localStorage.getItem('access_token');
-       //console.log(token)
        if (token) {
           //config.headers['Authorization'] = 'Bearer ' + token;
            config.headers['x-access-token'] =  token;
