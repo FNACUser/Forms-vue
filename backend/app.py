@@ -204,13 +204,14 @@ def login():
 
     if not auth or not auth['email'] or not auth['password']:
         app.logger.info("missing credentials")
-        return make_response('login.missing_credentials', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+       #return make_response('login.missing_credentials', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+        return make_response('login.missing_credentials', 401)
 
     user = User.query.filter_by(email=auth['email']).first()
 
     if not user:
         app.logger.info("user_not_registered")
-        return make_response('login.user_not_registered', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+        return make_response('login.user_not_registered', 401)
 
 
     # if check_password_hash(user.password, auth['password']):
@@ -226,7 +227,7 @@ def login():
             app.logger.info(f'Error=> {e}')
         
 
-    return make_response('login.bad_credentials', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+    return make_response('login.bad_credentials', 401)
    
 
 @app.route('/api/v1/users', methods=['GET'])
