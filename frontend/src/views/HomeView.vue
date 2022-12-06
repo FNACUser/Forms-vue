@@ -119,6 +119,7 @@
                 :items-per-page="-1"
                 class="elevation-1"
                 v-if="selected_actors.length>0"
+                dense
           >
               <template v-slot:item="{ item }">
 
@@ -143,8 +144,8 @@
                               flat
                               rounded
                               class="my-5"
+                              dense
                              
-                        
                             >                         
                           </v-select>  
                            
@@ -180,6 +181,7 @@
                 :items-per-page="-1"
                 class="elevation-1"
                 v-if="nodes"
+                dense
           >
               <template v-slot:item="{ item }">
                 <tr>
@@ -203,6 +205,7 @@
                               flat
                               rounded
                               class="my-5"
+                              dense
                               
                             >
                           

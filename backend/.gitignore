@@ -1,6 +1,8 @@
+.env
 /bin
 /__pycache__
+/common/__pycache__
+/seeds/__pycache__
 /include
 /lib
 pyvenv.cfg
-.env

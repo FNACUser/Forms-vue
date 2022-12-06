@@ -249,24 +249,26 @@ def login():
 
 def send_reset_email(user,language='es'):
     token = user.get_reset_token()
-    app.logger.info(f"reset token= {token}")
-    app.logger.info(f"username= {app.config['MAIL_USERNAME']}")
-    msg = Message('Password Reset Request',
-                  sender=app.config['MAIL_USERNAME'],
-                  recipients=[user.email])
     href_url=f"{app.config['APP_URL']}/reset-password/{user.email}/{token}"
+    subject=""
+    body=""
+    
     if(language=='es'):
-        msg.html = f'''
+        subject="Restablecer contraseña"
+        body = f'''
         <h3> Hola {user.username} </h3>
         <p>Para cambiar su contaseña, haga click en el siguiente enlace: <a href='{href_url}'>Reiniciar contraseña</a></p>
         <p>Si usted no realizó esta solicitud por favor ignore este mensaje, ninguna modificación a su contraseña será realizada.<p>
         '''
     else:
-        msg.html = f'''
+        subject="Password reset"
+        body = f'''
         <h3> Hello {user.username} </h3>
         <p>To reset your password, visit the following link: <a href='{href_url}'>Reset password</a></p>
         <p>If you did not make this request then simply ignore this email and no changes will be made.<p>
         '''
+    msg = Message(subject,sender=app.config['MAIL_USERNAME'],recipients=[user.email])  
+    msg.html = body
         
     Mail().send(msg)
 
