@@ -151,7 +151,8 @@ class IRA_Adjacency_input_form(db.Model):
 class IRA_Cycles(db.Model):
     __tablename__ = 'IRA_Cycles'
     id_cycle = db.Column(db.Integer, primary_key=True)
-    Cycle = db.Column(db.String(100), nullable=False)
+    Cycle_es = db.Column(db.String(100), nullable=False)
+    Cycle_en = db.Column(db.String(100), nullable=False)
     Initial_date = db.Column(db.DateTime, nullable=False)
     End_date = db.Column(db.DateTime, nullable=False)
     Is_active = db.Column(db.Boolean, nullable=False)
@@ -171,7 +172,7 @@ class IRA_Cycles(db.Model):
     #                             backref=db.backref('cycle',lazy=True))
 
     def __repr__(self):
-        return f"IRA_Cycles('{self.id_cycle}', '{self.Cycle},'" \
+        return f"IRA_Cycles('{self.id_cycle}', '{self.Cycle_es}','{self.Cycle_en}'" \
                f"'{self.Initial_date}','{self.End_date}','{self.Is_active}')"
 
 
@@ -745,7 +746,7 @@ class CycleSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Cycles
-        # fields = ("id_cycle","Cycle","Initial_date","End_date","Is_active","networks_modes")
+        # fields = ("id_cycle","Cycle_es","Cycle_en","Initial_date","End_date","Is_active","networks_modes")
         
         # network_modes = ma.Nested(NetworksModesSchema)
 

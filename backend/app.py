@@ -338,25 +338,25 @@ def cycles(current_user):
     return jsonify(cycles_schema.dump(resp))
 
 @app.route('/api/v1/networks/<lang>', methods=['GET'])
-#@token_required
-#def network(current_user):
-def network(lang):
+@token_required
+def network(current_user,lang):
+#def network(lang):
     attribute_name = 'name_'+lang
     resp = IRA_Networks.query.order_by(getattr(IRA_Networks,attribute_name)).all()
     return jsonify(networks_schema.dump(resp))
 
 @app.route('/api/v1/cycle/<int:cycle_id>/network_modes', methods=['GET'])
-#@token_required
-#def cycle_network_modes(current_user,cycle_id):
-def cycle_network_modes(cycle_id):   
+@token_required
+def cycle_network_modes(current_user,cycle_id):
+#def cycle_network_modes(cycle_id):   
     cycle = IRA_Cycles.query.get(cycle_id)   
     resp = cycle.networks_modes
     return jsonify(network_mode_schema.dump(resp))
 
 @app.route('/api/v1/areas', methods=['GET'])
-#@token_required
-#def areas(current_user):
-def areas():
+@token_required
+def areas(current_user):
+#def areas():
     #resp = IRA_Organization_areas.query.order_by(IRA_Organization_areas.Organization_area).all()
     
     resp = IRA_Organization_areas.query.all()
@@ -364,76 +364,76 @@ def areas():
 
 
 @app.route('/api/v1/nodes_segments_categories', methods=['GET'])
-#@token_required
-#def nodes_segments_categories(current_user):
-def nodes_segments_categories():
+@token_required
+def nodes_segments_categories(current_user):
+#def nodes_segments_categories():
     resp = IRA_Nodes_segments_categories.query.order_by(IRA_Nodes_segments_categories.Node_segment_category).all()
     return jsonify(node_segment_category_schema.dump(resp))
 
 
 @app.route('/api/v1/networks_modes_themes', methods=['GET'])
-#@token_required
-#def networks_modes_themes(current_user):
-def networks_modes_themes():
+@token_required
+def networks_modes_themes(current_user):
+#def networks_modes_themes():
     #resp = IRA_Networks_modes_themes.query.order_by(IRA_Networks_modes_themes.Network_mode_theme).all()
     resp = IRA_Networks_modes_themes.query.all()
     return jsonify(network_mode_theme_schema.dump(resp))
 
 
 @app.route('/api/v1/questions', methods=['GET'])
-#@token_required
-#def questions(current_user):
-def questions():
+@token_required
+def questions(current_user):
+#def questions():
     resp = IRA_Questions.query.all()
     return jsonify(questions_schema.dump(resp))
 
 
 @app.route('/api/v1/network_mode/<int:network_mode_id>/questions', methods=['GET'])
-#@token_required
-#def network_mode_questions(current_user,cycle_id):
-def network_mode_questions(network_mode_id):   
+@token_required
+def network_mode_questions(current_user,network_mode_id):
+#def network_mode_questions(network_mode_id):   
     network_mode = IRA_Networks_modes.query.get(network_mode_id)   
     resp = network_mode.questions
     return jsonify(questions_schema.dump(resp))
 
 
 @app.route('/api/v1/network_mode/<int:network_mode_id>/nodes', methods=['GET'])
-#@token_required
-#def network_mode_nodes(current_user,cycle_id):
-def network_mode_nodes(network_mode_id):   
+@token_required
+def network_mode_nodes(current_user,network_mode_id):
+#def network_mode_nodes(network_mode_id):   
     network_mode = IRA_Networks_modes.query.get(network_mode_id)   
     resp = network_mode.nodes
     return jsonify(nodes_schema.dump(resp))
 
 
 @app.route('/api/v1/questions_possible_answers', methods=['GET'])
-#@token_required
-#def possible_answer(current_user):
-def possible_answers():
+@token_required
+def possible_answer(current_user):
+#def possible_answers():
     resp = IRA_Questions_possible_answers.query.all()
     return jsonify(questions_possible_answers_schema.dump(resp))
 
 
 @app.route('/api/v1/nodes', methods=['GET'])
-#@token_required
-#def nodes(current_user):
-def nodes():
+@token_required
+def nodes(current_user):
+#def nodes():
     resp = IRA_Nodes.query.all()
     return jsonify(nodes_schema.dump(resp))
 
 
 @app.route('/api/v1/networks_modes', methods=['GET'])
-#@token_required
-#def networks_modes(current_user):
-def networks_modes():
+@token_required
+def networks_modes(current_user):
+#def networks_modes():
     resp = IRA_Networks_modes.query.all()
     return jsonify(network_mode_schema.dump(resp))
 
 
 @app.route('/api/v1/user/<int:user_id>/cycle/<int:cycle_id>/interacting_actors', methods=['GET'])
-# @token_required
-# def interacting_actors(current_user,user_id,cycle_id):
-def get_interacting_actors(user_id,cycle_id):
+@token_required
+def get_interacting_actors(current_user,user_id,cycle_id):
+#def get_interacting_actors(user_id,cycle_id):
 
     # data = request.json
     # print(data)
@@ -449,9 +449,9 @@ def get_interacting_actors(user_id,cycle_id):
 
 
 @app.route('/api/v1/user/<int:user_id>/cycle/<int:cycle_id>/responses', methods=['GET'])
-# @token_required
-# def interacting_actors(current_user,user_id,cycle_id):
-def get_user_responses(user_id,cycle_id):
+@token_required
+def get_user_responses(current_user,user_id,cycle_id):
+#def get_user_responses(user_id,cycle_id):
 
     # data = request.json
     # print(data)

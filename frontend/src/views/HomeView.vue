@@ -9,7 +9,7 @@
           v-model="selected_cycle"
           :items="filteredCycles"
           :label="$t('main_page.period')"
-          item-text="Cycle"
+          :item-text="`Cycle_${$i18n.locale}`"
           item-value="id_cycle"
           clearable
           @change="initialize"

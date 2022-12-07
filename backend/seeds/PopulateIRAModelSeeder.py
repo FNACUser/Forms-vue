@@ -34,7 +34,8 @@ class PopulateIRAModelSeeder(Seeder):
                        index=False)
 
         cycles_df = pd.DataFrame({'id_cycle': [1],
-                                  'Cycle': ['junio-2022'],
+                                  'Cycle_es': ['junio-2022'],
+                                  'Cycle_en': ['june-2022'],
                                   'Initial_date': [UT_String_to_datetime('2022-06-01',
                                                                          xstring="%Y-%m-%d")],
                                   'End_date': [UT_String_to_datetime('2022-06-30',
@@ -88,41 +89,43 @@ class PopulateIRAModelSeeder(Seeder):
                                              index=False)
 
         # .-.-.-.-.-.-.-.-.-.-.--.- nodes y nodes_segments
-        conocimientos_en = pd.read_excel(excel_book,
-                                         sheet_name='Conocimientos_en')
+        # conocimientos_en = pd.read_excel(excel_book,
+        #                                  sheet_name='Conocimientos_en')
 
-        conocimientos_en_dict = \
-            pd.Series(conocimientos_en.Nombre.values,
-                      index=conocimientos_en.id).to_dict()
+        # conocimientos_en_dict = \
+        #     pd.Series(conocimientos_en.Nombre.values,
+        #               index=conocimientos_en.id).to_dict()
             
-        conocimientos_en_dict
+        # conocimientos_en_dict
             
         # .-.-.-.-.-.-.-.-. Conocimientos
         segmentos_nodosXL = \
             pd.read_excel(excel_book,
                           sheet_name='Conocimientos')
         segmentos_nodosXL.rename(columns={'Tipo-Conocimiento': 'Node_segment',
-                                          'Nombre': 'Node_es'}, inplace=True)
+                                          'Nombre_es': 'Node_es',
+                                          'Nombre_en': 'Node_en'},inplace=True)
         segmentos_nodosXL['id_node_segment_category'] = 2
 
-        segmentos_nodosXL['Node_en'] = \
-            segmentos_nodosXL.apply(lambda row: \
-                                        conocimientos_en_dict.get(row.id), axis=1)
+        # segmentos_nodosXL['Node_en'] = \
+        #     segmentos_nodosXL.apply(lambda row: \
+        #                                 conocimientos_en_dict.get(row.id), axis=1)
 
         # .-.-.-.-.-.-.-.-.- Recursos
-        recursos_en = pd.read_excel(excel_book,
-                                    sheet_name='Recursos_en')
-        recursos_en_dict = \
-            pd.Series(recursos_en.Recursos.values,
-                      index=recursos_en.id).to_dict()
+        # recursos_en = pd.read_excel(excel_book,
+        #                             sheet_name='Recursos_en')
+        # recursos_en_dict = \
+        #     pd.Series(recursos_en.Recursos.values,
+        #               index=recursos_en.id).to_dict()
 
         segmentos_nodos_recursosXL = pd.read_excel(excel_book, sheet_name='Recursos')
         segmentos_nodos_recursosXL.rename(columns={'Tipo-Recurso': 'Node_segment',
-                                                   'Recursos': 'Node_es'}, inplace=True)
+                                                   'Recursos_es': 'Node_es',
+                                                   'Recursos_en': 'Node_en'}, inplace=True)
         segmentos_nodos_recursosXL['id_node_segment_category'] = 3
-        segmentos_nodos_recursosXL['Node_en'] = \
-            segmentos_nodos_recursosXL.apply(lambda row: \
-                                                 recursos_en_dict.get(row.id), axis=1)
+        # segmentos_nodos_recursosXL['Node_en'] = \
+        #     segmentos_nodos_recursosXL.apply(lambda row: \
+        #                                          recursos_en_dict.get(row.id), axis=1)
 
         segmentos_nodosXL = \
             segmentos_nodosXL.append(segmentos_nodos_recursosXL, ignore_index=True)
