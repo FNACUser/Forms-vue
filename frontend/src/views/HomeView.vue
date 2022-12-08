@@ -57,18 +57,18 @@
           cols="3"
           class="d-flex justify-space-around mb-6 align-end"
           >
-            <v-select
+            <v-autocomplete
               v-model="selected_area"
               :items="mainStore.areas"
               :label="$t('main_page.area')"
               :item-text="`Organization_area_${$i18n.locale}`"
               item-value="id_organization_area"
               clearable 
-            ></v-select>
+            ></v-autocomplete>
         </v-col>
     
         <v-col
-        class="d-flex justify-space-around mb-6 align-end"
+          class="d-flex justify-space-around mb-6 align-end"
           cols="3"
         >
           <v-autocomplete
@@ -79,7 +79,7 @@
             
             :label="$t('main_page.user')"
             persistent-hint
-            dense
+            
             
             small-chips
             multiple
