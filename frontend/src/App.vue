@@ -96,11 +96,16 @@
         
         </header>
         <v-main>
-            
+            <v-container fluid>
                 <vue-particles color="#7afff6"/>
                 <flash-message style="height: 8px;"/>
-                <router-view ></router-view>
+                <router-view></router-view>
                 <loader></loader>  
+
+
+            </v-container>
+            
+               
                     
         </v-main>
 

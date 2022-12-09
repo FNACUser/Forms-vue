@@ -4,6 +4,7 @@
     "culture":"Cultura",
     "about": "Acerca de..",
     "delete_record_text":"Está seguro de eliminar este registro?",
+    "delete_interacting_person_text":"Está seguro de eliminar esta persona?<br> Todas las respuestas asociadas a esta persona en otras secciones serán borradas!",
     "delete_record_title":"Borrar registro",
     "cancel":"Cancelar",
     "loading":"Cargando..."
@@ -22,8 +23,7 @@
           "name":"Nombre",
           "area":"Area",
           "actions":"Acciones"
-        },
-    "answer_saved":"Su respuesta ha sido guardada!"
+        }
   },
   "login":{
      
@@ -52,7 +52,13 @@
         "change_pwd":"Cambiar contraseña"
 
       }
+    },
+    "api_responses":{
 
+      "interacting_actor_deleted":"Actor fue eliminado, así como todas las respuestas relacionadas a este en otras secciones!!",
+      "new_interacting_actor_added":"Nuevo actor ha sido agregado!",
+      "answer_saved":"Su respuesta ha sido guardada!"
+
+    }
+    
   }
-
-}

@@ -507,7 +507,7 @@ def add_interacting_actor(current_user):
 
          
           
-    return jsonify("interacting actors updated correctly!!")
+    return jsonify("api_responses.new_interacting_actor_added")
 
 
 
@@ -541,7 +541,7 @@ def delete_interacting_actor(current_user):
         db.session.commit()
             
           
-    return jsonify("interacting actor was deleted and all answers related to this actor !!")
+    return jsonify("api_responses.interacting_actor_deleted")
 
 
 
@@ -596,7 +596,7 @@ def save_answer(current_user):
         
             
           
-    return jsonify("main_page.answer_saved")
+    return jsonify("api_responses.answer_saved")
 
 
 

@@ -1,5 +1,7 @@
 <template>
-  <v-container  fluid>
+
+  <div>
+
     <v-row dense>
       <v-col
         class="d-flex justify-space-around mb-6 align-end"
@@ -157,7 +159,7 @@
                                   <v-icon
                                       v-on="on"
                                       small
-                                      @click="delRecord(item)"
+                                      @click="delRecord(item,'menus.delete_record_title','menus.delete_interacting_person_text')"
                                       color="orange"
                                   >
                                       mdi-delete
@@ -221,13 +223,10 @@
         </v-col>
     </v-row>
     
-
-    <confirmation-dialog ref="confirmDeleteActor">
-      
-    </confirmation-dialog>
-   
-
-    </v-container>
+    <confirmation-dialog ref="confirmDeleteActor"/>
+        
+  </div>
+  
 </template>
 <script>
 
@@ -374,7 +373,7 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
         console.log('Entra a SaveAnswerArray');
 
-        console.log(event);
+       // console.log(event);
 
         // if(event.length>=3){
 
@@ -385,9 +384,18 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
         //else{
 
+          if(this.answers[`${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`]){
+           // console.log('Entra a IF de save answer')
+            this.answers[`${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`] = event;
 
+          }
+          else{
+          //  console.log('Entra a ELSE de save answer')
+            this.$set(this.answers, `${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`, event);
 
-              this.$set(this.answers, `${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`, event);
+          }
+
+              
 
               const data={
                   "cycle_id":this.selected_cycle,
@@ -488,7 +496,10 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
     
           await this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/add_interacting_actor', data)
-          .then(response => console.log(response.data))
+          .then(response => {
+            this.$alertify.success(this.$t(response.data));
+           // console.log(response.data)
+          })
           .catch(error => {
             
             console.error('There was an error!', error.message);
@@ -499,11 +510,13 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
           },
 
 
-      async delRecord(item) {
+      async delRecord(item, title, message) {
         if (
           await this.$refs.confirmDeleteActor.open(
-            this.$t('menus.delete_record_title'),
-            this.$t('menus.delete_record_text'),
+            // this.$t('menus.delete_record_title'),
+            // this.$t('menus.delete_record_text'),
+            this.$t(title),
+            this.$t(message),
             {color:"red lighten-3"}
           )
         ) {
@@ -511,12 +524,14 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
         }
       },
 
+      
 
 
       async deleteActor(item) {
            
-            let item_index = this.selected_actors.findIndex(object => {
-                return object.id==item.id});
+            const item_index = this.selected_actors.findIndex(object => {
+                return object.id==item.id
+              });
 
             const data={
                   "user_email":this.mainStore.logged_user.email,
@@ -526,8 +541,10 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
           
             await this.$axios.delete(process.env.VUE_APP_BACKEND_URL+'/delete_interacting_actor', {data:data})
               .then(response => {
-                console.log(response.data);
+               // console.log(response.data);
+                this.$alertify.success(this.$t(response.data));
                 this.selected_actors.splice(item_index,1);
+                this.getUserResponses();
               })
               .catch(error => {
                 
@@ -592,10 +609,12 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
           await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/responses')
               .then(response => {
+
+                this.answers={};
                
                 const responses = response.data;
 
-               // console.log(responses);
+                //console.log(responses);
 
                 if(responses){
 
@@ -607,8 +626,20 @@ import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 
                   resp_content.forEach(content =>{
 
-                      this.answers[`${response.adjacency_input_form['id_network_mode']}_${response.id_question}_${content.item_id}`]= content.valor
-                  })
+                    if ( this.answers[`${response.adjacency_input_form['id_network_mode']}_${response.id_question}_${content.item_id}`] ){
+                     // console.log('entra a IF de getUserResponse');
+                      this.answers[`${response.adjacency_input_form['id_network_mode']}_${response.id_question}_${content.item_id}`] = content.valor;
+
+                    }
+                    else{
+                     // console.log('entra a ELSE de getUserResponse');
+                      this.$set(this.answers, `${response.adjacency_input_form['id_network_mode']}_${response.id_question}_${content.item_id}`, content.valor);
+
+                    }
+                 
+                  });
+
+       //           console.log(this.answers);
 
                  });
 
