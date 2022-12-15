@@ -454,16 +454,22 @@ import Gauge from '@/components/Gauge.vue';
               this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/save_answer', data)
               .then(response => {
                 //console.log(response.data);
-                this.$alertify.success(this.$t(response.data));
+                
+                this.$alertify.success(this.$t(response.data.message));
+                this.populateAnswers(response.data.responses);
+                
+                // const index = this.forms.findIndex(item => item.id== this.current_network_mode.id_network_mode);
+                // const prefix = this.current_network_mode.id_network_mode+'_';
+                // const num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
+                // this.forms[index]['answers'] = num_answers;
+                
 
-                const index = this.forms.findIndex(item => item.id== this.current_network_mode.id_network_mode);
+                this.updateNetworkModeGauge(this.current_network_mode);
 
-                const prefix = this.current_network_mode.id_network_mode+'_';
-                const num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix) && this.answers[item]).length;
-                this.forms[index]['answers'] = num_answers;
-                console.log(num_answers);
-                console.log(prefix);
-                console.log(this.answers); //.filter(item => item.startsWith(prefix)));
+                // console.log(num_answers);
+                // console.log(prefix);
+                //console.log(this.answers);
+                //.filter(item => item.startsWith(prefix)));
             
               }
 
@@ -477,6 +483,31 @@ import Gauge from '@/components/Gauge.vue';
        // }
 
       },
+
+
+      updateNetworkModeGauge(network_mode){
+
+          const index = this.forms.findIndex(item => item.id== network_mode.id_network_mode);
+          
+          const prefix = network_mode.id_network_mode +'_';
+          const num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
+         
+          this.forms[index]['answers'] = num_answers;
+          if(network_mode.network.code=='actor'){
+              this.forms[index]['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1; 
+                
+          }
+         
+              
+      },
+
+
+      updateAllNetworkModeGauges(){
+        
+        this.mainStore.network_modes.forEach(network_mode => this.updateNetworkModeGauge(network_mode))
+      
+      },
+
 
 
       makeActorsTableHeader(val, defaultHeader, text) {
@@ -551,6 +582,8 @@ import Gauge from '@/components/Gauge.vue';
           await this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/add_interacting_actor', data)
           .then(response => {
             this.$alertify.success(this.$t(response.data));
+            this.updateAllNetworkModeGauges();
+            //this.createFormsDetails();
            // console.log(response.data)
           })
           .catch(error => {
@@ -593,11 +626,14 @@ import Gauge from '@/components/Gauge.vue';
               };
           
             await this.$axios.delete(process.env.VUE_APP_BACKEND_URL+'/delete_interacting_actor', {data:data})
-              .then(response => {
+              .then(async response =>  {
                // console.log(response.data);
                 this.$alertify.success(this.$t(response.data));
                 this.selected_actors.splice(item_index,1);
-                this.getUserResponses();
+                await this.getUserResponses();
+
+                this.updateAllNetworkModeGauges();
+                //this.createFormsDetails();
               })
               .catch(error => {
                 
@@ -631,9 +667,7 @@ import Gauge from '@/components/Gauge.vue';
           this.selected_network_mode_theme=null;
           this.current_network_mode=null;
           this.nodes=[];
-          //this.forms=[];
-          //this.answers=[]
-
+         
         },
 
         async getNodes(network_mode_id){
@@ -666,13 +700,26 @@ import Gauge from '@/components/Gauge.vue';
           await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/responses')
               .then(response => {
 
-                this.answers={};
-               
                 const responses = response.data;
 
                 //console.log(responses);
 
-                if(responses){
+                this.populateAnswers(responses);
+                
+                
+              })
+              .catch(error => {
+                
+                console.error('There was an error!', error.message);
+              });
+
+        },
+
+
+        populateAnswers(responses){
+
+          if(responses){
+                  this.answers={};
 
                   responses.forEach(response => {
 
@@ -689,14 +736,8 @@ import Gauge from '@/components/Gauge.vue';
                   });
 
                 }
-                //console.log(Object.keys(this.answers));
-               //console.log(this.answers);
-                
-              })
-              .catch(error => {
-                
-                console.error('There was an error!', error.message);
-              });
+
+
 
         },
 
@@ -715,6 +756,7 @@ import Gauge from '@/components/Gauge.vue';
       async getQuestions(){
 
             this.questions=[];
+            this.current_network_mode=[];
             if(this.selected_network && this.selected_network.code==='actor' && this.filteredNetwokModeThemes) {
 
               if(this.selected_network_mode_theme){
@@ -740,6 +782,8 @@ import Gauge from '@/components/Gauge.vue';
 
           if(this.mainStore.network_modes.length){
 
+            this.forms=[];
+
              this.mainStore.network_modes.forEach(async network_mode => {
 
                 let form ={};
@@ -759,36 +803,13 @@ import Gauge from '@/components/Gauge.vue';
                 }
                 else{
                   // form['total_nodes'] = 0;
-                  form['total_items'] = this.selected_actors.length; 
+                  form['total_items'] = this.selected_actors.length>0?this.selected_actors.length:1; 
                 }
 
                 const prefix = network_mode.id_network_mode+'_';
                 const init_num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
                 form['answers'] = init_num_answers;
                 this.forms.push(form);
-
-              // USING SET....  
-              // this.$set(form,'id',network_mode.id_network_mode);
-              // this.$set(form,'name_es',this.getFormSectionName(network_mode,'es'));
-              // this.$set(form,'name_en',this.getFormSectionName(network_mode,'en'));
-              // this.$set(form,'total_questions',questions.length);
-               
-              // if(network_mode.network.code!=='actor'){
-              //   const nodes= await this.getNodes(network_mode.id_network_mode);
-               
-              //   this.$set(form,'total_nodes',nodes.length);
-              //   this.$set(form,'num_actors',0);
-              // }
-              // else{
-                
-              //   this.$set(form,'total_nodes',0);
-              //   this.$set(form,'num_actors',this.selected_actors.length);
-              // }
-
-              // const prefix = network_mode.id_network_mode+'_';
-              // const init_num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
-              // this.$set(form,'answers',init_num_answers);
-              //this.forms.push(form);
 
             });
 

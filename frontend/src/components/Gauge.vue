@@ -88,13 +88,13 @@ export default {
                 final_color=colors.yellow.darken1;
                 break;
               case this.value <= 60:
-                final_color=colors.lime.accent2;
+                final_color=colors.lime.base;
                 break;
               case this.value <= 70:
-                final_color=colors.lime.lighten1;
+                final_color=colors.lime.darken2;
                 break;
               case this.value <= 80:
-                final_color=colors.lime.base;
+                final_color=colors.lime.darken4;
                 break;
               case this.value <= 90:
                 final_color=colors.lightGreen.darken1;
@@ -109,7 +109,7 @@ export default {
                 final_color=colors.red.base;
             }
 
-            console.log(final_color);
+            // console.log(final_color);
 
             return  final_color;
       }

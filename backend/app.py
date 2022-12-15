@@ -550,10 +550,12 @@ def delete_interacting_actor(current_user):
 def save_answer(current_user):
 
     data = request.json
-    #print(data)
+   # print(data)
     #print(current_user.has_role("admin"))
-
+    #print(current_user.id)
     #if(data['user_email']==current_user.email and current_user.has_role("encuestado")):
+    
+    existing_responses = []
     
     if(data['user_email']==current_user.email ):
         
@@ -562,30 +564,48 @@ def save_answer(current_user):
             "valor":data["selected_option"]
         }
         
-        # print(data["selected_option"])
+       # print((data["selected_option"] is None))
+       # print(new_response)
         adjacency_input_form_code=str(data['cycle_id']) +'-'+ str(current_user.id) + '-' + str(data['network_mode_id'])
-        #print(adjacency_input_form_code)
+       # print(adjacency_input_form_code)
         existing_response = IRA_Responses.query.filter_by(id_question = data['question_id'],id_adjacency_input_form=adjacency_input_form_code).first()
-       # print(existing_response)
+       
+    
         if(existing_response):
+           # print('Existen ya respuestas almacenadas =>')
             current_responses=json.loads(existing_response.Response)
+           # print('current_responses 0=')
            # print(current_responses)
             existing_actor=next(filter(lambda x: x['item_id'] == data['item_id'],current_responses),None)
-            if(data["selected_option"] is not None and existing_actor is None):
-                current_responses.append(new_response)        
-            elif(data["selected_option"] is not None and existing_actor is not  None):
+          #  print('existing_actor=')
+           # print(existing_actor)
+            #if actor/item does not exist and there is a new  valid response then append new_response
+            if(not isResponseEmpty(data["selected_option"]) and existing_actor is None):
+                current_responses.append(new_response) 
+            #    print('Agrega nueva respuesta e item no existe=> agrega nuevo elemento')
+            #    print('current_responses 1=')
+            #    print(current_responses)  
+            #if actor/item exists and there is a valid response      
+            elif(not isResponseEmpty(data["selected_option"]) and existing_actor is not  None):
+            #    print('Agrega nueva respuesta e item ya existe=> reemplaza los valores ya existentes')
                 current_responses = list(filter(lambda x: x['item_id'] != data['item_id'], current_responses))
+            #    print('respuesta es valida y actor/item existe=')
                 current_responses.append(new_response)
-            elif(data["selected_option"] is None and existing_actor is not  None):
+            #    print('current_responses 2=')
+             #   print(current_responses)
+            elif(isResponseEmpty(data["selected_option"]) and existing_actor is not  None):
+             #   print('Como la respuesta  es vacía y el  item ya  existe=> remueve el item presente de las respuestas totales')
                 current_responses = list(filter(lambda x: x['item_id'] != data['item_id'], current_responses))
-            
-           # print(current_responses)
+             #   print('current_responses 3=')
+             #   print(current_responses)
             existing_response.Response=json.dumps(current_responses)
             db.session.commit()
         else:
-            if(data["selected_option"] is not None):
+            if not isResponseEmpty(data["selected_option"]):
+               # print('No existen respuestas previas y la nueva respuesta no esta vacía => se agrega la nueva respuesta')
                 adjacency_input_form = IRA_Adjacency_input_form.query.get(adjacency_input_form_code)
                 if(adjacency_input_form is None):
+                   # print('No existe numero de formulario, entonces se crea uno nuevo  =>')
                     db.session.add(IRA_Adjacency_input_form(id_adjacency_input_form = adjacency_input_form_code ,id_employee=current_user.id, id_cycle=data['cycle_id'], id_network_mode=data['network_mode_id'], Is_concluded=0))
                     db.session.commit()    
                 response = []
@@ -594,10 +614,26 @@ def save_answer(current_user):
                 db.session.add(IRA_Responses(id_question = data['question_id'],id_adjacency_input_form = adjacency_input_form_code ,Response = json.dumps(response)))
                 db.session.commit()    
         
-            
-          
-    return jsonify("api_responses.answer_saved")
+        adjacency_input_forms_ids= IRA_Adjacency_input_form.query.with_entities(IRA_Adjacency_input_form.id_adjacency_input_form).filter_by(id_cycle=data['cycle_id'],id_employee=current_user.id).all()
+        adjacency_codes = list(itertools.chain(*adjacency_input_forms_ids))
+         
+        if (adjacency_codes):
+            existing_responses = IRA_Responses.query.filter(IRA_Responses.id_adjacency_input_form.in_(adjacency_codes)).all()
 
+          
+    return jsonify({'responses': responses_schema.dump(existing_responses),'message':"api_responses.answer_saved"})
+
+
+def isResponseEmpty(response):
+    
+    if type(response)==list:
+        return not response
+    else:
+        return response is None
+    
+    
+    
+        
 
 
 if __name__ == '__main__':
