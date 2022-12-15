@@ -19,6 +19,7 @@
     "user": "Empleado",
     "question":"Pregunta",
     "answer":"Respuesta",
+    "section_closed":"Sección cerrada/completada",
     "actor_table":{
           "name":"Nombre",
           "area":"Area",

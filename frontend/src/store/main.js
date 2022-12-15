@@ -76,12 +76,11 @@ export const useMainStore = defineStore('main', {
 
     logout(){
 
-        this.$reset();
-        localStorage.removeItem('access_token');
-        this.logged_user=null_user;
-        this.token='';
-       
-       this.router.push('/login').catch(() => {});
+      this.$reset();
+      localStorage.removeItem('access_token');
+      this.logged_user=Object.assign({},null_user);
+      this.token='';
+      this.router.push('/login').catch(() => {});
   
     },
 

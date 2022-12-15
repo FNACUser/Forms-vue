@@ -18,6 +18,7 @@
     "user":"User",
     "question":"Question",
     "answer":"Answer",
+    "section_closed":"Section closed/completed",
     "actor_table":{
           "name":"Name",
           "area":"Area",
