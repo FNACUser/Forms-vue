@@ -698,8 +698,6 @@ class NodeSchema(ma.SQLAlchemyAutoSchema):
         
 nodes_schema = NodeSchema(many=True)
 
-
-
 class QuestionsPossibleAnswersSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
@@ -733,13 +731,14 @@ class NetworkModeSchema(ma.SQLAlchemyAutoSchema):
 network_mode_schema = NetworkModeSchema(many=True)
 
 
-class AdjacencyFormSchema(ma.SQLAlchemyAutoSchema):
+class AdjacencyInputFormSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = IRA_Adjacency_input_form
-        fields = ("id_employee","id_cycle","id_network_mode","network_mode.id_network_mode_theme","Is_concluded")
+        fields = ("id_adjacency_input_form","id_employee","id_cycle","id_network_mode","Is_concluded")
         
-   # responses = ma.List(ma.Nested(ResponseSchema))
-    network_mode = ma.Nested(NetworkModeSchema)
+    #network_mode = ma.Nested(NetworkModeSchema)
+    
+adjacency_input_forms_schema = AdjacencyInputFormSchema(many=True)
 
 
 class CycleSchema(ma.SQLAlchemyAutoSchema):
@@ -760,7 +759,7 @@ class ResponseSchema(ma.SQLAlchemyAutoSchema):
         model = IRA_Responses
         fields = ("id_response","id_question","id_adjacency_input_form","Response","adjacency_input_form")
     
-    adjacency_input_form = ma.Nested(AdjacencyFormSchema)
+    adjacency_input_form = ma.Nested(AdjacencyInputFormSchema)
         
 
 responses_schema = ResponseSchema(many=True)

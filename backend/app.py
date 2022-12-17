@@ -36,7 +36,8 @@ from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
                     IRA_Adjacency_input_form     
 from models import  users_schema, user_schema,cycles_schema, networks_schema, network_mode_schema, areas_schema,\
                     roles_schema, role_schema,node_segment_category_schema,\
-                    network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema,responses_schema
+                    network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema,responses_schema,\
+                    adjacency_input_forms_schema
 
 
 def setLogger(app):
@@ -325,7 +326,6 @@ def reset_password():
 @app.route('/api/v1/users', methods=['GET'])
 @token_required
 def users(current_user):
-#def users():
     resp = User.query.order_by(User.username).all()
     return jsonify(users_schema.dump(resp))
 
@@ -333,14 +333,12 @@ def users(current_user):
 @app.route('/api/v1/cycles', methods=['GET'])
 @token_required
 def cycles(current_user):
-#def cycles():
     resp = IRA_Cycles.query.all()
     return jsonify(cycles_schema.dump(resp))
 
 @app.route('/api/v1/networks/<lang>', methods=['GET'])
 @token_required
 def network(current_user,lang):
-#def network(lang):
     attribute_name = 'name_'+lang
     resp = IRA_Networks.query.order_by(getattr(IRA_Networks,attribute_name)).all()
     return jsonify(networks_schema.dump(resp))
@@ -348,16 +346,22 @@ def network(current_user,lang):
 @app.route('/api/v1/cycle/<int:cycle_id>/network_modes', methods=['GET'])
 @token_required
 def cycle_network_modes(current_user,cycle_id):
-#def cycle_network_modes(cycle_id):   
+
     cycle = IRA_Cycles.query.get(cycle_id)   
     resp = cycle.networks_modes
     return jsonify(network_mode_schema.dump(resp))
 
+
+@app.route('/api/v1/user/<int:user_id>/cycle/<int:cycle_id>/adjacency_input_forms', methods=['GET'])
+@token_required
+def adjacency_input_forms(current_user,user_id,cycle_id):
+
+    input_forms = IRA_Adjacency_input_form.query.filter_by(id_cycle=cycle_id,id_employee=user_id).all()  
+    return jsonify(adjacency_input_forms_schema.dump(input_forms))
+
 @app.route('/api/v1/areas', methods=['GET'])
 @token_required
 def areas(current_user):
-#def areas():
-    #resp = IRA_Organization_areas.query.order_by(IRA_Organization_areas.Organization_area).all()
     
     resp = IRA_Organization_areas.query.all()
     return jsonify(areas_schema.dump(resp))
@@ -366,7 +370,7 @@ def areas(current_user):
 @app.route('/api/v1/nodes_segments_categories', methods=['GET'])
 @token_required
 def nodes_segments_categories(current_user):
-#def nodes_segments_categories():
+
     resp = IRA_Nodes_segments_categories.query.order_by(IRA_Nodes_segments_categories.Node_segment_category).all()
     return jsonify(node_segment_category_schema.dump(resp))
 
@@ -374,8 +378,7 @@ def nodes_segments_categories(current_user):
 @app.route('/api/v1/networks_modes_themes', methods=['GET'])
 @token_required
 def networks_modes_themes(current_user):
-#def networks_modes_themes():
-    #resp = IRA_Networks_modes_themes.query.order_by(IRA_Networks_modes_themes.Network_mode_theme).all()
+
     resp = IRA_Networks_modes_themes.query.all()
     return jsonify(network_mode_theme_schema.dump(resp))
 
@@ -383,7 +386,7 @@ def networks_modes_themes(current_user):
 @app.route('/api/v1/questions', methods=['GET'])
 @token_required
 def questions(current_user):
-#def questions():
+
     resp = IRA_Questions.query.all()
     return jsonify(questions_schema.dump(resp))
 
@@ -391,7 +394,7 @@ def questions(current_user):
 @app.route('/api/v1/network_mode/<int:network_mode_id>/questions', methods=['GET'])
 @token_required
 def network_mode_questions(current_user,network_mode_id):
-#def network_mode_questions(network_mode_id):   
+  
     network_mode = IRA_Networks_modes.query.get(network_mode_id)   
     resp = network_mode.questions
     return jsonify(questions_schema.dump(resp))
@@ -400,7 +403,7 @@ def network_mode_questions(current_user,network_mode_id):
 @app.route('/api/v1/network_mode/<int:network_mode_id>/nodes', methods=['GET'])
 @token_required
 def network_mode_nodes(current_user,network_mode_id):
-#def network_mode_nodes(network_mode_id):   
+
     network_mode = IRA_Networks_modes.query.get(network_mode_id)   
     resp = network_mode.nodes
     return jsonify(nodes_schema.dump(resp))
@@ -409,7 +412,7 @@ def network_mode_nodes(current_user,network_mode_id):
 @app.route('/api/v1/questions_possible_answers', methods=['GET'])
 @token_required
 def possible_answer(current_user):
-#def possible_answers():
+
     resp = IRA_Questions_possible_answers.query.all()
     return jsonify(questions_possible_answers_schema.dump(resp))
 
@@ -417,7 +420,7 @@ def possible_answer(current_user):
 @app.route('/api/v1/nodes', methods=['GET'])
 @token_required
 def nodes(current_user):
-#def nodes():
+
     resp = IRA_Nodes.query.all()
     return jsonify(nodes_schema.dump(resp))
 
@@ -425,7 +428,7 @@ def nodes(current_user):
 @app.route('/api/v1/networks_modes', methods=['GET'])
 @token_required
 def networks_modes(current_user):
-#def networks_modes():
+
     resp = IRA_Networks_modes.query.all()
     return jsonify(network_mode_schema.dump(resp))
 
@@ -433,7 +436,6 @@ def networks_modes(current_user):
 @app.route('/api/v1/user/<int:user_id>/cycle/<int:cycle_id>/interacting_actors', methods=['GET'])
 @token_required
 def get_interacting_actors(current_user,user_id,cycle_id):
-#def get_interacting_actors(user_id,cycle_id):
 
     # data = request.json
     # print(data)
@@ -451,7 +453,6 @@ def get_interacting_actors(current_user,user_id,cycle_id):
 @app.route('/api/v1/user/<int:user_id>/cycle/<int:cycle_id>/responses', methods=['GET'])
 @token_required
 def get_user_responses(current_user,user_id,cycle_id):
-#def get_user_responses(user_id,cycle_id):
 
     # data = request.json
     # print(data)
@@ -470,13 +471,29 @@ def get_user_responses(current_user,user_id,cycle_id):
 
 
 
+@app.route('/api/v1/open_close_adjacency_input_form', methods=['POST'])
+@token_required
+def open_close_adjacency_input_form(current_user):
+    
+    data = request.json
+    
+    existing_form = IRA_Adjacency_input_form.query.filter_by(id_adjacency_input_form=data['id_adjacency_input_form']).first()
+    
+    if(existing_form):
+        existing_form.Is_concluded=data['closed']
+        db.session.commit()
+        return jsonify("api_responses.form_closed") if data['closed'] else jsonify("api_responses.form_opened")
+   
+    return jsonify("api_responses.no_adjacency_input_form_found")
+
+
+
 @app.route('/api/v1/add_interacting_actor', methods=['POST'])
 @token_required
 def add_interacting_actor(current_user):
-# def add_interacting_person():
+
     data = request.json
     #print(data)
-
     if(data['user_email']==current_user.email):
         
         interactions = IRA_Employees_interactions.query.with_entities(IRA_Employees_interactions.id_interacting_employee).filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id).all()
@@ -632,9 +649,6 @@ def isResponseEmpty(response):
         return response is None
     
     
-    
-        
-
 
 if __name__ == '__main__':
     app.run()

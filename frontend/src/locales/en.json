@@ -55,7 +55,9 @@
 
       "interacting_actor_deleted":"Interacting actor was deleted, as all answers related to it in other sections!!",
       "new_interacting_actor_added":"New interacting actor added!",
-      "answer_saved":"Your answer has been saved!"
+      "answer_saved":"Your answer has been saved!",
+      "form_closed":"Form closed!",
+      "form_opened":"Form enabled again!"
 
     }
    

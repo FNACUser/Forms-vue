@@ -1,269 +1,273 @@
 <template>
 
-<v-container  fluid>
-  <br/>
-    <v-row >
-      <v-col
-        class="d-flex justify-space-around mb-6 align-end"
-        cols="2"
-      >
-        <v-select
-          v-model="selected_cycle"
-          :items="filteredCycles"
-          :label="$t('main_page.period')"
-          :item-text="`Cycle_${$i18n.locale}`"
-          item-value="id_cycle"
-          clearable
-          @change="initialize"
-          @click:clear="resetSelectedVariables"
-          dense
-        ></v-select>
-      </v-col>
-      <v-col
-        cols="2"
-         class="d-flex justify-space-around mb-6 align-end"
-        >
-          <v-select
-            v-model="selected_network"
-            :items="mainStore.networks"
-            :label="$t('main_page.questionaire_type')"
-            :item-text="`name_${$i18n.locale}`"
-            item-value="id"
-            clearable
-            return-object
-            @click:clear="clearVariables"
-            @change="getQuestions"
-            dense
-          ></v-select>
-      </v-col>
-
-      <v-col
-        cols="3"
-         class="d-flex justify-space-around mb-6 align-end"
-         v-if="filteredNetwokModeThemes"
-        >
-          <v-select
-            v-model="selected_network_mode_theme"
-            :items="filteredNetwokModeThemes"
-            :label="$t('main_page.question_theme')"
-            :item-text="`Network_mode_theme_${$i18n.locale}`"
-            item-value="id_network_mode_theme"
-            clearable
-            @change="getQuestions"
-            @click:clear="clearVariables"
-            dense
-          ></v-select>
-        </v-col>
-        
-        <v-col
-          cols="2"
-          class="d-flex justify-space-around mb-6 align-end"
-          v-if="selected_network && selected_network.code==='actor'"
+    <v-container  fluid>
+      <br/>
+        <v-row >
+          <v-col
+            class="d-flex justify-space-around mb-6 align-end"
+            cols="2"
           >
-            <v-autocomplete
-              v-model="selected_area"
-              :items="mainStore.areas"
-              :label="$t('main_page.area')"
-              :item-text="`Organization_area_${$i18n.locale}`"
-              item-value="id_organization_area"
-              clearable 
+            <v-select
+              v-model="selected_cycle"
+              :items="filteredCycles"
+              :label="$t('main_page.period')"
+              :item-text="`Cycle_${$i18n.locale}`"
+              item-value="id_cycle"
+              clearable
+              @change="initialize"
+              @click:clear="resetSelectedVariables"
               dense
-            ></v-autocomplete>
-        </v-col>
-    
-        <v-col
-          class="d-flex justify-space-around mb-6 align-end"
-          cols="3"
-          v-if="selected_network && selected_network.code==='actor'"
-        >
-          <v-autocomplete
-            v-model="selected_actors"
-            :items="filteredEmployees"
-            item-text="username"
-            item-value="id"
-            :label="$t('main_page.user')"
-            persistent-hint
-            small-chips
-            multiple
-            return-object
-            @change="addInteractingActor()"
-            dense
-          ></v-autocomplete>
-        </v-col>    
-        
-    </v-row>
-    <v-row v-if="mainStore.network_modes.length">
-      <v-col
-          cols="2"
-          
-          v-for="(form, index) in forms" :key="index"
-          >
-            <gauge 
-            :label="form[`name_${$i18n.locale}`]" 
-            :in_value="Math.round(form['answers']*100/(form['total_questions']*form['total_items']))"
-            :in_size="((current_network_mode && form.id==current_network_mode.id_network_mode) ? 100:60 )"
-            :in_width="((current_network_mode && form.id==current_network_mode.id_network_mode) ? 15:7 )"
-            />
-            
-      </v-col> 
-    </v-row> 
-    <v-row  v-if="current_network_mode">
-      <v-col 
-            cols="4" 
-        >   
-        
-            <v-switch
-                v-model="formClosed"
-                :label="`${$t('main_page.section_closed')}: ${getFormSectionName(this.current_network_mode,this.$i18n.locale)}`"
-                @change="closeSectionForm"
-                
-              ></v-switch>
-            
-
+            ></v-select>
+          </v-col>
+          <v-col
+            cols="2"
+            class="d-flex justify-space-around mb-6 align-end"
+            >
+              <v-select
+                v-model="selected_network"
+                :items="mainStore.networks"
+                :label="$t('main_page.questionaire_type')"
+                :item-text="`name_${$i18n.locale}`"
+                item-value="id"
+                clearable
+                return-object
+                @click:clear="clearVariables"
+                @change="getQuestions"
+                dense
+              ></v-select>
           </v-col>
 
-      
-      </v-row>
-
-    <v-row dense justify="space-around">
-      <v-col cols="3">
-        <div v-for="(item, i) in questions" :key="i" >
-          <v-card > 
-            <v-app-bar
-            flat
-            color="blue"
-            >          
-                <v-card-title
-                  class="white--text" 
-                 >
-                 {{$t('main_page.question')}} {{i+1}}
-                </v-card-title>
-            </v-app-bar>    
-                <v-card-text>{{item[`Question_${$i18n.locale}`]}}</v-card-text>            
-          </v-card>
-         <br/>
-        </div>
-        </v-col>
-
-        <v-col
-          cols="8"
-          v-if="selected_network && selected_network.code==='actor'"
-        >
+          <v-col
+            cols="3"
+            class="d-flex justify-space-around mb-6 align-end"
+            v-if="filteredNetwokModeThemes"
+            >
+              <v-select
+                v-model="selected_network_mode_theme"
+                :items="filteredNetwokModeThemes"
+                :label="$t('main_page.question_theme')"
+                :item-text="`Network_mode_theme_${$i18n.locale}`"
+                item-value="id_network_mode_theme"
+                clearable
+                @change="getQuestions"
+                @click:clear="clearVariables"
+                dense
+              ></v-select>
+            </v-col>
+            
+            <v-col
+              cols="2"
+              class="d-flex justify-space-around mb-6 align-end"
+              v-if="selected_network && selected_network.code==='actor'"
+              >
+                <v-autocomplete
+                  v-model="selected_area"
+                  :items="mainStore.areas"
+                  :label="$t('main_page.area')"
+                  :item-text="`Organization_area_${$i18n.locale}`"
+                  item-value="id_organization_area"
+                  clearable 
+                  dense
+                  :disabled="currentForm && currentForm.is_concluded"
+                ></v-autocomplete>
+            </v-col>
+        
+            <v-col
+              class="d-flex justify-space-around mb-6 align-end"
+              cols="3"
+              v-if="selected_network && selected_network.code==='actor'"
+            >
+              <v-autocomplete
+                v-model="selected_actors"
+                :items="filteredEmployees"
+                item-text="username"
+                item-value="id"
+                :label="$t('main_page.user')"
+                persistent-hint
+                small-chips
+                multiple
+                return-object
+                @change="addInteractingActor()"
+                dense
+                :disabled="currentForm && currentForm.is_concluded"
+              ></v-autocomplete>
+            </v-col>    
+            
+        </v-row>
+        <v-row v-if="mainStore.network_modes.length">
+          <v-col
+              cols="2"
+              
+              v-for="(form, index) in forms" :key="index"
+              >
+                <gauge 
+                :label="form[`name_${$i18n.locale}`]" 
+                :in_value="Math.round(form['answers']*100/(form['total_questions']*form['total_items']))"
+                :in_size="((current_network_mode && form.id==current_network_mode.id_network_mode) ? 100:60 )"
+                :in_width="((current_network_mode && form.id==current_network_mode.id_network_mode) ? 15:7 )"
+                />
+                
+          </v-col> 
+        </v-row> 
+        <v-row  v-if="current_network_mode">
+          <v-col 
+                cols="4" 
+            >   
+            
+                <v-switch
+                    v-model="currentForm.is_concluded"
+                    :label="`${$t('main_page.section_closed')}: ${getFormSectionName(this.current_network_mode,this.$i18n.locale)}`"
+                    @change="toggleOpenCloseCurrentForm"
+                    v-if="currentForm"
+                  ></v-switch>
+                
+              </v-col>
 
           
-          <v-data-table
-                :headers="tableActorsHeader"
-                :items="selected_actors"
-                :items-per-page="-1"
-                class="elevation-1"
-                v-if="selected_actors.length>0"
-                dense
-          >
-              <template v-slot:item="{ item }">
+          </v-row>
 
-                <tr>
-                      <td class="text-xs-left">{{ item.username }}</td>
-                      <td class="text-xs-left">{{ item.organization_area[`Organization_area_${$i18n.locale}`] }}</td>
-                        <template >
-                          <td v-for="(question,index) in questions" :key="index" class="">
-                            
-                          <v-select
-                              :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`"
-                              v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`]"
-                              :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
-                              item-text="texto"
-                              item-value="valor"
-                              clearable
-                              @change="saveAnswersArray($event,item.id,question.id_question)"
-                              :multiple="question.question_possible_answers.multiple"
-                              deletable-chips
-                              small-chips
-                              outlined
-                              flat
-                              rounded
-                              class="my-5"
-                              dense
-                             
-                            >                         
-                          </v-select>  
-                           
-                          </td>                         
-                        </template>
-                      <td>
-                          <v-tooltip bottom>
-                              <template #activator="{ on }">
-                                  <v-icon
-                                      v-on="on"
-                                      small
-                                      @click="delRecord(item,'menus.delete_record_title','menus.delete_interacting_person_text')"
-                                      color="orange"
-                                  >
-                                      mdi-delete
-                                  </v-icon>
-                              </template>
-                              <span>Borrar</span>
-                          </v-tooltip>
-                      </td>
-                  </tr>             
-              </template>           
-          </v-data-table>
-        </v-col>
+        <v-row dense justify="space-around">
+          <v-col cols="3">
+            <div v-for="(item, i) in questions" :key="i" >
+              <v-card > 
+                <v-app-bar
+                flat
+                color="blue"
+                >          
+                    <v-card-title
+                      class="white--text" 
+                    >
+                    {{$t('main_page.question')}} {{i+1}}
+                    </v-card-title>
+                </v-app-bar>    
+                    <v-card-text>{{item[`Question_${$i18n.locale}`]}}</v-card-text>            
+              </v-card>
+            <br/>
+            </div>
+            </v-col>
 
-        <v-col
-          cols="8"
-          v-if="selected_network && selected_network.code!=='actor'"
-        >
-          <v-data-table
-                :headers="tableNodesHeader"
-                :items="nodes"
-                :items-per-page="-1"
-                class="elevation-1"
-                v-if="nodes"
-                dense
-          >
-              <template v-slot:item="{ item }">
-                <tr>
-                      <td class="text-xs-left">
-                        {{ item[`Node_${$i18n.locale}`] }}
-                      </td>
-                      
-                      <template >
-                        <td v-for="(question,index) in questions" :key="index">
-                          
-                            <v-select
-                                :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`"
-                                v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`]"
-                                :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
-                                item-text="texto"
-                                item-value="valor"
-                                clearable
-                                @change="saveAnswersArray($event,item.id_node,question.id_question)"
-                                :multiple="question.question_possible_answers.multiple"
-                                deletable-chips
-                                small-chips
-                                outlined
-                                flat
-                                rounded
-                                class="my-5"
-                                dense
+            <v-col
+              cols="8"
+              v-if="selected_network && selected_network.code==='actor'"
+            >
+
+              <v-data-table
+                    :headers="tableActorsHeader"
+                    :items="selected_actors"
+                    :items-per-page="-1"
+                    class="elevation-1"
+                    v-if="selected_actors.length>0"
+                    dense
+              >
+                  <template v-slot:item="{ item }">
+
+                    <tr>
+                          <td class="text-xs-left">{{ item.username }}</td>
+                          <td class="text-xs-left">{{ item.organization_area[`Organization_area_${$i18n.locale}`] }}</td>
+                            <template >
+                              <td v-for="(question,index) in questions" :key="index" class="">
                                 
-                              >
-                            
-                            </v-select>
+                              <v-select
+                                  :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`"
+                                  v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`]"
+                                  :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
+                                  item-text="texto"
+                                  item-value="valor"
+                                  clearable
+                                  @change="saveAnswersArray($event,item.id,question.id_question)"
+                                  :multiple="question.question_possible_answers.multiple"
+                                  deletable-chips
+                                  small-chips
+                                  outlined
+                                  flat
+                                  rounded
+                                  class="my-5"
+                                  dense
+                                  :disabled="currentForm && currentForm.is_concluded"
+                                
+                                >                         
+                              </v-select>  
+                              
+                              </td>                         
+                            </template>
+                          <td >
                           
-                        </td>
-                        
-                      </template>
-                      
-                </tr>
-              </template>
-          </v-data-table>
-        </v-col>
-    </v-row>
-    
-    <confirmation-dialog ref="confirmDeleteActor"/>
+                              <v-tooltip bottom v-if="!selected_network_mode_theme || (currentForm && !currentForm.is_concluded)">
+                                  <template #activator="{ on }">
+                                      <v-icon
+                                          v-on="on"
+                                          small
+                                          @click="delRecord(item,'menus.delete_record_title','menus.delete_interacting_person_text')"
+                                          color="orange"      
+                                      >
+                                          mdi-delete
+                                      </v-icon>
+                                  </template>
+                                  <span>Borrar</span>
+                              </v-tooltip>
+                           
+                          </td>
+                      </tr>             
+                  </template>           
+              </v-data-table>
+            </v-col>
+
+            <v-col
+              cols="8"
+              v-if="selected_network && selected_network.code!=='actor'"
+            >
+              <v-data-table
+                    :headers="tableNodesHeader"
+                    :items="nodes"
+                    :items-per-page="-1"
+                    class="elevation-1"
+                    v-if="nodes"
+                    dense
+              >
+                  <template v-slot:item="{ item }">
+                    <tr>
+                          <td class="text-xs-left">
+                            {{ item[`Node_${$i18n.locale}`] }}
+                          </td>
+                          
+                          <template >
+                            <td v-for="(question,index) in questions" :key="index">
+                              
+                                <v-select
+                                    :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`"
+                                    v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`]"
+                                    :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
+                                    item-text="texto"
+                                    item-value="valor"
+                                    clearable
+                                    @change="saveAnswersArray($event,item.id_node,question.id_question)"
+                                    :multiple="question.question_possible_answers.multiple"
+                                    deletable-chips
+                                    small-chips
+                                    outlined
+                                    flat
+                                    rounded
+                                    class="my-5"
+                                    dense
+                                    :disabled="currentForm && currentForm.is_concluded"
+                                    
+                                  >
+                                
+                                </v-select>
+                              
+                            </td>
+                            
+                          </template>
+                          
+                    </tr>
+                  </template>
+              </v-data-table>
+            </v-col>
+        </v-row>
         
-</v-container>
+        <confirmation-dialog ref="confirmDeleteActor"/>
+            
+    </v-container>
   
 </template>
 <script>
@@ -294,6 +298,7 @@ import Gauge from '@/components/Gauge.vue';
         nodes:[],
         current_network_mode:null,
         formClosed:false,
+        adjacency_input_forms:[],
         forms:[],
 
         selRules: [
@@ -341,7 +346,45 @@ import Gauge from '@/components/Gauge.vue';
 
     computed:{
 
-      
+
+      current_adjacency_input_form_id(){
+
+        let form_id=null;
+        if (this.current_network_mode && this.selected_cycle && this.mainStore.logged_user){
+
+          form_id=`${this.selected_cycle}-${this.mainStore.logged_user.id}-${this.current_network_mode.id_network_mode}`;
+
+        }
+
+        return form_id;
+
+      },
+
+
+      currentForm(){
+
+        if(this.forms.length){
+
+          if (this.current_adjacency_input_form_id){
+
+            const adj_form = this.forms.filter(item => item.id_adjacency_input_form==this.current_adjacency_input_form_id);
+
+            //console.log(adj_form);
+            
+            if (adj_form.length){
+              
+              return adj_form[0];
+
+            }
+            
+          }
+        }
+
+        return null;
+
+
+      },
+
 
       interactingPeopleIds(){
 
@@ -567,6 +610,33 @@ import Gauge from '@/components/Gauge.vue';
       },
 
 
+      async toggleOpenCloseCurrentForm(){
+         
+          // gets last selected person pushed into the list 
+          const data={
+              "closed":this.currentForm.is_concluded,
+              "id_adjacency_input_form":this.currentForm.id_adjacency_input_form,
+              "user":JSON.stringify(this.mainStore.logged_user)         
+          };
+
+
+          await this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/open_close_adjacency_input_form', data)
+          .then(response => {
+            this.$alertify.success(this.$t(response.data));
+            //this.updateAllNetworkModeGauges();
+           
+          // console.log(response.data)
+          })
+          .catch(error => {
+            
+            console.error('There was an error!', error.message);
+          });
+
+          //this.sortSelectedColleagues();
+
+          },
+
+
 
       async addInteractingActor(){
 
@@ -701,11 +771,8 @@ import Gauge from '@/components/Gauge.vue';
               .then(response => {
 
                 const responses = response.data;
-
-                //console.log(responses);
-
+                this.extractAjacencyInputForms(responses);
                 this.populateAnswers(responses);
-                
                 
               })
               .catch(error => {
@@ -715,10 +782,40 @@ import Gauge from '@/components/Gauge.vue';
 
         },
 
+          
+        async getUserAdjancencyInputForms(){
+
+          await  this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/adjacency_input_forms')
+              .then(response => {
+
+                this.adjacency_input_forms=response.data;
+                
+              })
+              .catch(error => {
+                
+                console.error('There was an error!', error.message);
+              });
+
+          },
+
+        
+        extractAjacencyInputForms(responses){
+
+          if(responses.length){
+      
+            const arrayUniqueByKey = [...new Map(responses.map(item => [item.id_adjacency_input_form, item.adjacency_input_form])).values()];
+
+            this.adjacency_input_forms=arrayUniqueByKey;
+           
+
+          }
+              
+        },
+
 
         populateAnswers(responses){
 
-          if(responses){
+          if(responses.length){
                   this.answers={};
 
                   responses.forEach(response => {
@@ -793,29 +890,36 @@ import Gauge from '@/components/Gauge.vue';
                 form['name_en'] = this.getFormSectionName(network_mode,'en'); 
               
                 const questions= await this.getNetworkModeQuestions(network_mode.id_network_mode);
+
+                //console.log(questions);
                 form['total_questions'] = questions.length;
                 
                 if(network_mode.network.code!=='actor'){
                   const nodes= await this.getNodes(network_mode.id_network_mode);
-                  form['total_items'] = nodes.length;
-                  //form['num_actors'] = 0;
-                
+                  form['total_items'] = nodes.length;       
                 }
-                else{
-                  // form['total_nodes'] = 0;
+                else{ 
                   form['total_items'] = this.selected_actors.length>0?this.selected_actors.length:1; 
                 }
 
                 const prefix = network_mode.id_network_mode+'_';
                 const init_num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
                 form['answers'] = init_num_answers;
+
+                //console.log(this.adjacency_input_forms);
+                
+                //this.adjacency_input_forms.forEach(item => console.log(item.id_network_mode));
+                const adj_input_from = this.adjacency_input_forms.filter(item => item.id_network_mode == network_mode.id_network_mode)[0];
+
+                 //console.log(adj_input_from);
+                form['id_adjacency_input_form'] = adj_input_from.id_adjacency_input_form;
+                form['is_concluded'] = adj_input_from.Is_concluded;
+
                 this.forms.push(form);
 
             });
 
-
           }
-
 
       },
 
@@ -828,6 +932,8 @@ import Gauge from '@/components/Gauge.vue';
           await this.mainStore.getNetworkModes(this.selected_cycle);
           await this.getUserResponses();
           await this.createFormsDetails();
+
+          //console.log(this.forms);
         }
 
 

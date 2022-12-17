@@ -58,7 +58,10 @@
 
       "interacting_actor_deleted":"Actor fue eliminado, así como todas las respuestas relacionadas a este en otras secciones!!",
       "new_interacting_actor_added":"Nuevo actor ha sido agregado!",
-      "answer_saved":"Su respuesta ha sido guardada!"
+      "answer_saved":"Su respuesta ha sido guardada!",
+      "form_closed":"Formulario cerrado!",
+      "form_opened":"Formulario habilitado nuevamente!"
+
 
     }
     
