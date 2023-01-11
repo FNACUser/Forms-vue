@@ -40,7 +40,7 @@
           <v-col
             cols="3"
             class="d-flex justify-space-around mb-6 align-end"
-            v-if="filteredNetwokModeThemes"
+            v-if="filteredNetwokModeThemes && selected_actors.length>0"
             >
               <v-select
                 v-model="selected_network_mode_theme"
@@ -191,7 +191,7 @@
                               </td>                         
                             </template>
                           <td >
-                          
+
                               <v-tooltip bottom v-if="!selected_network_mode_theme || (currentForm && !currentForm.is_concluded)">
                                   <template #activator="{ on }">
                                       <v-icon
@@ -365,11 +365,13 @@ import Gauge from '@/components/Gauge.vue';
 
         if(this.forms.length){
 
+         //console.log("dentro de computed currentForm");
+
           if (this.current_adjacency_input_form_id){
 
             const adj_form = this.forms.filter(item => item.id_adjacency_input_form==this.current_adjacency_input_form_id);
 
-            //console.log(adj_form);
+          //  console.log(adj_form);
             
             if (adj_form.length){
               
@@ -470,7 +472,7 @@ import Gauge from '@/components/Gauge.vue';
 
       saveAnswersArray(event,item_id,question_id){
 
-          //console.log('Entra a SaveAnswerArray');
+         // console.log('Entra a SaveAnswerArray');
 
       
           if(this.answers[`${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`]){
@@ -494,17 +496,21 @@ import Gauge from '@/components/Gauge.vue';
                   "selected_option": event
               };
 
-              this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/save_answer', data)
-              .then(response => {
-                //console.log(response.data);
+               this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/save_answer', data)
+              .then(async response => {
+                //console.log(response.data.responses);
                 
                 this.$alertify.success(this.$t(response.data.message));
+                
+               // this.extractAjacencyInputForms(response.data.responses);
                 this.populateAnswers(response.data.responses);
                 
                 // const index = this.forms.findIndex(item => item.id== this.current_network_mode.id_network_mode);
                 // const prefix = this.current_network_mode.id_network_mode+'_';
                 // const num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
                 // this.forms[index]['answers'] = num_answers;
+
+               // await this.createFormsDetails();
                 
 
                 this.updateNetworkModeGauge(this.current_network_mode);
@@ -520,6 +526,7 @@ import Gauge from '@/components/Gauge.vue';
               .catch(error => {
                 this.$alertify.error(this.$t(error.message));
                 console.error('There was an error!', error.message);
+                console.error( error);
             });
 
 
@@ -801,7 +808,13 @@ import Gauge from '@/components/Gauge.vue';
         
         extractAjacencyInputForms(responses){
 
-          if(responses.length){
+
+        //console.log('entra a extractAjacencyInputForms');
+
+          this.adjacency_input_forms=[];
+
+          if(responses.length>0){
+          //  console.log('pasa el if extractAjacencyInputForms')
       
             const arrayUniqueByKey = [...new Map(responses.map(item => [item.id_adjacency_input_form, item.adjacency_input_form])).values()];
 
@@ -814,6 +827,8 @@ import Gauge from '@/components/Gauge.vue';
 
 
         populateAnswers(responses){
+
+         // console.log("entra a populateAnswers");
 
           if(responses.length){
                   this.answers={};
@@ -877,9 +892,12 @@ import Gauge from '@/components/Gauge.vue';
 
       async createFormsDetails(){
 
+       // console.log("entra a createFormDetails");
+
           if(this.mainStore.network_modes.length){
 
             this.forms=[];
+          //  console.log(this.adjacency_input_forms);
 
              this.mainStore.network_modes.forEach(async network_mode => {
 
@@ -909,11 +927,12 @@ import Gauge from '@/components/Gauge.vue';
                 //console.log(this.adjacency_input_forms);
                 
                 //this.adjacency_input_forms.forEach(item => console.log(item.id_network_mode));
-                const adj_input_from = this.adjacency_input_forms.filter(item => item.id_network_mode == network_mode.id_network_mode)[0];
+                const adj_input_form = this.adjacency_input_forms.filter(item => item.id_network_mode == network_mode.id_network_mode)[0];
 
-                 //console.log(adj_input_from);
-                form['id_adjacency_input_form'] = adj_input_from.id_adjacency_input_form;
-                form['is_concluded'] = adj_input_from.Is_concluded;
+
+               // console.log(adj_input_form);
+                form['id_adjacency_input_form'] = adj_input_form ? adj_input_form.id_adjacency_input_form : `${this.selected_cycle}-${this.mainStore.logged_user.id}-${network_mode.id_network_mode}`;
+                form['is_concluded'] = adj_input_form ? adj_input_form.Is_concluded : false;
 
                 this.forms.push(form);
 
