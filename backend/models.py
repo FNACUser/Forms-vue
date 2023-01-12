@@ -117,6 +117,10 @@ nodes_vs_networks_modes = \
                        db.ForeignKey('IRA_Networks_modes.id_network_mode')))
 
 
+#
+# IRA models
+#
+
 class IRA_Adjacency_input_form(db.Model):
     __tablename__ = 'IRA_Adjacency_input_form'
     id_adjacency_input_form = db.Column(db.String(15), primary_key=True)
@@ -336,8 +340,10 @@ class IRA_Organization_areas(db.Model):
 class IRA_Questions(db.Model):
     __tablename__ = 'IRA_Questions'
     id_question = db.Column(db.Integer, primary_key=True)
-    Question_es = db.Column(db.String(250), nullable=False)
-    Question_en = db.Column(db.String(250), nullable=False)
+    # Question_es = db.Column(db.String(250), nullable=False)
+    # Question_en = db.Column(db.String(250), nullable=False)
+    Question_es = db.Column(db.Text, nullable=False)
+    Question_en = db.Column(db.Text, nullable=False)
     id_question_possible_answers = \
         db.Column(db.Integer,
                   db.ForeignKey(
@@ -360,8 +366,10 @@ class IRA_Questions(db.Model):
 class IRA_Questions_possible_answers(db.Model):
     __tablename__ = 'IRA_Questions_possible_answers'
     id_question_possible_answers = db.Column(db.Integer, primary_key=True)
-    Question_possible_answers_es = db.Column(db.String(1000), nullable=False)
-    Question_possible_answers_en = db.Column(db.String(1000), nullable=False)
+    # Question_possible_answers_es = db.Column(db.String(1000), nullable=False)
+    # Question_possible_answers_en = db.Column(db.String(1000), nullable=False)
+    Question_possible_answers_es = db.Column(db.Text, nullable=False)
+    Question_possible_answers_en = db.Column(db.Text, nullable=False)
     multiple = db.Column(db.Boolean, default=False, nullable=False)
 
     questions = db.relationship('IRA_Questions',
@@ -377,24 +385,9 @@ class IRA_Responses(db.Model):
     __tablename__ = 'IRA_Responses'
     id_response = db.Column(db.Integer, primary_key=True)
     Response = db.Column(db.JSON, nullable=True)
-
-    # id_employee = db.Column(db.Integer,
-    #                             db.ForeignKey('IRA_Employees.id_employee'),
-    #                             nullable=False)
-
-    # id_cycle = db.Column(db.Integer,
-    #                        db.ForeignKey('IRA_Cycles.id_cycle'),
-    #                             nullable=False)
-
     id_question = db.Column(db.Integer,
                             db.ForeignKey('IRA_Questions.id_question'),
                             nullable=False)
-
-    # id_network_mode = \
-    #     db.Column(db.Integer,
-    #               db.ForeignKey('IRA_Networks_modes.id_network_mode'),
-    #                             nullable=False)
-
     id_adjacency_input_form = \
         db.Column(db.String(15),
                   db.ForeignKey(
@@ -442,7 +435,8 @@ class CVF_Culture_input_form(db.Model):
 class CVF_Culture_modes(db.Model):
     __tablename__ = 'CVF_Culture_modes'
     id = db.Column(db.Integer, primary_key=True)
-    Culture_mode = db.Column(db.String(100), nullable=False)
+    Culture_mode_es = db.Column(db.String(100), nullable=False)
+    Culture_mode_en = db.Column(db.String(100), nullable=False)
 
     culture_mode_themes = db.relationship('CVF_Culture_modes_themes',
                                           backref=db.backref('culture_mode',
@@ -459,8 +453,10 @@ class CVF_Culture_modes(db.Model):
 class CVF_Culture_modes_themes(db.Model):
     __tablename__ = 'CVF_Culture_modes_themes'
     id = db.Column(db.Integer, primary_key=True)
-    Culture_mode_theme = db.Column(db.String(100), nullable=False)
-    Questions_prefix = db.Column(db.String(100), nullable=False)
+    Culture_mode_theme_es = db.Column(db.String(255), nullable=False)
+    Culture_mode_theme_en = db.Column(db.String(255), nullable=False)
+    Questions_prefix_es = db.Column(db.String(255), nullable=False)
+    Questions_prefix_en = db.Column(db.String(255), nullable=False)
 
     id_culture_mode = db.Column(db.Integer,
                                 db.ForeignKey('CVF_Culture_modes.id'),
@@ -482,7 +478,8 @@ class CVF_Culture_modes_themes(db.Model):
 class CVF_Culture_modes_themes_questions(db.Model):
     __tablename__ = 'CVF_Culture_modes_themes_questions'
     id = db.Column(db.Integer, primary_key=True)
-    Culture_mode_theme_question = db.Column(db.String(200), nullable=False)
+    Culture_mode_theme_question_es = db.Column(db.Text, nullable=False)
+    Culture_mode_theme_question_en = db.Column(db.Text, nullable=False)
 
     id_culture_mode_theme = \
         db.Column(db.Integer,
@@ -509,7 +506,8 @@ class CVF_Culture_modes_themes_questions(db.Model):
 class CVF_Culture_quadrants(db.Model):
     __tablename__ = 'CVF_Culture_quadrants'
     id = db.Column(db.Integer, primary_key=True)
-    Culture_quadrant = db.Column(db.String(100), nullable=False)
+    Culture_quadrant_es = db.Column(db.String(100), nullable=False)
+    Culture_quadrant_en = db.Column(db.String(100), nullable=False)
 
     culture_modes_themes_questions = \
         db.relationship('CVF_Culture_modes_themes_questions',

@@ -63,7 +63,6 @@ def setLogger(app):
 DEBUG=True
 
 
-
 app = Flask(__name__)
 
 setLogger(app)
