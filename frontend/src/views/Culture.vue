@@ -43,7 +43,7 @@
              
         </v-row>
 
-        <v-row v-if="themes">
+        <v-row v-if="themes.length && Object.keys(totals).length">
           <v-col
               cols="2"
               
@@ -263,9 +263,7 @@ import ProgressBars from '@/components/ProgressBars.vue';
                   else{
                     this.totals[`${this.mainStore.selected_cycle}_${this.selected_theme.id}`]=Object.assign({},new_val);
 
-                  }
-
-                
+                  }             
                   //console.log(val);
                 }
             },
@@ -304,11 +302,8 @@ import ProgressBars from '@/components/ProgressBars.vue';
     
        }
 
-      
        return  sums;
-      },
-
-      
+      },    
      
     },
 
@@ -318,18 +313,21 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
       initTotals(){
 
-        console.log('entra ainitTotals');
-        console.log(this.themes);
+       // console.log('entra a initTotals');
+       // console.log(this.themes);
         this.themes.forEach(theme=>{
+
+         // console.log(theme.id)
 
           if(!this.totals[`${this.mainStore.selected_cycle}_${theme.id}`]){
 
-            this.$set(this.totals, `${this.mainStore.selected_cycle}_${theme.id}`, {'now':0,'preferred':0});
+            //console.log('entra a IF de initTotals');
+              this.$set(this.totals, `${this.mainStore.selected_cycle}_${theme.id}`, {'now':0,'preferred':0});
             }
 
         })
         
-      
+       // console.log(this.totals);
       },
 
 
