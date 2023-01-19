@@ -43,6 +43,22 @@
              
         </v-row>
 
+        <v-row v-if="themes">
+          <v-col
+              cols="2"
+              
+              v-for="(theme, index) in themes" :key="index"
+              >
+                <progress-bars 
+                :name="theme[`Culture_mode_theme_${$i18n.locale}`]" 
+                :now="totals[`${mainStore.selected_cycle}_${theme.id}`]['now']"
+                :preferred="totals[`${mainStore.selected_cycle}_${theme.id}`]['preferred']"
+                
+                />
+                
+          </v-col> 
+        </v-row> 
+
         <v-row>
 
           <v-col>
@@ -64,8 +80,7 @@
                   
                   </v-toolbar>
 
-        
-
+      
                   <v-data-table
                     :headers="headers"
                     :items="questions"
@@ -174,11 +189,12 @@
 import { useMainStore } from '@/store/main'
 import { mapStores} from 'pinia'
 import {numbersFormatMixin} from '../mixins/numbersFormatMixin'
+import ProgressBars from '@/components/ProgressBars.vue';
 
   export default {
 
     components: { 
-     
+      ProgressBars
     },
     mixins: [numbersFormatMixin],
 
@@ -214,7 +230,13 @@ import {numbersFormatMixin} from '../mixins/numbersFormatMixin'
       }
     },
 
+    mounted(){
 
+
+
+
+
+    },
 
     watch: {
 
@@ -294,6 +316,23 @@ import {numbersFormatMixin} from '../mixins/numbersFormatMixin'
     methods:{
 
 
+      initTotals(){
+
+        console.log('entra ainitTotals');
+        console.log(this.themes);
+        this.themes.forEach(theme=>{
+
+          if(!this.totals[`${this.mainStore.selected_cycle}_${theme.id}`]){
+
+            this.$set(this.totals, `${this.mainStore.selected_cycle}_${theme.id}`, {'now':0,'preferred':0});
+            }
+
+        })
+        
+      
+      },
+
+
       saveCultureAnswers(){
 
         let final_answers=[];
@@ -352,7 +391,9 @@ import {numbersFormatMixin} from '../mixins/numbersFormatMixin'
 
       async initialize(){
 
-        this.getModeThemes();
+        await this.getModeThemes();
+
+        this.initTotals();
         
       },
 

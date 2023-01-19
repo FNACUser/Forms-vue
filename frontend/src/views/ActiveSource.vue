@@ -492,40 +492,38 @@ import Gauge from '@/components/Gauge.vue';
               };
 
                this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/save_answer', data)
-              .then(async response => {
-                //console.log(response.data.responses);
-                
-                this.$alertify.success(this.$t(response.data.message));
-                
-               // this.extractAjacencyInputForms(response.data.responses);
-                this.populateAnswers(response.data.responses);
-                
-                // const index = this.forms.findIndex(item => item.id== this.current_network_mode.id_network_mode);
-                // const prefix = this.current_network_mode.id_network_mode+'_';
-                // const num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
-                // this.forms[index]['answers'] = num_answers;
+                .then(async response => {
+                    //console.log(response.data.responses);
+                    
+                    this.$alertify.success(this.$t(response.data.message));
+                    
+                  // this.extractAjacencyInputForms(response.data.responses);
+                    this.populateAnswers(response.data.responses);
+                    
+                    // const index = this.forms.findIndex(item => item.id== this.current_network_mode.id_network_mode);
+                    // const prefix = this.current_network_mode.id_network_mode+'_';
+                    // const num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
+                    // this.forms[index]['answers'] = num_answers;
 
-               // await this.createFormsDetails();
-                
+                  // await this.createFormsDetails();
+                    
 
-                this.updateNetworkModeGauge(this.current_network_mode);
+                    this.updateNetworkModeGauge(this.current_network_mode);
 
-                // console.log(num_answers);
-                // console.log(prefix);
-                //console.log(this.answers);
-                //.filter(item => item.startsWith(prefix)));
+                    // console.log(num_answers);
+                    // console.log(prefix);
+                    //console.log(this.answers);
+                    //.filter(item => item.startsWith(prefix)));
             
-              }
-
-                )
-              .catch(error => {
-                this.$alertify.error(this.$t(error.message));
-                console.error('There was an error!', error.message);
-                console.error( error);
-            });
+                  })
+                .catch(error => {
+                    this.$alertify.error(this.$t(error.message));
+                    console.error('There was an error!', error.message);
+                    console.error( error);
+              });
 
 
-       // }
+      
 
       },
 
