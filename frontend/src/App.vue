@@ -68,7 +68,7 @@
             :clipped-left="$vuetify.breakpoint.lgAndUp"
             color="primary"
             app
-            
+           
         >
         
             <v-app-bar-nav-icon @click.stop="drawer = !drawer" v-if="mainStore.isLoggedIn"  style="color: white;"/>
@@ -103,9 +103,6 @@
         </v-main>
 
         <v-footer/>
-
-       
-
     </v-app>
 
 </template>
@@ -125,18 +122,18 @@
             drawer: true,
             menus: [
                 { 
-                  icon: "mdi-list",
+                  icon: "mdi-crowd",
                   text: this.$t('menus.active_source'), 
-                  route: "Home", 
+                  route: "ActiveSource", 
                   roles: ["Admin"]
                 },
                 
-                // {
-                //     icon: "mdi-account_balance",
-                //     text: this.$t('menus.culture'), 
-                //     route: "About",
-                //     roles: ["Admin"]
-                // }
+                {
+                    icon: "mdi-account-group",
+                    text: this.$t('menus.culture'), 
+                    route: "Culture",
+                    roles: ["Admin"]
+                }
             ]
         };
     },
@@ -171,12 +168,28 @@
             this.mainStore.loader = false;
             return response;
         }, (error) => {
+
+           // console.log(error);
             // Do something with response error
+            if (error.response.status == 401) {
+                this.mainStore.$reset();
+                localStorage.removeItem('access_token');
+                this.mainStore.logged_user=Object.assign({},{
+                                                                id:'',
+                                                                name:'',
+                                                                email:'',
+                                                                role:''
+                                                                });
+                this.mainStore.token='';
+                this.router.push('/login').catch(() => {});
+            }
+
             this.mainStore.loader=false;
             return Promise.reject(error);
         });
     },
     mounted() {
+        
       
     },
 

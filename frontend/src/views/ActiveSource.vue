@@ -8,9 +8,9 @@
             cols="2"
           >
             <v-select
-              v-model="selected_cycle"
-              :items="filteredCycles"
-              :label="$t('main_page.period')"
+              v-model="mainStore.selected_cycle"
+              :items="mainStore.filteredCycles"
+              :label="$t('globals.period')"
               :item-text="`Cycle_${$i18n.locale}`"
               item-value="id_cycle"
               clearable
@@ -22,11 +22,12 @@
           <v-col
             cols="2"
             class="d-flex justify-space-around mb-6 align-end"
+            v-if="mainStore.selected_cycle"
             >
               <v-select
                 v-model="selected_network"
                 :items="mainStore.networks"
-                :label="$t('main_page.questionaire_type')"
+                :label="$t('active_source.questionaire_type')"
                 :item-text="`name_${$i18n.locale}`"
                 item-value="id"
                 clearable
@@ -45,7 +46,7 @@
               <v-select
                 v-model="selected_network_mode_theme"
                 :items="filteredNetwokModeThemes"
-                :label="$t('main_page.question_theme')"
+                :label="$t('active_source.question_theme')"
                 :item-text="`Network_mode_theme_${$i18n.locale}`"
                 item-value="id_network_mode_theme"
                 clearable
@@ -63,7 +64,7 @@
                 <v-autocomplete
                   v-model="selected_area"
                   :items="mainStore.areas"
-                  :label="$t('main_page.area')"
+                  :label="$t('active_source.area')"
                   :item-text="`Organization_area_${$i18n.locale}`"
                   item-value="id_organization_area"
                   clearable 
@@ -82,7 +83,7 @@
                 :items="filteredEmployees"
                 item-text="username"
                 item-value="id"
-                :label="$t('main_page.user')"
+                :label="$t('active_source.user')"
                 persistent-hint
                 small-chips
                 multiple
@@ -116,7 +117,7 @@
             
                 <v-switch
                     v-model="currentForm.is_concluded"
-                    :label="`${$t('main_page.section_closed')}: ${getFormSectionName(this.current_network_mode,this.$i18n.locale)}`"
+                    :label="`${$t('active_source.section_closed')}: ${getFormSectionName(this.current_network_mode,this.$i18n.locale)}`"
                     @change="toggleOpenCloseCurrentForm"
                     v-if="currentForm"
                   ></v-switch>
@@ -137,7 +138,7 @@
                     <v-card-title
                       class="white--text" 
                     >
-                    {{$t('main_page.question')}} {{i+1}}
+                    {{$t('active_source.question')}} {{i+1}}
                     </v-card-title>
                 </v-app-bar>    
                     <v-card-text>{{item[`Question_${$i18n.locale}`]}}</v-card-text>            
@@ -288,7 +289,7 @@ import Gauge from '@/components/Gauge.vue';
       return {
 
         selected_actors:[],
-        selected_cycle:null,
+       // selected_cycle:null,
         selected_network:null,
         selected_area:null,
         selected_node_segment_category:null,
@@ -350,9 +351,9 @@ import Gauge from '@/components/Gauge.vue';
       current_adjacency_input_form_id(){
 
         let form_id=null;
-        if (this.current_network_mode && this.selected_cycle && this.mainStore.logged_user){
+        if (this.current_network_mode && this.mainStore.selected_cycle && this.mainStore.logged_user){
 
-          form_id=`${this.selected_cycle}-${this.mainStore.logged_user.id}-${this.current_network_mode.id_network_mode}`;
+          form_id=`${this.mainStore.selected_cycle}-${this.mainStore.logged_user.id}-${this.current_network_mode.id_network_mode}`;
 
         }
 
@@ -401,9 +402,9 @@ import Gauge from '@/components/Gauge.vue';
       },
 
 
-      filteredCycles(){
-        return this.mainStore.cycles.filter(item=> item.Is_active); 
-      },
+      // filteredCycles(){
+      //   return this.mainStore.cycles.filter(item=> item.Is_active); 
+      // },
 
       filteredEmployees(){
 
@@ -438,13 +439,13 @@ import Gauge from '@/components/Gauge.vue';
 
       tableActorsHeader() {
         
-            return this.makeActorsTableHeader(this.questions, this.defaultActorsHeader, this.$t('main_page.question'));
+            return this.makeActorsTableHeader(this.questions, this.defaultActorsHeader, this.$t('active_source.question'));
 
         },
 
       tableNodesHeader() {
         
-            return this.makeNodesTableHeader(this.questions, this.defaultNodesHeader, this.$t('main_page.question'));
+            return this.makeNodesTableHeader(this.questions, this.defaultNodesHeader, this.$t('active_source.question'));
 
         },
     
@@ -455,12 +456,6 @@ import Gauge from '@/components/Gauge.vue';
 
     methods:{
 
-
-      closeSectionForm(){
-
-        alert(this.formClosed);
-
-      },
 
       getFormSectionName(netw_mode,lang){
 
@@ -487,7 +482,7 @@ import Gauge from '@/components/Gauge.vue';
           }
 
           const data={
-                  "cycle_id":this.selected_cycle,
+                  "cycle_id":this.mainStore.selected_cycle,
                   "user_email":this.mainStore.logged_user.email,
                   "item_id":item_id,
                   "question_id":question_id,
@@ -576,9 +571,9 @@ import Gauge from '@/components/Gauge.vue';
                 });
             }
 
-            headers[0].text = this.$t('main_page.actor_table.name');
-            headers[1].text = this.$t('main_page.actor_table.area');
-            headers[headers.length-1].text = this.$t('main_page.actor_table.actions');
+            headers[0].text = this.$t('active_source.actor_table.name');
+            headers[1].text = this.$t('active_source.actor_table.area');
+            headers[headers.length-1].text = this.$t('active_source.actor_table.actions');
 
 
             return headers;
@@ -652,7 +647,7 @@ import Gauge from '@/components/Gauge.vue';
           const data={
               "user_email":this.mainStore.logged_user.email,
               "employee_ids":this.interactingPeopleIds,
-              "cycle_id":this.selected_cycle           
+              "cycle_id":this.mainStore.selected_cycle           
           };
 
     
@@ -699,7 +694,7 @@ import Gauge from '@/components/Gauge.vue';
             const data={
                   "user_email":this.mainStore.logged_user.email,
                   "item_id":item.id,
-                  "cycle_id":this.selected_cycle           
+                  "cycle_id":this.mainStore.selected_cycle           
               };
           
             await this.$axios.delete(process.env.VUE_APP_BACKEND_URL+'/delete_interacting_actor', {data:data})
@@ -723,7 +718,7 @@ import Gauge from '@/components/Gauge.vue';
       resetSelectedVariables(){
 
           this.selected_area=null;
-          this.selected_cycle=null;
+          this.mainStore.selected_cycle=null;
           this.selected_actors=null;
           this.selected_network=null;
           this.selected_node_segment_category=null;
@@ -759,7 +754,7 @@ import Gauge from '@/components/Gauge.vue';
 
        async getActors(){
 
-          await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/interacting_actors')
+          await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.mainStore.selected_cycle+'/interacting_actors')
               .then(response => {
                 const actor_ids = response.data;
                 this.selected_actors = this.mainStore.employees.filter(item =>  actor_ids.includes(item.id));
@@ -774,7 +769,7 @@ import Gauge from '@/components/Gauge.vue';
 
         async getUserResponses(){
 
-          await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/responses')
+          await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.mainStore.selected_cycle+'/responses')
               .then(response => {
 
                 const responses = response.data;
@@ -792,7 +787,7 @@ import Gauge from '@/components/Gauge.vue';
           
         async getUserAdjancencyInputForms(){
 
-          await  this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.selected_cycle+'/adjacency_input_forms')
+          await  this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/user/'+this.mainStore.logged_user.id+'/cycle/'+this.mainStore.selected_cycle+'/adjacency_input_forms')
               .then(response => {
 
                 this.adjacency_input_forms=response.data;
@@ -931,7 +926,7 @@ import Gauge from '@/components/Gauge.vue';
 
 
                // console.log(adj_input_form);
-                form['id_adjacency_input_form'] = adj_input_form ? adj_input_form.id_adjacency_input_form : `${this.selected_cycle}-${this.mainStore.logged_user.id}-${network_mode.id_network_mode}`;
+                form['id_adjacency_input_form'] = adj_input_form ? adj_input_form.id_adjacency_input_form : `${this.mainStore.selected_cycle}-${this.mainStore.logged_user.id}-${network_mode.id_network_mode}`;
                 form['is_concluded'] = adj_input_form ? adj_input_form.Is_concluded : false;
 
                 this.forms.push(form);
@@ -945,14 +940,13 @@ import Gauge from '@/components/Gauge.vue';
 
       async initialize(){
 
-        if(this.selected_cycle){
+        if(this.mainStore.selected_cycle){
 
           await this.getActors();
-          await this.mainStore.getNetworkModes(this.selected_cycle);
+          await this.mainStore.getNetworkModes(this.mainStore.selected_cycle);
           await this.getUserResponses();
           await this.createFormsDetails();
 
-          //console.log(this.forms);
         }
 
 

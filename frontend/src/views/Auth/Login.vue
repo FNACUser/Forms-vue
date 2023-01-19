@@ -16,14 +16,16 @@
               </v-img>
               <v-card-text>
                 <v-form v-model="valid_form">
-                   <v-text-field
-                    prepend-icon ="mdi-email"
-                    v-model="email"
-                    label="Email"
-                    type="text"
-                    :rules="[v => !!v || $t('login.email_required'),
-                             v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || $t('login.email_not_valid')]">
-                    </v-text-field>
+                  
+                  <v-text-field
+                  prepend-icon ="mdi-email"
+                  v-model="email"
+                  label="Email"
+                  type="text"
+                  :rules="[v => !!v || $t('login.email_required'),
+                            v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || $t('login.email_not_valid')]">
+                  </v-text-field>
+
                   <v-text-field
                       @keyup.enter="logIn"
                       id="password"

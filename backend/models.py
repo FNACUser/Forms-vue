@@ -117,9 +117,9 @@ nodes_vs_networks_modes = \
                        db.ForeignKey('IRA_Networks_modes.id_network_mode')))
 
 
-#
+#-----------------------------------------------------------------------------------------------------------
 # IRA models
-#
+#-----------------------------------------------------------------------------------------------------------
 
 class IRA_Adjacency_input_form(db.Model):
     __tablename__ = 'IRA_Adjacency_input_form'
@@ -166,7 +166,7 @@ class IRA_Cycles(db.Model):
                                      backref=db.backref('cycles',
                                                         lazy='dynamic'))
 
-    adyacency_forms = db.relationship('IRA_Adjacency_input_form',
+    adjacency_forms = db.relationship('IRA_Adjacency_input_form',
                                       backref=db.backref('cycle', lazy=True))
 
     culture_input_forms = db.relationship('CVF_Culture_input_form',
@@ -294,11 +294,9 @@ class IRA_Nodes_segments(db.Model):
     id_node_segment_category = \
         db.Column(db.Integer,
                   db.ForeignKey(
-                      'IRA_Nodes_segments_categories.id_node_segment_category'),
-                  nullable=False)
+                      'IRA_Nodes_segments_categories.id_node_segment_category'),nullable=False)
 
-    nodes = db.relationship('IRA_Nodes',
-                            backref=db.backref('node_segment', lazy=True))
+    nodes = db.relationship('IRA_Nodes',backref=db.backref('node_segment', lazy=True))
 
     def __repr__(self):
         return f"IRA_Nodes_segments('{self.id_node_segment}', \
@@ -398,9 +396,11 @@ class IRA_Responses(db.Model):
         return f"IRA_Responses('{self.id_response}','{self.Response}'," \
                f"'{self.id_question}','{self.id_adjacency_input_form}')"
                
-#
-# CVF models
-#
+#-----------------------------------------------------------------------------------------------------------
+# CVF CULTURE models
+#-----------------------------------------------------------------------------------------------------------
+
+
 class CVF_Culture_input_form(db.Model):
     __tablename__ = 'CVF_Culture_input_form'
     id = db.Column(db.Integer, primary_key=True)
@@ -438,12 +438,12 @@ class CVF_Culture_modes(db.Model):
     Culture_mode_es = db.Column(db.String(100), nullable=False)
     Culture_mode_en = db.Column(db.String(100), nullable=False)
 
-    culture_mode_themes = db.relationship('CVF_Culture_modes_themes',
+    culture_modes_themes = db.relationship('CVF_Culture_modes_themes',
                                           backref=db.backref('culture_mode',
                                                              lazy=True))
 
-    culture_input_forms = db.relationship('CVF_Culture_input_form',
-                                          backref=db.backref('culture_mode', lazy=True))
+    # culture_input_forms = db.relationship('CVF_Culture_input_form',
+    #                                       backref=db.backref('culture_mode', lazy=True))
 
     def __repr__(self):
         return f"CVF_Culture_modes('{self.id}', \
@@ -461,15 +461,16 @@ class CVF_Culture_modes_themes(db.Model):
     id_culture_mode = db.Column(db.Integer,
                                 db.ForeignKey('CVF_Culture_modes.id'),
                                 nullable=False)
-
-    themes_responses = db.relationship('CVF_Themes_responses',
-                                       backref=db.backref('culture_mode_theme',
-                                                          lazy=True))
-
+    
     culture_mode_theme_questions = \
         db.relationship('CVF_Culture_modes_themes_questions',
                         backref=db.backref('culture_mode_theme', lazy=True))
 
+    # themes_responses = db.relationship('CVF_Themes_responses',
+    #                                    backref=db.backref('culture_mode_theme',
+    #                                                       lazy=True))
+
+    
     def __repr__(self):
         return f"CVF_Culture_modes_themes('{self.id}', \
             '{self.Culture_mode_theme}','{self.id_culture_mode}')"
@@ -603,25 +604,8 @@ class ResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = IRA_Responses
         
-
-
-class QuestionResponseSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = CVF_Questions_responses
-        
-class ThemeResponseSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = CVF_Themes_responses
-        
-    questions_responses = ma.List(ma.Nested(QuestionResponseSchema))
         
 
-        
-class CultureFormSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = CVF_Culture_input_form
-        
-    themes_responses = ma.List(ma.Nested(ThemeResponseSchema))
     
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -762,4 +746,85 @@ class ResponseSchema(ma.SQLAlchemyAutoSchema):
 
 responses_schema = ResponseSchema(many=True)
 
+
+
+#-----------------------------------------------------------------------------------------------------------
+# Culture Schemas
+#-----------------------------------------------------------------------------------------------------------
+
+
+class QuestionResponseSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CVF_Questions_responses
+        
+class ThemeResponseSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CVF_Themes_responses
+        
+    questions_responses = ma.List(ma.Nested(QuestionResponseSchema))
+
+        
+class CultureInputFormSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CVF_Culture_input_form
+        
+    themes_responses = ma.List(ma.Nested(ThemeResponseSchema))
+
+
+class CultureModeSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CVF_Culture_modes
+culture_mode_schema = CultureModeSchema(many=True)
+
+
+class CultureQuadrantSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CVF_Culture_quadrants
+culture_quadrant_schema = CultureQuadrantSchema(many=True)
+
+
+class CultureModeThemeSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CVF_Culture_modes_themes
+        #fields = ("id", "Culture_mode_theme_es", "Culture_mode_theme_en","Questions_prefix_es","Questions_prefix_en", "id_culture_mode")
+        #fields = ("id", "Culture_mode_theme_es", "Culture_mode_theme_en","Questions_prefix_es","Questions_prefix_en", "id_culture_mode","culture_mode")
+    
+   # culture_mode = ma.Nested(CultureModeSchema)
+culture_mode_theme_schema = CultureModeThemeSchema(many=True)
+
+
+class CultureModeThemeQuestionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CVF_Culture_modes_themes_questions
+        fields = ("id", "Culture_mode_theme_question_es", "Culture_mode_theme_question_en", "id_culture_quadrant")
+        # fields = ("id", "Culture_mode_theme_question_es", "Culture_mode_theme_question_en","id_culture_mode_theme","culture_mode_theme", "id_culture_quadrant","culture_quadrant")
+    
+    # culture_mode_theme = ma.Nested(CultureModeThemeSchema)
+    # culture_quadrant = ma.Nested(CultureQuadrantSchema)
+        
+culture_mode_theme_question_schema = CultureModeThemeQuestionSchema(many=True)
+
+
+
+class CultureThemeResponseSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CVF_Themes_responses
+        fields = ("id", "id_culture_input_form","culture_input_form", "id_culture_mode_theme","culture_mode_theme", "Total_actual","Total_preferred", "Is_concluded")
+    
+    culture_input_form = ma.Nested(CultureInputFormSchema)
+    culture_mode_theme = ma.Nested(CultureModeThemeSchema)
+    
+culture_theme_response_schema = CultureThemeResponseSchema(many=True)
+
+
+
+class CultureQuestionResponseSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CVF_Questions_responses
+        fields = ("id", "id_theme_responses", "theme_responses", "id_culture_mode_theme_question","culture_mode_theme_question","Actual","Preferred")
+    
+    theme_responses = ma.Nested(CultureThemeResponseSchema)
+    culture_mode_theme_question = ma.Nested(CultureModeThemeQuestionSchema)
+    
+culture_question_response_schema = CultureQuestionResponseSchema(many=True)
 

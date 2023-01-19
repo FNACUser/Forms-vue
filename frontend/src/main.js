@@ -8,12 +8,34 @@ import 'vuetify/dist/vuetify.min.css';
 import pinia from "@/store/createPinia";
 import {i18n} from './i18n';
 import VueAlertify from 'vue-alertify';
-import VueParticles from 'vue-particles';
+import Vue2Filters from 'vue2-filters'
+//import VueParticles from 'vue-particles';
+
+import VuetifyMoney from "./components/vuetify-money";
+
+var Vue2FiltersConfig = {
+    
+    percent: {
+        decimalDigits: 0
+    },
+    currency: {
+        symbol: '$',
+        decimalDigits: 0,
+        thousandsSeparator: '.',
+        decimalSeparator: ',',
+        symbolOnLeft: true,
+        spaceBetweenAmountAndSymbol: true,
+        showPlusSign: false
+
+    }
+}
 
 
-Vue.use(VueParticles)
+Vue.use(Vue2Filters, Vue2FiltersConfig)
+//Vue.use(VueParticles)
 Vue.use(VueAlertify);
 Vue.use(Vuetify);
+Vue.use(VuetifyMoney);
 
 pinia.use(({ store }) => { store.router = markRaw(router) });
 

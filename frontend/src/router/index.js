@@ -1,11 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HomeView from '@/views/HomeView.vue'
-import Login from '@/views/Auth/Login'
+
 import RequestPasswordReset from '@/views/Auth/RequestPasswordReset.vue'
 import ResetPasswordForm from '@/views/Auth/ResetPasswordForm.vue'
 import { useMainStore } from '@/store/main'
 import pinia from "@/store/createPinia";
+
+import ActiveSource from '@/views/ActiveSource.vue'
+import Culture from '@/views/Culture.vue'
+import Login from '@/views/Auth/Login'
 
 
 const ifNotAuthenticated = (to, from, next) => {
@@ -70,19 +73,25 @@ const router = new Router({
       }
     },
     {
-      path: '/home',
-      name: 'Home',
-      component: HomeView,
+      path: '/active_source',
+      name: 'ActiveSource',
+      component: ActiveSource,
       beforeEnter: ifAuthenticated
     },
     {
-      path: '/about',
-      name: 'About',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
+      path: '/culture',
+      name: 'Culture',
+      component: Culture,
+      beforeEnter: ifAuthenticated
     }
+    // {
+    //   path: '/about',
+    //   name: 'About',
+    //   // route level code-splitting
+    //   // this generates a separate chunk (About.[hash].js) for this route
+    //   // which is lazy-loaded when the route is visited.
+    //   component: () => import('../views/AboutView.vue')
+    // }
   ]
 })
 

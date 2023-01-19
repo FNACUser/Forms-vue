@@ -1,17 +1,26 @@
 {  
   "menus":{
+
     "active_source":"Active source",
     "culture":"Culture",
-    "about": "About",
+    "about":"About",
     "delete_record_text":"Are you sure you want to delete this record?",
     "delete_interacting_person_text":"Are you sure you want to delete this person?<br> All answers associated to this person in other sections will be deleted!",
     "delete_record_title":"Delete record",
     "cancel":"Cancel",
     "loading":"Loading..."
+    
   },
-  "main_page":{
+
+  "globals":{
+
+    "period":"Period"
+
+  },
+
+  "active_source":{
    
-    "period": "Period",
+ 
     "area":"Area",
     "questionaire_type":"Type of questionaire",
     "question_theme":"Questions Theme",
@@ -20,12 +29,24 @@
     "answer":"Answer",
     "section_closed":"Section closed/completed",
     "actor_table":{
+
           "name":"Name",
           "area":"Area",
           "actions":"Actions"
         }
   },
+
+  "culture":{
+
+    "themes":"Themes",
+    "now":"Now",
+    "preferred":"Preferred"
+
+
+  },
+
   "login":{
+
     "email_required":"E-mail is required!",
     "pwd_required":"Password is required!",
     "password":"Password",
@@ -36,31 +57,31 @@
     "pwd_not_valid":"Password is not valid!",
     "missing_token":"Missing Token!",
     "invalid_token":"Invalid Token!",
-    "missing_credentials": "Missing credentials!",
-    "user_not_registered": "User is not registered!",
+    "missing_credentials":"Missing credentials!",
+    "user_not_registered":"User is not registered!",
     "bad_credentials":"Invalid credentials!",
-    "confirmation_pwd_not_match" : "Confirmation password does not match!",
-    "confirmation_password" : "Confirmation password",
+    "confirmation_pwd_not_match":"Confirmation password does not match!",
+    "confirmation_password":"Confirmation password",
     "reset_password":{
-      "title":"Reset password...",
-      "email_sent":"An email has just been sent to you in order to reset your password!",
-      "email_error":"An error occured while trying to send the email!",
-      "invalid_or_expired_token":"The token is invalid or has already expired!",
-      "pwd_reset_successful":"Your password was reset successfully!",
-      "send_request":"Send request",
-      "change_pwd":"Change password"
+      
+        "title":"Reset password...",
+        "email_sent":"An email has just been sent to you in order to reset your password!",
+        "email_error":"An error occured while trying to send the email!",
+        "invalid_or_expired_token":"The token is invalid or has already expired!",
+        "pwd_reset_successful":"Your password was reset successfully!",
+        "send_request":"Send request",
+        "change_pwd":"Change password"
       }
     },
-    "api_responses":{
 
-      "interacting_actor_deleted":"Interacting actor was deleted, as all answers related to it in other sections!!",
-      "new_interacting_actor_added":"New interacting actor added!",
-      "answer_saved":"Your answer has been saved!",
-      "form_closed":"Form closed!",
-      "form_opened":"Form enabled again!"
+  "api_responses":{
 
-    }
-   
+    "interacting_actor_deleted":"Interacting actor was deleted, as all answers related to it in other sections!!",
+    "new_interacting_actor_added":"New interacting actor added!",
+    "answer_saved":"Your answer has been saved!",
+    "form_closed":"Form closed!",
+    "form_opened":"Form enabled again!"
+  }
 
 }
   

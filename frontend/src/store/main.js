@@ -21,19 +21,25 @@ export const useMainStore = defineStore('main', {
         networks:[],
         areas:[],
         network_modes:[],
+        culture_modes:[],
+
+
         loader: false,
         flash_message: '',
-        flash_message_type: ''
+        flash_message_type: '',
+        selected_cycle:null
        
-
     }
   },
 
   getters: {
     isLoggedIn: state => !!state.token,
+
+    filteredCycles:state => state.cycles.filter(item=> item.Is_active),
+    
+  
   },
-  // could also be defined as
-  // state: () => ({ count: 0 })
+
   actions: {
     
 
@@ -44,6 +50,7 @@ export const useMainStore = defineStore('main', {
       this.getEmployees();
       this.getNetworks();
       this.getCycles();
+      this.getCultureModes();
       
     },
 
@@ -58,7 +65,7 @@ export const useMainStore = defineStore('main', {
                       this.token = accessToken;
                       this.setLoggedUser();
                       this.initialize();
-                      this.router.push('/home').catch((e) => {console.log(e)});
+                      this.router.push('/active_source').catch((e) => {console.log(e)});
                       
                   })
                  .catch( error => {
@@ -133,6 +140,16 @@ export const useMainStore = defineStore('main', {
      this.areas = areas.data;
 
    },
+
+
+   //CULTURE 
+
+   async getCultureModes(){
+
+    const response = await axios.get(process.env.VUE_APP_BACKEND_URL+'/culture/modes');
+    this.culture_modes = response.data;
+
+  },
 
    setFlashMessage(payload) {
 

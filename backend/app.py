@@ -1,3 +1,4 @@
+
 from flask import Flask, jsonify, request, make_response
 from flask.cli import with_appcontext
 from flask_cors import CORS
@@ -30,14 +31,25 @@ from flask_security.utils import hash_password,verify_password
 from config import Config
 #from defaultapp.miscelaneous import mail, bcrypt, security
 from models import db,ma, user_datastore, Role
+ 
+
 from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
                     IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,\
                     IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes, IRA_Employees_interactions,IRA_Responses,\
-                    IRA_Adjacency_input_form     
+                    IRA_Adjacency_input_form   
+
 from models import  users_schema, user_schema,cycles_schema, networks_schema, network_mode_schema, areas_schema,\
                     roles_schema, role_schema,node_segment_category_schema,\
                     network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema,responses_schema,\
                     adjacency_input_forms_schema
+                    
+                    
+ 
+from models import  CVF_Culture_modes,CVF_Culture_quadrants,CVF_Culture_modes_themes,CVF_Culture_modes_themes_questions,\
+                    CVF_Questions_responses,CVF_Themes_responses
+
+from models import culture_mode_schema,culture_quadrant_schema,culture_mode_theme_schema,\
+                    culture_mode_theme_question_schema,culture_question_response_schema,culture_theme_response_schema
 
 
 def setLogger(app):
@@ -580,21 +592,21 @@ def save_answer(current_user):
             "valor":data["selected_option"]
         }
         
-       # print((data["selected_option"] is None))
-       # print(new_response)
+        # print((data["selected_option"] is None))
+        # print(new_response)
         adjacency_input_form_code=str(data['cycle_id']) +'-'+ str(current_user.id) + '-' + str(data['network_mode_id'])
-       # print(adjacency_input_form_code)
+        # print(adjacency_input_form_code)
         existing_response = IRA_Responses.query.filter_by(id_question = data['question_id'],id_adjacency_input_form=adjacency_input_form_code).first()
        
     
         if(existing_response):
-           # print('Existen ya respuestas almacenadas =>')
+            # print('Existen ya respuestas almacenadas =>')
             current_responses=json.loads(existing_response.Response)
-           # print('current_responses 0=')
-           # print(current_responses)
+            # print('current_responses 0=')
+            # print(current_responses)
             existing_actor=next(filter(lambda x: x['item_id'] == data['item_id'],current_responses),None)
-          #  print('existing_actor=')
-           # print(existing_actor)
+            #  print('existing_actor=')
+            # print(existing_actor)
             #if actor/item does not exist and there is a new  valid response then append new_response
             if(not isResponseEmpty(data["selected_option"]) and existing_actor is None):
                 current_responses.append(new_response) 
@@ -602,18 +614,18 @@ def save_answer(current_user):
             #    print('current_responses 1=')
             #    print(current_responses)  
             #if actor/item exists and there is a valid response      
-            elif(not isResponseEmpty(data["selected_option"]) and existing_actor is not  None):
+            elif(not isResponseEmpty(data["selected_option"]) and existing_actor is not None):
             #    print('Agrega nueva respuesta e item ya existe=> reemplaza los valores ya existentes')
                 current_responses = list(filter(lambda x: x['item_id'] != data['item_id'], current_responses))
             #    print('respuesta es valida y actor/item existe=')
                 current_responses.append(new_response)
             #    print('current_responses 2=')
-             #   print(current_responses)
-            elif(isResponseEmpty(data["selected_option"]) and existing_actor is not  None):
-             #   print('Como la respuesta  es vacía y el  item ya  existe=> remueve el item presente de las respuestas totales')
+            #   print(current_responses)
+            elif(isResponseEmpty(data["selected_option"]) and existing_actor is not None):
+            #   print('Como la respuesta  es vacía y el  item ya  existe=> remueve el item presente de las respuestas totales')
                 current_responses = list(filter(lambda x: x['item_id'] != data['item_id'], current_responses))
-             #   print('current_responses 3=')
-             #   print(current_responses)
+            #   print('current_responses 3=')
+            #   print(current_responses)
             existing_response.Response=json.dumps(current_responses)
             db.session.commit()
         else:
@@ -648,6 +660,94 @@ def isResponseEmpty(response):
         return response is None
     
     
+    
+#-----------------------------------------------------------------------------------------------------------
+# CVF CULTURE api routes
+#-----------------------------------------------------------------------------------------------------------
+
+
+@app.route('/api/v1/culture/modes', methods=['GET'])
+#@token_required
+#def culture_modes(current_user):
+def culture_modes():
+
+    resp = CVF_Culture_modes.query.all()
+    return jsonify(culture_mode_schema.dump(resp)) 
+    
+
+@app.route('/api/v1/culture/quadrants', methods=['GET'])
+#@token_required
+#def culture_quadrants(current_user):
+def culture_quadrants():
+
+    resp = CVF_Culture_quadrants.query.all()
+    return jsonify(culture_quadrant_schema.dump(resp)) 
+
+
+@app.route('/api/v1/culture/modes_themes', methods=['GET'])
+#@token_required
+#def culture_modes_themes(current_user):
+def culture_modes_themes():
+
+    resp = CVF_Culture_modes_themes.query.all()
+    return jsonify(culture_mode_theme_schema.dump(resp)) 
+
+
+@app.route('/api/v1/culture/modes_themes_questions', methods=['GET'])
+#@token_required
+#def culture_modes_themes_questions(current_user):
+def culture_modes_themes_questions():
+
+    resp = CVF_Culture_modes_themes_questions.query.all()
+    return jsonify(culture_mode_theme_question_schema.dump(resp)) 
+
+
+@app.route('/api/v1/culture/questions_responses', methods=['GET'])
+#@token_required
+#def culture_questions_responses(current_user):
+def culture_questions_responses():
+
+    resp = CVF_Questions_responses.query.all()
+    return jsonify(culture_question_response_schema.dump(resp)) 
+
+
+@app.route('/api/v1/culture/themes_responses', methods=['GET'])
+#@token_required
+#def culture_themes_responses(current_user):
+def culture_themes_responses():
+
+    resp = CVF_Themes_responses.query.all()
+    return jsonify(culture_theme_response_schema.dump(resp))
+
+
+@app.route('/api/v1/culture/mode/<int:mode_id>/themes', methods=['GET'])
+#@token_required
+def get_culture_themes_by_mode(mode_id):
+            
+    themes =  CVF_Culture_modes_themes.query.filter_by(id_culture_mode=mode_id).all()
+    
+    return jsonify(culture_mode_theme_schema.dump(themes))
+
+
+@app.route('/api/v1/culture/theme/<int:theme_id>/questions', methods=['GET'])
+#@token_required
+def get_culture_questions_by_theme(theme_id):
+            
+    questions =  CVF_Culture_modes_themes_questions.query.filter_by(id_culture_mode_theme=theme_id).all()
+    
+    return jsonify(culture_mode_theme_question_schema.dump(questions))
+
+
+@app.route('/api/v1/culture/save_answers', methods=['POST'])
+@token_required
+def culture_save_answers(current_user):
+
+    data = request.json
+    print(data)
+    
+    return jsonify({'message':"api_responses.answer_saved"})
+
+
 
 if __name__ == '__main__':
     app.run()

@@ -1,8 +1,9 @@
 {
   "menus":{
-    "active_source": "Fuente Activa",
+
+    "active_source":"Fuente Activa",
     "culture":"Cultura",
-    "about": "Acerca de..",
+    "about":"Acerca de..",
     "delete_record_text":"Está seguro de eliminar este registro?",
     "delete_interacting_person_text":"Está seguro de eliminar esta persona?<br> Todas las respuestas asociadas a esta persona en otras secciones serán borradas!",
     "delete_record_title":"Borrar registro",
@@ -10,40 +11,60 @@
     "loading":"Cargando..."
 
   },
-  "main_page":{
+
+  "globals":{
+
+    "period":"Periodo"
+
+  },
+
+
+  "active_source":{
     
-    "period": "Periodo",
+  
     "area":"Area",
-    "questionaire_type": "Tipo de Cuestionario",
-    "question_theme": "Temáticas de las preguntas",
-    "user": "Empleado",
+    "questionaire_type":"Tipo de Cuestionario",
+    "question_theme":"Temáticas de las preguntas",
+    "user":"Empleado",
     "question":"Pregunta",
     "answer":"Respuesta",
     "section_closed":"Sección cerrada/completada",
     "actor_table":{
+
           "name":"Nombre",
           "area":"Area",
           "actions":"Acciones"
         }
   },
+
+  "culture":{
+
+    "themes":"Temas",
+    "now":"Ahora",
+    "preferred":"Preferido"
+
+
+  },
+
   "login":{
      
-      "email_required":"E-mail es requerido!",
-      "pwd_required":"Contraseña es requerida!",
-      "password":"Contraseña",
-      "new_password":"Nueva contraseña",
-      "forgot_pwd":"¿Olvidó su contraseña?",
-      "min_pwd":"Contraseña debe ser mínimo de 5 caracteres!",
-      "email_not_valid":"E-mail no es válido!",
-      "pwd_not_valid":"Contraseña no es válida!",
-      "missing_token":"Token no está presente!",
-      "invalid_token":"Token inválido!",
-      "missing_credentials": "Faltan las credenciales!",
-      "user_not_registered": "Usuario no está registrado!",
-      "bad_credentials":"Credenciales incorrectas!",
-      "confirmation_pwd_not_match" : "La contraseña de confirmación no coincide!!",
-      "confirmation_password" : "Confirmación de contraseña",
-      "reset_password":{
+    "email_required":"E-mail es requerido!",
+    "pwd_required":"Contraseña es requerida!",
+    "password":"Contraseña",
+    "new_password":"Nueva contraseña",
+    "forgot_pwd":"¿Olvidó su contraseña?",
+    "min_pwd":"Contraseña debe ser mínimo de 5 caracteres!",
+    "email_not_valid":"E-mail no es válido!",
+    "pwd_not_valid":"Contraseña no es válida!",
+    "missing_token":"Token no está presente!",
+    "invalid_token":"Token inválido!",
+    "missing_credentials": "Faltan las credenciales!",
+    "user_not_registered": "Usuario no está registrado!",
+    "bad_credentials":"Credenciales incorrectas!",
+    "confirmation_pwd_not_match":"La contraseña de confirmación no coincide!!",
+    "confirmation_password":"Confirmación de contraseña",
+    "reset_password":{
+      
         "title":"Restablecer constraseña...",
         "email_sent":"Un correo ha sido enviado a su cuenta para reestablecer su contraseña!",
         "email_error":"Ocurrió un error en el envío del correo!",
@@ -51,18 +72,16 @@
         "pwd_reset_successful":"Su contraseña fue reestablecida con éxito!",
         "send_request":"Enviar solicitud",
         "change_pwd":"Cambiar contraseña"
-
       }
     },
-    "api_responses":{
 
-      "interacting_actor_deleted":"Actor fue eliminado, así como todas las respuestas relacionadas a este en otras secciones!!",
-      "new_interacting_actor_added":"Nuevo actor ha sido agregado!",
-      "answer_saved":"Su respuesta ha sido guardada!",
-      "form_closed":"Formulario cerrado!",
-      "form_opened":"Formulario habilitado nuevamente!"
+  "api_responses":{
 
-
-    }
-    
+    "interacting_actor_deleted":"Actor fue eliminado, así como todas las respuestas relacionadas a este en otras secciones!!",
+    "new_interacting_actor_added":"Nuevo actor ha sido agregado!",
+    "answer_saved":"Su respuesta ha sido guardada!",
+    "form_closed":"Formulario cerrado!",
+    "form_opened":"Formulario habilitado nuevamente!"
   }
+
+}
