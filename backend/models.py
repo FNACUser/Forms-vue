@@ -809,10 +809,11 @@ culture_mode_theme_question_schema = CultureModeThemeQuestionSchema(many=True)
 class CultureThemeResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Themes_responses
-        fields = ("id", "id_culture_input_form","culture_input_form", "id_culture_mode_theme","culture_mode_theme", "Total_actual","Total_preferred", "Is_concluded")
+        fields = ("id", "id_culture_input_form", "id_culture_mode_theme", "Total_actual","Total_preferred", "Is_concluded")
+        #fields = ("id", "id_culture_input_form","culture_input_form", "id_culture_mode_theme","culture_mode_theme", "Total_actual","Total_preferred", "Is_concluded")
     
-    culture_input_form = ma.Nested(CultureInputFormSchema)
-    culture_mode_theme = ma.Nested(CultureModeThemeSchema)
+    # culture_input_form = ma.Nested(CultureInputFormSchema)
+    # culture_mode_theme = ma.Nested(CultureModeThemeSchema)
     
 culture_theme_response_schema = CultureThemeResponseSchema(many=True)
 
@@ -821,10 +822,11 @@ culture_theme_response_schema = CultureThemeResponseSchema(many=True)
 class CultureQuestionResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Questions_responses
-        fields = ("id", "id_theme_responses", "theme_responses", "id_culture_mode_theme_question","culture_mode_theme_question","Actual","Preferred")
+        fields = ("id", "id_theme_responses",  "id_culture_mode_theme_question","Actual","Preferred")
+        #fields = ("id", "id_theme_responses", "theme_responses", "id_culture_mode_theme_question","culture_mode_theme_question","Actual","Preferred")
     
-    theme_responses = ma.Nested(CultureThemeResponseSchema)
-    culture_mode_theme_question = ma.Nested(CultureModeThemeQuestionSchema)
+    # theme_responses = ma.Nested(CultureThemeResponseSchema)
+    # culture_mode_theme_question = ma.Nested(CultureModeThemeQuestionSchema)
     
 culture_question_response_schema = CultureQuestionResponseSchema(many=True)
 

@@ -96,9 +96,9 @@ export const useMainStore = defineStore('main', {
 
       let decoded_token = jwt_decode(this.token);
       this.logged_user.id = decoded_token.id;
-      this.logged_user.name=decoded_token.username;
-      this.logged_user.email=decoded_token.email;
-      this.logged_user.role=decoded_token.roles[0].name;
+      this.logged_user.name = decoded_token.username;
+      this.logged_user.email = decoded_token.email;
+      this.logged_user.role = decoded_token.roles[0].name;
 
     },
 

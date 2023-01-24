@@ -80,7 +80,8 @@
     "new_interacting_actor_added":"New interacting actor added!",
     "answer_saved":"Your answer has been saved!",
     "form_closed":"Form closed!",
-    "form_opened":"Form enabled again!"
+    "form_opened":"Form enabled again!",
+    "no_results": "No results found!"
   }
 
 }

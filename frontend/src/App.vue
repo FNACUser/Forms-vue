@@ -169,9 +169,11 @@
             return response;
         }, (error) => {
 
-           // console.log(error);
+            console.log(error);
             // Do something with response error
             if (error.response.status == 401) {
+
+                console.log('Ocurre error 401!');
                 this.mainStore.$reset();
                 localStorage.removeItem('access_token');
                 this.mainStore.logged_user=Object.assign({},{
@@ -181,7 +183,7 @@
                                                                 role:''
                                                                 });
                 this.mainStore.token='';
-                this.router.push('/login').catch(() => {});
+                this.router.push('/login');
             }
 
             this.mainStore.loader=false;

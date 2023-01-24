@@ -46,7 +46,7 @@ from models import  users_schema, user_schema,cycles_schema, networks_schema, ne
                     
  
 from models import  CVF_Culture_modes,CVF_Culture_quadrants,CVF_Culture_modes_themes,CVF_Culture_modes_themes_questions,\
-                    CVF_Questions_responses,CVF_Themes_responses
+                    CVF_Questions_responses,CVF_Themes_responses, CVF_Culture_input_form
 
 from models import culture_mode_schema,culture_quadrant_schema,culture_mode_theme_schema,\
                     culture_mode_theme_question_schema,culture_question_response_schema,culture_theme_response_schema
@@ -743,9 +743,82 @@ def get_culture_questions_by_theme(theme_id):
 def culture_save_answers(current_user):
 
     data = request.json
-    print(data)
+    
+    if(data['user_email']==current_user.email ):
+        
+        culture_input_form=CVF_Culture_input_form.query.filter_by(id_employee = current_user.id, id_cycle=data['cycle_id'], id_culture_mode=data['mode_id']).first()
+        
+        if not culture_input_form:
+            db.session.add(CVF_Culture_input_form(id_employee = current_user.id, id_cycle=data['cycle_id'], id_culture_mode=data['mode_id'], Is_concluded=0))
+            db.session.commit()
+            culture_input_form=CVF_Culture_input_form.query.filter_by(id_employee = current_user.id, id_cycle=data['cycle_id'], id_culture_mode=data['mode_id']).first()
+            
+            
+        theme_response=CVF_Themes_responses.query.filter_by(id_culture_input_form = culture_input_form.id, id_culture_mode_theme=data['theme_id']).first()
+        
+        
+        if not theme_response:
+            
+            db.session.add(CVF_Themes_responses(id_culture_input_form = culture_input_form.id, id_culture_mode_theme=data['theme_id'], Total_actual=0, Total_preferred=0, Is_concluded=0))
+            db.session.commit()
+            theme_response=CVF_Themes_responses.query.filter_by(id_culture_input_form = culture_input_form.id, id_culture_mode_theme=data['theme_id']).first()
+         
+        
+        for question_answer in data['answers']:
+            print(question_answer)
+            # question_answer=json.loads(answer)
+            existing_response = CVF_Questions_responses.query.filter_by(id_theme_responses=theme_response.id, id_culture_mode_theme_question=question_answer['question_id']).first()
+            
+            if(existing_response):
+                
+                existing_response.Actual=question_answer['now']
+                existing_response.Preferred=question_answer['preferred']
+                db.session.commit()
+                
+            else:
+                
+                db.session.add(CVF_Questions_responses(id_theme_responses=theme_response.id, id_culture_mode_theme_question=question_answer['question_id'], Actual=question_answer['now'], Preferred=question_answer['preferred']))
+                db.session.commit()
+            
+        theme_response.Total_actual=100
+        theme_response.Total_preferred=100
+        db.session.commit()  
+        
     
     return jsonify({'message':"api_responses.answer_saved"})
+
+
+@app.route('/api/v1/culture/user/<int:user_id>/cycle/<int:cycle_id>/mode/<int:mode_id>/theme/<int:theme_id>/answers', methods=['GET'])
+#@token_required
+def get_culture_user_mode_theme_answers(user_id,cycle_id,mode_id,theme_id):
+    
+    culture_input_form=CVF_Culture_input_form.query.filter_by(id_employee = user_id, id_cycle=cycle_id, id_culture_mode=mode_id).first()
+    
+    if culture_input_form:
+        
+        theme_response=CVF_Themes_responses.query.filter_by(id_culture_input_form = culture_input_form.id, id_culture_mode_theme=theme_id).first()
+        if theme_response:
+        
+            existing_answers = CVF_Questions_responses.query.filter_by(id_theme_responses=theme_response.id).all()
+            return jsonify(culture_question_response_schema.dump(existing_answers))
+
+    return jsonify({'message':"api_responses.no_results"})
+
+
+
+
+@app.route('/api/v1/culture/user/<int:user_id>/cycle/<int:cycle_id>/mode/<int:mode_id>/themes_totals', methods=['GET'])
+#@token_required
+def get_culture_user_mode_themes_totals(user_id,cycle_id,mode_id):
+    
+    culture_input_form=CVF_Culture_input_form.query.filter_by(id_employee = user_id, id_cycle=cycle_id, id_culture_mode=mode_id).first()
+    
+    if culture_input_form:
+        
+        themes_totals=CVF_Themes_responses.query.filter_by(id_culture_input_form = culture_input_form.id).all()
+        return jsonify(culture_theme_response_schema.dump(themes_totals))
+
+    return jsonify({'message':"api_responses.no_results"})
 
 
 

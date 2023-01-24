@@ -81,7 +81,8 @@
     "new_interacting_actor_added":"Nuevo actor ha sido agregado!",
     "answer_saved":"Su respuesta ha sido guardada!",
     "form_closed":"Formulario cerrado!",
-    "form_opened":"Formulario habilitado nuevamente!"
+    "form_opened":"Formulario habilitado nuevamente!",
+    "no_results": "No se hallaron resultados!"
   }
 
 }

@@ -43,17 +43,17 @@
              
         </v-row>
 
-        <v-row v-if="themes.length && Object.keys(totals).length">
+        <v-row v-if="mainStore.selected_cycle && themes.length && Object.keys(totals).length">
           <v-col
               cols="2"
               
               v-for="(theme, index) in themes" :key="index"
               >
                 <progress-bars 
-                :name="theme[`Culture_mode_theme_${$i18n.locale}`]" 
-                :now="totals[`${mainStore.selected_cycle}_${theme.id}`]['now']"
-                :preferred="totals[`${mainStore.selected_cycle}_${theme.id}`]['preferred']"
-                
+                :name="theme ? theme[`Culture_mode_theme_${$i18n.locale}`] : ''" 
+                :now="theme? totals[`${mainStore.selected_cycle}_${theme.id}`]['now'] : 0"
+                :preferred="theme ?totals[`${mainStore.selected_cycle}_${theme.id}`]['preferred'] : 0"
+                @click.native="setSelectedTheme(theme)"
                 />
                 
           </v-col> 
@@ -75,8 +75,6 @@
                     <v-toolbar-title><h3>{{ selected_theme[`Questions_prefix_${$i18n.locale}`]}}</h3></v-toolbar-title>
 
                     <v-spacer></v-spacer>
-
-      
                   
                   </v-toolbar>
 
@@ -120,12 +118,11 @@
                     
                                       <vuetify-money
                                         v-model="answers[`${mainStore.selected_cycle}_${selected_theme.id}_${item.id}`]['now']"
-                                        :options="percentOptions"
+                                        :options="integerOptions"
                                         solo
                                         class="centered-input text--darken-3 mt-8"
-                                        
-                                        
                                         v-if="answers[`${mainStore.selected_cycle}_${selected_theme.id}_${item.id}`]"
+                                        
                                       />
 
 
@@ -138,7 +135,7 @@
 
                                       <vuetify-money
                                         v-model="answers[`${mainStore.selected_cycle}_${selected_theme.id}_${item.id}`]['preferred']"
-                                        :options="percentOptions"
+                                        :options="integerOptions"
                                         solo
                                         class="centered-input text--darken-3 mt-8"
                                        
@@ -157,14 +154,14 @@
                         <td width="150px">
                          
                           <div class="d-flex justify-center align-center ">
-                            <h2>{{ total_sums['now']/100 | percent }}</h2> 
+                            <h2>{{ total_sums['now'] }}</h2> 
                           </div>
                           <span  v-if="total_sums['now']>100" style="color:red;">La suma debe ser igual a 100%</span>
                         </td>
                       
                         <td width="150px"> 
                           <div class="d-flex justify-center align-center ">
-                            <h2>{{ total_sums['preferred']/100 | percent }}</h2>
+                            <h2>{{ total_sums['preferred'] }}</h2>
                           </div>  
                           <span  v-if="total_sums['preferred']>100" style="color:red;">La suma debe ser igual a 100%</span>
                         </td>
@@ -232,11 +229,15 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
     mounted(){
 
+     // console.log('entro a mounted de Culture');
 
-
-
-
+      this.initialize();
     },
+
+    // created(){
+    //   console.log('entro a created');
+
+    // },
 
     watch: {
 
@@ -313,19 +314,22 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
       initTotals(){
 
-       // console.log('entra a initTotals');
-       // console.log(this.themes);
+      
         this.themes.forEach(theme=>{
 
-         // console.log(theme.id)
+       
 
           if(!this.totals[`${this.mainStore.selected_cycle}_${theme.id}`]){
 
-            //console.log('entra a IF de initTotals');
+      
               this.$set(this.totals, `${this.mainStore.selected_cycle}_${theme.id}`, {'now':0,'preferred':0});
             }
 
-        })
+        });
+
+        this.getUserModeThemesTotals(this.mainStore.logged_user.id, this.mainStore.selected_cycle,this.selected_mode);
+
+
         
        // console.log(this.totals);
       },
@@ -380,6 +384,13 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
       },
 
+      setSelectedTheme(theme){
+
+       this.selected_theme=theme;
+       this.getThemeQuestions();
+
+      },
+
 
       resetSelectedVariables(){
 
@@ -389,10 +400,13 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
       async initialize(){
 
-        await this.getModeThemes();
+        if(this.mainStore.selected_cycle){
 
-        this.initTotals();
-        
+          await this.getModeThemes();
+          this.initTotals();
+
+        }
+
       },
 
 
@@ -414,9 +428,63 @@ import ProgressBars from '@/components/ProgressBars.vue';
           this.questions=response.data;
 
           this.setReactivityInAnswersAndTotalsObjects(this.mainStore.selected_cycle,this.selected_theme.id,this.questions);
+          //console.log('antes de llamar a getUserModeThemeAnswers')
 
+          this.getUserModeThemeAnswers(this.mainStore.logged_user.id, this.mainStore.selected_cycle,this.selected_mode, this.selected_theme.id)
+
+          
+          }
+
+
+      },
+
+      
+
+
+      async getUserModeThemeAnswers(user_id, cycle_id, mode_id, theme_id){
+
+    
+          if(user_id && cycle_id && mode_id && theme_id){
+
+      
+
+              this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/culture/user/'+user_id+'/cycle/'+cycle_id+'/mode/'+mode_id+'/theme/'+theme_id +'/answers')
+                .then(async response => {
+                    
+                    
+                    if(response.data.length){
+                      this.initAnswersArrayWithExistingValues(cycle_id, theme_id, response.data)
+                    }
+                    else{
+                      this.$alertify.warning(this.$t(response.data.message));
+
+                    }
+
+            
+                  })
+                .catch(error => {
+                    this.$alertify.error(this.$t(error.message));
+                   
+              });
+              
 
           }
+
+
+      },
+
+
+      initAnswersArrayWithExistingValues(cycle_id, theme_id, ini_values){
+
+
+       
+
+        ini_values.forEach(answer =>{
+
+          this.answers[`${cycle_id}_${theme_id}_${answer['id_culture_mode_theme_question']}`]['now']=answer['Actual'];
+          this.answers[`${cycle_id}_${theme_id}_${answer['id_culture_mode_theme_question']}`]['preferred']=answer['Preferred'];
+
+        })
 
 
       },
@@ -425,9 +493,6 @@ import ProgressBars from '@/components/ProgressBars.vue';
       setReactivityInAnswersAndTotalsObjects(cycleID, themeID, questions){
 
         questions.forEach( question => {
-
-          //console.log(this.answers);
-
 
           if(!this.answers[`${cycleID}_${themeID}_${question.id}`]){
 
@@ -441,11 +506,34 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
           this.$set(this.totals, `${cycleID}_${themeID}`, {'now':0,'preferred':0});
         }
-      
     
-      }
+      },
 
 
+      async getUserModeThemesTotals(user_id, cycle_id, mode_id){
+
+          if(user_id && cycle_id && mode_id){
+              const existing_themes_totals = await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/culture/user/'+user_id+'/cycle/'+cycle_id+'/mode/'+mode_id+'/themes_totals');
+
+              if(existing_themes_totals.data.length){
+                this.initTotalsArrayWithExistingValues(cycle_id, existing_themes_totals.data);
+              }
+              
+
+          }
+      },
+
+      initTotalsArrayWithExistingValues(cycle_id, ini_values){
+
+        ini_values.forEach(value =>{
+
+          this.totals[`${cycle_id}_${value['id_culture_mode_theme']}`]['now']=value['Total_actual'];
+          this.totals[`${cycle_id}_${value['id_culture_mode_theme']}`]['preferred']=value['Total_preferred'];
+
+        })
+
+
+      },
       
     
 

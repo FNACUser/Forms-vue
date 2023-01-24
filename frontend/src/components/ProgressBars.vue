@@ -1,22 +1,24 @@
 <template>
-    <div>
-      
-      
-    <v-progress-linear
-      color="light-blue"
-      height="10"
-      :value="now"
-      striped
-    ></v-progress-linear>
-    <br>
-    <v-progress-linear
-      color="light-green darken-4"
-      height="10"
-      :value="preferred"
-      striped
-    ></v-progress-linear>
+    <div>   
+      <v-progress-linear
+        color="light-blue"
+        height="25"
+        :value="now"
+        striped
+      >
+      <strong>{{ now }}</strong>
+      </v-progress-linear>
+      <br>
+      <v-progress-linear
+        color="light-green darken-4"
+        height="25"
+        :value="preferred"
+        striped
+      >
+      <strong>{{ preferred }}</strong>
+      </v-progress-linear>
     
-    {{ name }}
+      <strong>{{ name }}</strong>
    
     </div>
 
