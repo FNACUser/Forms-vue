@@ -7,6 +7,7 @@
             :width="width"
             :color="color"
             :value="value"
+            
         >
         {{ value }} %
         
@@ -15,7 +16,7 @@
           <v-chip
             x-small
           >
-            {{label}}
+            <strong>{{label}}</strong>
           </v-chip>
         
         </div>

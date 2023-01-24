@@ -51,8 +51,9 @@
               >
                 <progress-bars 
                 :name="theme ? theme[`Culture_mode_theme_${$i18n.locale}`] : ''" 
-                :now="theme? totals[`${mainStore.selected_cycle}_${theme.id}`]['now'] : 0"
-                :preferred="theme ?totals[`${mainStore.selected_cycle}_${theme.id}`]['preferred'] : 0"
+                :now="theme ? totals[`${mainStore.selected_cycle}_${theme.id}`]['now'] : 0"
+                :preferred="theme ? totals[`${mainStore.selected_cycle}_${theme.id}`]['preferred'] : 0"
+                :is-selected="selected_theme && theme.id==selected_theme.id"
                 @click.native="setSelectedTheme(theme)"
                 />
                 
@@ -70,10 +71,8 @@
                     color="primary"
                     dark
                   >
-                  
-
+                
                     <v-toolbar-title><h3>{{ selected_theme[`Questions_prefix_${$i18n.locale}`]}}</h3></v-toolbar-title>
-
                     <v-spacer></v-spacer>
                   
                   </v-toolbar>
@@ -362,11 +361,11 @@ import ProgressBars from '@/components/ProgressBars.vue';
                   
               };
 
-              console.log(data);
+             // console.log(data);
 
                this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/culture/save_answers', data)
                 .then(async response => {
-                    console.log(response.data);
+                  //  console.log(response.data);
                     
                     this.$alertify.success(this.$t(response.data.message));
                   

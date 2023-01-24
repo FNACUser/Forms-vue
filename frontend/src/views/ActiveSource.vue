@@ -102,10 +102,12 @@
               v-for="(form, index) in forms" :key="index"
               >
                 <gauge 
-                :label="form[`name_${$i18n.locale}`]" 
-                :in_value="Math.round(form['answers']*100/(form['total_questions']*form['total_items']))"
-                :in_size="((current_network_mode && form.id==current_network_mode.id_network_mode) ? 100:60 )"
-                :in_width="((current_network_mode && form.id==current_network_mode.id_network_mode) ? 15:7 )"
+                    :label="form[`name_${$i18n.locale}`]" 
+                    :in_value="Math.round(form['answers']*100/(form['total_questions']*form['total_items']))"
+                    :in_size="((current_network_mode && form.id==current_network_mode.id_network_mode) ? 100:60 )"
+                    :in_width="((current_network_mode && form.id==current_network_mode.id_network_mode) ? 15:7 )"
+                    @click.native="setSelectedNetworkAndTheme(form)"
+                
                 />
                 
           </v-col> 
@@ -458,6 +460,26 @@ import Gauge from '@/components/Gauge.vue';
 
 
     methods:{
+
+
+      setSelectedNetworkAndTheme(form){
+
+ 
+        this.selected_network = form.network_mode.network;
+        if (this.selected_network.code=='actor'){
+
+          this.selected_network_mode_theme = form.network_mode.network_mode_theme.id_network_mode_theme;
+
+        }
+        else{
+
+          this.selected_network_mode_theme = null;
+
+        }
+
+        this.getQuestions();
+
+      },
 
 
       getFormSectionName(netw_mode,lang){
@@ -884,6 +906,8 @@ import Gauge from '@/components/Gauge.vue';
              this.mainStore.network_modes.forEach(async network_mode => {
 
                 let form ={};
+
+                form['network_mode'] = network_mode;
 
                 form['id'] = network_mode.id_network_mode;
                 form['name_es'] = this.getFormSectionName(network_mode,'es'); 

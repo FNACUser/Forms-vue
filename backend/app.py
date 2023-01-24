@@ -667,62 +667,62 @@ def isResponseEmpty(response):
 
 
 @app.route('/api/v1/culture/modes', methods=['GET'])
-#@token_required
-#def culture_modes(current_user):
-def culture_modes():
+@token_required
+def culture_modes(current_user):
+
 
     resp = CVF_Culture_modes.query.all()
     return jsonify(culture_mode_schema.dump(resp)) 
     
 
 @app.route('/api/v1/culture/quadrants', methods=['GET'])
-#@token_required
-#def culture_quadrants(current_user):
-def culture_quadrants():
+@token_required
+def culture_quadrants(current_user):
+#def culture_quadrants():
 
     resp = CVF_Culture_quadrants.query.all()
     return jsonify(culture_quadrant_schema.dump(resp)) 
 
 
 @app.route('/api/v1/culture/modes_themes', methods=['GET'])
-#@token_required
-#def culture_modes_themes(current_user):
-def culture_modes_themes():
+@token_required
+def culture_modes_themes(current_user):
+#def culture_modes_themes():
 
     resp = CVF_Culture_modes_themes.query.all()
     return jsonify(culture_mode_theme_schema.dump(resp)) 
 
 
 @app.route('/api/v1/culture/modes_themes_questions', methods=['GET'])
-#@token_required
-#def culture_modes_themes_questions(current_user):
-def culture_modes_themes_questions():
+@token_required
+def culture_modes_themes_questions(current_user):
+#def culture_modes_themes_questions():
 
     resp = CVF_Culture_modes_themes_questions.query.all()
     return jsonify(culture_mode_theme_question_schema.dump(resp)) 
 
 
 @app.route('/api/v1/culture/questions_responses', methods=['GET'])
-#@token_required
-#def culture_questions_responses(current_user):
-def culture_questions_responses():
+@token_required
+def culture_questions_responses(current_user):
+#def culture_questions_responses():
 
     resp = CVF_Questions_responses.query.all()
     return jsonify(culture_question_response_schema.dump(resp)) 
 
 
 @app.route('/api/v1/culture/themes_responses', methods=['GET'])
-#@token_required
-#def culture_themes_responses(current_user):
-def culture_themes_responses():
+@token_required
+def culture_themes_responses(current_user):
+#def culture_themes_responses():
 
     resp = CVF_Themes_responses.query.all()
     return jsonify(culture_theme_response_schema.dump(resp))
 
 
 @app.route('/api/v1/culture/mode/<int:mode_id>/themes', methods=['GET'])
-#@token_required
-def get_culture_themes_by_mode(mode_id):
+@token_required
+def get_culture_themes_by_mode(current_user,mode_id):
             
     themes =  CVF_Culture_modes_themes.query.filter_by(id_culture_mode=mode_id).all()
     
@@ -730,8 +730,8 @@ def get_culture_themes_by_mode(mode_id):
 
 
 @app.route('/api/v1/culture/theme/<int:theme_id>/questions', methods=['GET'])
-#@token_required
-def get_culture_questions_by_theme(theme_id):
+@token_required
+def get_culture_questions_by_theme(current_user,theme_id):
             
     questions =  CVF_Culture_modes_themes_questions.query.filter_by(id_culture_mode_theme=theme_id).all()
     
@@ -789,8 +789,8 @@ def culture_save_answers(current_user):
 
 
 @app.route('/api/v1/culture/user/<int:user_id>/cycle/<int:cycle_id>/mode/<int:mode_id>/theme/<int:theme_id>/answers', methods=['GET'])
-#@token_required
-def get_culture_user_mode_theme_answers(user_id,cycle_id,mode_id,theme_id):
+@token_required
+def get_culture_user_mode_theme_answers(current_user,user_id,cycle_id,mode_id,theme_id):
     
     culture_input_form=CVF_Culture_input_form.query.filter_by(id_employee = user_id, id_cycle=cycle_id, id_culture_mode=mode_id).first()
     
@@ -808,8 +808,8 @@ def get_culture_user_mode_theme_answers(user_id,cycle_id,mode_id,theme_id):
 
 
 @app.route('/api/v1/culture/user/<int:user_id>/cycle/<int:cycle_id>/mode/<int:mode_id>/themes_totals', methods=['GET'])
-#@token_required
-def get_culture_user_mode_themes_totals(user_id,cycle_id,mode_id):
+@token_required
+def get_culture_user_mode_themes_totals(current_user,user_id,cycle_id,mode_id):
     
     culture_input_form=CVF_Culture_input_form.query.filter_by(id_employee = user_id, id_cycle=cycle_id, id_culture_mode=mode_id).first()
     
