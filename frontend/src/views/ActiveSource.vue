@@ -14,8 +14,7 @@
               :item-text="`Cycle_${$i18n.locale}`"
               item-value="id_cycle"
               clearable
-              @change="initialize"
-              @click:clear="resetSelectedVariables"
+             
               dense
             ></v-select>
           </v-col>
@@ -276,7 +275,7 @@
 <script>
 
 import { useMainStore } from '@/store/main'
-import { mapStores} from 'pinia'
+import { mapStores,mapState} from 'pinia'
 import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 import Gauge from '@/components/Gauge.vue';
 
@@ -348,9 +347,31 @@ import Gauge from '@/components/Gauge.vue';
       this.initialize();
 
     },
+
+    watch:{
+
+      selected_cycle(new_val){
+          
+          if(new_val==null){
+
+          //  console.log('watch en ActiveSource -> cycle is null');
+            this.resetSelectedVariables();
+          }
+          else{
+
+            this.initialize();
+
+          }
+      }
+
+
+    },
    
 
     computed:{
+
+      ...mapState(useMainStore,[ "selected_cycle"]),
+      ...mapStores(useMainStore),
 
 
       current_adjacency_input_form_id(){
@@ -454,7 +475,7 @@ import Gauge from '@/components/Gauge.vue';
 
         },
     
-      ...mapStores(useMainStore),
+      
 
     },
 
@@ -951,8 +972,10 @@ import Gauge from '@/components/Gauge.vue';
 
       async initialize(){
 
-        if(this.mainStore.selected_cycle){
+       // console.log('Entra a Initialize de ActiveSource');
 
+        if(this.mainStore.selected_cycle){
+        //  console.log('Entra al IF de  Initialize de ActiveSource');
           await this.getActors();
           await this.mainStore.getNetworkModes(this.mainStore.selected_cycle);
           await this.getUserResponses();

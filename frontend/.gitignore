@@ -2,5 +2,5 @@
 /.vscode/*
 /.vscode
 /.env
-/.env_prod
-/.env_dev
+/.env.production
+/.env.local

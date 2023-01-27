@@ -8,14 +8,14 @@
               cols="2"
             >
                 <v-select
-                  v-model="mainStore.selected_cycle"
-                  :items="mainStore.filteredCycles"
+                  v-model="selected_cycle"
+                  :items="filteredCycles"
                   :label="$t('globals.period')"
                   :item-text="`Cycle_${$i18n.locale}`"
                   item-value="id_cycle"
                   clearable
-                  @change="initialize"
-                  @click:clear="resetSelectedVariables"
+                 
+                 
                   dense
                 ></v-select>
             </v-col>
@@ -23,7 +23,7 @@
             <v-col
               cols="3"
               class="d-flex justify-space-around mb-6 align-end"
-              v-if="mainStore.selected_cycle"
+              v-if="selected_cycle"
             >
 
               <v-select
@@ -35,7 +35,7 @@
                   return-object
                   clearable
                   @change="getThemeQuestions"
-                  @click:clear="resetSelectedVariables"
+                 
                   dense
                 ></v-select>
               
@@ -43,7 +43,7 @@
              
         </v-row>
 
-        <v-row v-if="mainStore.selected_cycle && themes.length && Object.keys(totals).length">
+        <v-row v-if="selected_cycle && themes.length && Object.keys(totals).length">
           <v-col
               cols="2"
               
@@ -51,8 +51,8 @@
               >
                 <progress-bars 
                 :name="theme ? theme[`Culture_mode_theme_${$i18n.locale}`] : ''" 
-                :now="theme ? totals[`${mainStore.selected_cycle}_${theme.id}`]['now'] : 0"
-                :preferred="theme ? totals[`${mainStore.selected_cycle}_${theme.id}`]['preferred'] : 0"
+                :now="theme ? totals[`${selected_cycle}_${theme.id}`]['now'] : 0"
+                :preferred="theme ? totals[`${selected_cycle}_${theme.id}`]['preferred'] : 0"
                 :is-selected="selected_theme && theme.id==selected_theme.id"
                 @click.native="setSelectedTheme(theme)"
                 />
@@ -116,11 +116,11 @@
 
                     
                                       <vuetify-money
-                                        v-model="answers[`${mainStore.selected_cycle}_${selected_theme.id}_${item.id}`]['now']"
+                                        v-model="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['now']"
                                         :options="integerOptions"
                                         solo
                                         class="centered-input text--darken-3 mt-8"
-                                        v-if="answers[`${mainStore.selected_cycle}_${selected_theme.id}_${item.id}`]"
+                                        v-if="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]"
                                         
                                       />
 
@@ -133,12 +133,12 @@
                                     <div class="d-flex align-center ">
 
                                       <vuetify-money
-                                        v-model="answers[`${mainStore.selected_cycle}_${selected_theme.id}_${item.id}`]['preferred']"
+                                        v-model="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['preferred']"
                                         :options="integerOptions"
                                         solo
                                         class="centered-input text--darken-3 mt-8"
                                        
-                                        v-if="answers[`${mainStore.selected_cycle}_${selected_theme.id}_${item.id}`]"
+                                        v-if="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]"
                                       />
                                 </div>
                                     
@@ -183,7 +183,7 @@
 <script>
 
 import { useMainStore } from '@/store/main'
-import { mapStores} from 'pinia'
+import { mapState, mapWritableState} from 'pinia'
 import {numbersFormatMixin} from '../mixins/numbersFormatMixin'
 import ProgressBars from '@/components/ProgressBars.vue';
 
@@ -199,18 +199,11 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
         selected_mode:1,
         selected_theme:null,
-        selected_question:null,
-        
         questions:[],
         themes:[],
         answers:{},
         totals:{},
-        
-        editedItem:{
-          preferred:null,
-          iva:null
-        },
-
+      
         headers: [
           {
             text: '',
@@ -248,27 +241,43 @@ import ProgressBars from '@/components/ProgressBars.vue';
                 if (new_val && (new_val['now'] || new_val['preferred'])) {
 
                   if ((new_val['now']==100 && new_val['preferred']==100) && 
-                  (new_val['now']!=this.totals[`${this.mainStore.selected_cycle}_${this.selected_theme.id}`]['now'] ||
-                   new_val['preferred']!=this.totals[`${this.mainStore.selected_cycle}_${this.selected_theme.id}`]['preferred'])){
+                  (new_val['now']!=this.totals[`${this.selected_cycle}_${this.selected_theme.id}`]['now'] ||
+                   new_val['preferred']!=this.totals[`${this.selected_cycle}_${this.selected_theme.id}`]['preferred'])){
 
                       this.saveCultureAnswers();
 
                   }
 
             
-                  if(!this.totals[`${this.mainStore.selected_cycle}_${this.selected_theme.id}`]){
+                  if(!this.totals[`${this.selected_cycle}_${this.selected_theme.id}`]){
 
-                      this.$set(this.totals, `${this.mainStore.selected_cycle}_${this.selected_theme.id}`, new_val);
+                      this.$set(this.totals, `${this.selected_cycle}_${this.selected_theme.id}`, new_val);
                   }
                   else{
-                    this.totals[`${this.mainStore.selected_cycle}_${this.selected_theme.id}`]=Object.assign({},new_val);
+                    this.totals[`${this.selected_cycle}_${this.selected_theme.id}`]=Object.assign({},new_val);
 
                   }             
                   //console.log(val);
                 }
             },
            // deep: true
+        },
+
+
+        selected_cycle(new_val){
+          
+          if(new_val==null){
+
+         //   console.log('watch en Culture -> cycle is null');
+            this.resetSelectedVariables();
+          }
+          else {
+
+            this.initialize();
+
+          }
         }
+
 
 },
 
@@ -276,7 +285,10 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
     computed:{
 
-      ...mapStores(useMainStore),
+     // ...mapStores(useMainStore),
+      ...mapWritableState(useMainStore,[ "selected_cycle"]),
+
+      ...mapState(useMainStore,[ "logged_user","filteredCycles" ]),
 
       total_sums(){
 
@@ -291,9 +303,9 @@ import ProgressBars from '@/components/ProgressBars.vue';
         this.questions.forEach(question => {
 
          
-          if(this.mainStore.selected_cycle && this.selected_theme && this.answers[`${this.mainStore.selected_cycle}_${this.selected_theme.id}_${question.id}`]){
-            sums['now'] += Number.parseInt(this.answers[`${this.mainStore.selected_cycle}_${this.selected_theme.id}_${question.id}`]['now']);
-            sums['preferred'] += Number.parseInt(this.answers[`${this.mainStore.selected_cycle}_${this.selected_theme.id}_${question.id}`]['preferred']);
+          if(this.selected_cycle && this.selected_theme && this.answers[`${this.selected_cycle}_${this.selected_theme.id}_${question.id}`]){
+            sums['now'] += Number.parseInt(this.answers[`${this.selected_cycle}_${this.selected_theme.id}_${question.id}`]['now']);
+            sums['preferred'] += Number.parseInt(this.answers[`${this.selected_cycle}_${this.selected_theme.id}_${question.id}`]['preferred']);
 
           }
 
@@ -316,17 +328,13 @@ import ProgressBars from '@/components/ProgressBars.vue';
       
         this.themes.forEach(theme=>{
 
-       
-
-          if(!this.totals[`${this.mainStore.selected_cycle}_${theme.id}`]){
-
-      
-              this.$set(this.totals, `${this.mainStore.selected_cycle}_${theme.id}`, {'now':0,'preferred':0});
+          if(!this.totals[`${this.selected_cycle}_${theme.id}`]){      
+              this.$set(this.totals, `${this.selected_cycle}_${theme.id}`, {'now':0,'preferred':0});
             }
 
         });
 
-        this.getUserModeThemesTotals(this.mainStore.logged_user.id, this.mainStore.selected_cycle,this.selected_mode);
+        this.getUserModeThemesTotals(this.logged_user.id, this.selected_cycle,this.selected_mode);
 
 
         
@@ -342,8 +350,8 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
             const anws_obj={
               'question_id':question.id,
-              'now':this.answers[`${this.mainStore.selected_cycle}_${this.selected_theme.id}_${question.id}`]['now'],
-              'preferred':this.answers[`${this.mainStore.selected_cycle}_${this.selected_theme.id}_${question.id}`]['preferred']
+              'now':this.answers[`${this.selected_cycle}_${this.selected_theme.id}_${question.id}`]['now'],
+              'preferred':this.answers[`${this.selected_cycle}_${this.selected_theme.id}_${question.id}`]['preferred']
 
             }
 
@@ -353,11 +361,11 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
 
         const data={
-                  "cycle_id":this.mainStore.selected_cycle,
+                  "cycle_id":this.selected_cycle,
                   "mode_id" : this.selected_mode,
                   "theme_id" : this.selected_theme.id,
                   "answers" : final_answers,
-                  "user_email":this.mainStore.logged_user.email
+                  "user_email":this.logged_user.email
                   
               };
 
@@ -377,10 +385,6 @@ import ProgressBars from '@/components/ProgressBars.vue';
                     console.error( error);
               });
 
-
-
-
-
       },
 
       setSelectedTheme(theme){
@@ -393,13 +397,19 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
       resetSelectedVariables(){
 
-
-
+        this.questions=[];
+        this.themes=[];
+        this.selected_theme=null;
+      
       },
 
       async initialize(){
 
-        if(this.mainStore.selected_cycle){
+       // console.log('Entra a Initialize de Culture');
+
+        if(this.selected_cycle){
+
+         // console.log('Entra al IF de  Initialize de Culture');
 
           await this.getModeThemes();
           this.initTotals();
@@ -426,10 +436,10 @@ import ProgressBars from '@/components/ProgressBars.vue';
 
           this.questions=response.data;
 
-          this.setReactivityInAnswersAndTotalsObjects(this.mainStore.selected_cycle,this.selected_theme.id,this.questions);
+          this.setReactivityInAnswersAndTotalsObjects(this.selected_cycle,this.selected_theme.id,this.questions);
           //console.log('antes de llamar a getUserModeThemeAnswers')
 
-          this.getUserModeThemeAnswers(this.mainStore.logged_user.id, this.mainStore.selected_cycle,this.selected_mode, this.selected_theme.id)
+          this.getUserModeThemeAnswers(this.logged_user.id, this.selected_cycle,this.selected_mode, this.selected_theme.id)
 
           
           }
@@ -458,25 +468,19 @@ import ProgressBars from '@/components/ProgressBars.vue';
                       this.$alertify.warning(this.$t(response.data.message));
 
                     }
-
-            
+       
                   })
                 .catch(error => {
                     this.$alertify.error(this.$t(error.message));
                    
               });
               
-
           }
-
 
       },
 
 
       initAnswersArrayWithExistingValues(cycle_id, theme_id, ini_values){
-
-
-       
 
         ini_values.forEach(answer =>{
 
