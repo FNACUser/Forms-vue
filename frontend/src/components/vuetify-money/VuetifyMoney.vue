@@ -65,10 +65,10 @@ export default {
       type: [Boolean, String],
       default: false
     },
-    // errorMessages: {
-    //   type: [Array, String],
-    //   default: () => []
-    // },
+    errorMessages: {
+      type: [Array, String],
+      default: () => []
+    },
     rules: {
       type: [Array, String],
       default: () => []
@@ -136,7 +136,7 @@ export default {
   },
   data: () => ({
 
-    errorMessages:[]
+    //errorMessages:[]
 
   }),
   /*
@@ -232,13 +232,14 @@ export default {
             //console.log(number);
             number = this.addsDecimalSeparator(number);
 
-            this.errorMessages=['el valor límite es '+ this.options.max +'!'];
+            //this.errorMessages=['el valor límite es '+ this.options.max +'!'];
+          //  this.errorMessages=[this.$t('alerts.limit_value_is') +' '+ this.options.max +'!'];
 
           }
-          else{
-            this.errorMessages.pop();
+          // else{
+          //   this.errorMessages.pop();
 
-          }
+          // }
       }
       else {
           number = this.valueWhenIsEmpty;

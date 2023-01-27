@@ -116,12 +116,12 @@
 
                     
                                       <vuetify-money
-                                        v-model="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['now']"
-                                        :options="integerOptions"
-                                        solo
-                                        class="centered-input text--darken-3 mt-8"
-                                        v-if="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]"
-                                        
+                                          v-model="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['now']"
+                                          :options="integerOptions"
+                                          solo
+                                          class="centered-input text--darken-3 mt-8"
+                                          v-if="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]"
+                                          :errorMessages="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['now']>=100 ? `${$t('alerts.limit_value_is')} ${integerOptions.max} !` : ''"
                                       />
 
 
@@ -133,12 +133,13 @@
                                     <div class="d-flex align-center ">
 
                                       <vuetify-money
-                                        v-model="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['preferred']"
-                                        :options="integerOptions"
-                                        solo
-                                        class="centered-input text--darken-3 mt-8"
-                                       
-                                        v-if="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]"
+                                          v-model="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['preferred']"
+                                          :options="integerOptions"
+                                          solo
+                                          class="centered-input text--darken-3 mt-8"
+                                          v-if="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]"
+                                          :errorMessages="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['preferred']>=100 ? `${$t('alerts.limit_value_is')} ${integerOptions.max} !` : ''"
+
                                       />
                                 </div>
                                     
@@ -155,14 +156,14 @@
                           <div class="d-flex justify-center align-center ">
                             <h2>{{ total_sums['now'] }}</h2> 
                           </div>
-                          <span  v-if="total_sums['now']>100" style="color:red;">La suma debe ser igual a 100%</span>
+                          <span  v-if="total_sums['now']>100" style="color:red;">{{$t('alerts.sum_limit')}}</span>
                         </td>
                       
                         <td width="150px"> 
                           <div class="d-flex justify-center align-center ">
                             <h2>{{ total_sums['preferred'] }}</h2>
                           </div>  
-                          <span  v-if="total_sums['preferred']>100" style="color:red;">La suma debe ser igual a 100%</span>
+                          <span  v-if="total_sums['preferred']>100" style="color:red;">{{$t('alerts.sum_limit')}}</span>
                         </td>
 
                     </tr>
@@ -254,7 +255,7 @@ import ProgressBars from '@/components/ProgressBars.vue';
                       this.$set(this.totals, `${this.selected_cycle}_${this.selected_theme.id}`, new_val);
                   }
                   else{
-                    this.totals[`${this.selected_cycle}_${this.selected_theme.id}`]=Object.assign({},new_val);
+                      this.totals[`${this.selected_cycle}_${this.selected_theme.id}`]=Object.assign({},new_val);
 
                   }             
                   //console.log(val);

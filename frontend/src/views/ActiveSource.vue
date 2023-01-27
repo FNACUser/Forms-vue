@@ -199,7 +199,7 @@
                                       <v-icon
                                           v-on="on"
                                           small
-                                          @click="delRecord(item,'menus.delete_record_title','menus.delete_interacting_person_text')"
+                                          @click="delRecord(item,'menus.delete_record_title','alerts.delete_interacting_person_text')"
                                           color="orange"      
                                       >
                                           mdi-delete

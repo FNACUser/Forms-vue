@@ -126,14 +126,14 @@
             menus: [
                 { 
                   icon: "mdi-crowd",
-                  text: this.$t('menus.active_source'), 
+                  text: `${this.$t('menus.active_source')}`, 
                   route: "ActiveSource", 
                   roles: ["Admin"]
                 },
                 
                 {
                     icon: "mdi-account-group",
-                    text: this.$t('menus.culture'), 
+                    text: `${this.$t('menus.culture')}`, 
                     route: "Culture",
                     roles: ["Admin"]
                 }
@@ -217,7 +217,7 @@
       translateMenus(){
 
         this.menus[0].text=this.$t('menus.active_source');
-        //this.menus[1].text=this.$t('menus.culture');
+        this.menus[1].text=this.$t('menus.culture');
 
       }  
     }

@@ -4,8 +4,6 @@
     "active_source":"Fuente Activa",
     "culture":"Cultura",
     "about":"Acerca de..",
-    "delete_record_text":"Está seguro de eliminar este registro?",
-    "delete_interacting_person_text":"Está seguro de eliminar esta persona?<br> Todas las respuestas asociadas a esta persona en otras secciones serán borradas!",
     "delete_record_title":"Borrar registro",
     "cancel":"Cancelar",
     "loading":"Cargando..."
@@ -18,10 +16,8 @@
 
   },
 
-
   "active_source":{
     
-  
     "area":"Area",
     "questionaire_type":"Tipo de Cuestionario",
     "question_theme":"Temáticas de las preguntas",
@@ -31,10 +27,11 @@
     "section_closed":"Sección cerrada/completada",
     "actor_table":{
 
-          "name":"Nombre",
-          "area":"Area",
-          "actions":"Acciones"
-        }
+      "name":"Nombre",
+      "area":"Area",
+      "actions":"Acciones"
+    }
+
   },
 
   "culture":{
@@ -42,7 +39,6 @@
     "themes":"Temas",
     "now":"Ahora",
     "preferred":"Preferido"
-
 
   },
 
@@ -72,8 +68,8 @@
         "pwd_reset_successful":"Su contraseña fue reestablecida con éxito!",
         "send_request":"Enviar solicitud",
         "change_pwd":"Cambiar contraseña"
-      }
-    },
+    }
+  },
 
   "api_responses":{
 
@@ -83,6 +79,15 @@
     "form_closed":"Formulario cerrado!",
     "form_opened":"Formulario habilitado nuevamente!",
     "no_results": "No se hallaron resultados!"
+  },
+
+  "alerts":{
+  
+    "limit_value_is": "El valor límite es",
+    "sum_limit": "La suma debe ser igual a 100!",
+    "delete_record_text":"Está seguro de eliminar este registro?",
+    "delete_interacting_person_text":"Está seguro de eliminar esta persona?<br> Todas las respuestas asociadas a esta persona en otras secciones serán borradas!"
+
   }
 
 }
