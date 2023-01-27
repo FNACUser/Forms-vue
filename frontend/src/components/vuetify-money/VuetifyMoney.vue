@@ -224,18 +224,13 @@ export default {
             number = this.valueWhenIsEmpty;
           }
 
-          if(this.hitMaxLimit(number)){
+          // if(this.hitMaxLimit(number)){
 
-            number = this.options.max.toString();
-            number = number.padEnd(parseInt(this.options.length), "0");
+          //   number = this.options.max.toString();
+          //   number = number.padEnd(parseInt(this.options.length), "0");
+          //   number = this.addsDecimalSeparator(number);
 
-            //console.log(number);
-            number = this.addsDecimalSeparator(number);
-
-            //this.errorMessages=['el valor límite es '+ this.options.max +'!'];
-          //  this.errorMessages=[this.$t('alerts.limit_value_is') +' '+ this.options.max +'!'];
-
-          }
+          // }
           // else{
           //   this.errorMessages.pop();
 

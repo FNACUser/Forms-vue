@@ -121,7 +121,7 @@
                                           solo
                                           class="centered-input text--darken-3 mt-8"
                                           v-if="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]"
-                                          :errorMessages="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['now']>100 ? `${$t('alerts.limit_value_is')} ${integerOptions.max} !` : ''"
+                                          :errorMessages="parseInt(answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['now']) > 100 ? `${$t('alerts.limit_value_is')} ${integerOptions.max} !` : ''"
                                       />
 
 
@@ -138,7 +138,7 @@
                                           solo
                                           class="centered-input text--darken-3 mt-8"
                                           v-if="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]"
-                                          :errorMessages="answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['preferred']>100 ? `${$t('alerts.limit_value_is')} ${integerOptions.max} !` : ''"
+                                          :errorMessages="parseInt(answers[`${selected_cycle}_${selected_theme.id}_${item.id}`]['preferred']) > 100 ? `${$t('alerts.limit_value_is')} ${integerOptions.max} !` : ''"
 
                                       />
                                 </div>
