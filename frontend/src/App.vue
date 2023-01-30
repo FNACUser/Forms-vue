@@ -174,11 +174,11 @@
             return response;
         }, (error) => {
             this.mainStore.loader=false;
-            console.log(error);
+            //console.log(error);
             // Do something with response error
             if (error.response.status == 401) {
 
-                console.log('Ocurre error 401!');
+               // console.log('Ocurre error 401!');
                 this.mainStore.$reset();
                 localStorage.removeItem('access_token');
                 this.mainStore.logged_user=Object.assign({},{id:'',
@@ -188,6 +188,7 @@
                 this.mainStore.token='';
                 if (['login.invalid_token','login.missing_token'].includes(error.response.data.message)){
                     this.mainStore.setFlashMessage({message:'login.invalid_or_expired_token',type:'error'});
+                    
                     this.$router.push('/login');
                     
                 }

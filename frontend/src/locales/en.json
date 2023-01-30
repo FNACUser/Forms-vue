@@ -58,7 +58,7 @@
     "bad_credentials":"Invalid credentials!",
     "confirmation_pwd_not_match":"Confirmation password does not match!",
     "confirmation_password":"Confirmation password",
-    "invalid_or_expired_token":"The token is invalid or has already expired! Please login again!",
+    "invalid_or_expired_token":"The token is invalid or has already expired! Please login again...",
     "reset_password":{
       
       "title":"Reset password...",
