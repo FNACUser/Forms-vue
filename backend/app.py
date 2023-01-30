@@ -7,7 +7,7 @@ from flask_seeder import FlaskSeeder
 from flask_bcrypt import Bcrypt
 from flask_security import Security
 from flask_mail import Mail
-from flask import url_for, current_app
+#from flask import url_for, current_app
 from flask_mail import Message
 #from flask_marshmallow import Marshmallow
 # from flask_restful import Api, Resource
@@ -222,6 +222,8 @@ def home():
 @app.route('/api/v1/login', methods=['POST'])
 def login():
     
+    MAX_TOKEN_LIFE=60
+    
     auth = request.get_json()
     #print(auth['email'])
    # app.logger.info("Entra a Login")
@@ -248,7 +250,7 @@ def login():
                                 'username' : user.username, 
                                 'email':user.email, 
                                 'roles': roles, 
-                                'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, 
+                                'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=MAX_TOKEN_LIFE)}, 
                                app.config['SECRET_KEY'])
            # app.logger.info(f'token {token}')
             return jsonify({'token' : token})
@@ -320,7 +322,7 @@ def reset_password():
     
     user = User.verify_reset_token(data['token'])
     if user is None:
-        return make_response('login.reset_password.invalid_or_expired_token', 401)
+        return make_response('login.invalid_or_expired_token', 401)
        
     if (data['password'] == data['confirmation_password']):
         hashed_password = hash_password(data['password'])
@@ -750,7 +752,7 @@ def culture_save_answers(current_user):
         
         if not culture_input_form:
             db.session.add(CVF_Culture_input_form(id_employee = current_user.id, id_cycle=data['cycle_id'], id_culture_mode=data['mode_id'], Is_concluded=0))
-            db.session.commit()
+           # db.session.commit()
             culture_input_form=CVF_Culture_input_form.query.filter_by(id_employee = current_user.id, id_cycle=data['cycle_id'], id_culture_mode=data['mode_id']).first()
             
             
@@ -760,12 +762,12 @@ def culture_save_answers(current_user):
         if not theme_response:
             
             db.session.add(CVF_Themes_responses(id_culture_input_form = culture_input_form.id, id_culture_mode_theme=data['theme_id'], Total_actual=0, Total_preferred=0, Is_concluded=0))
-            db.session.commit()
+          #  db.session.commit()
             theme_response=CVF_Themes_responses.query.filter_by(id_culture_input_form = culture_input_form.id, id_culture_mode_theme=data['theme_id']).first()
          
         
         for question_answer in data['answers']:
-            print(question_answer)
+            # print(question_answer)
             # question_answer=json.loads(answer)
             existing_response = CVF_Questions_responses.query.filter_by(id_theme_responses=theme_response.id, id_culture_mode_theme_question=question_answer['question_id']).first()
             
@@ -773,12 +775,12 @@ def culture_save_answers(current_user):
                 
                 existing_response.Actual=question_answer['now']
                 existing_response.Preferred=question_answer['preferred']
-                db.session.commit()
+             #   db.session.commit()
                 
             else:
                 
                 db.session.add(CVF_Questions_responses(id_theme_responses=theme_response.id, id_culture_mode_theme_question=question_answer['question_id'], Actual=question_answer['now'], Preferred=question_answer['preferred']))
-                db.session.commit()
+             #   db.session.commit()
             
         theme_response.Total_actual=100
         theme_response.Total_preferred=100
@@ -786,6 +788,8 @@ def culture_save_answers(current_user):
         
     
     return jsonify({'message':"api_responses.answer_saved"})
+
+
 
 
 @app.route('/api/v1/culture/user/<int:user_id>/cycle/<int:cycle_id>/mode/<int:mode_id>/theme/<int:theme_id>/answers', methods=['GET'])
@@ -803,7 +807,6 @@ def get_culture_user_mode_theme_answers(current_user,user_id,cycle_id,mode_id,th
             return jsonify(culture_question_response_schema.dump(existing_answers))
 
     return jsonify({'message':"api_responses.no_results"})
-
 
 
 

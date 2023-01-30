@@ -59,12 +59,12 @@
     "bad_credentials":"Credenciales incorrectas!",
     "confirmation_pwd_not_match":"La contraseña de confirmación no coincide!!",
     "confirmation_password":"Confirmación de contraseña",
+    "invalid_or_expired_token":"El token es inválido o ya ha expirado! Por favor autentíquese nuevamente!",
     "reset_password":{
       
         "title":"Restablecer constraseña...",
         "email_sent":"Un correo ha sido enviado a su cuenta para reestablecer su contraseña!",
         "email_error":"Ocurrió un error en el envío del correo!",
-        "invalid_or_expired_token":"El token es inválido o ya ha expirado!",
         "pwd_reset_successful":"Su contraseña fue reestablecida con éxito!",
         "send_request":"Enviar solicitud",
         "change_pwd":"Cambiar contraseña"

@@ -93,6 +93,26 @@ const router = new Router({
     //   component: () => import('../views/AboutView.vue')
     // }
   ]
-})
+});
+
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+      // this route requires auth, check if logged in
+      // if not, redirect to login page.
+      // if (!Vue.prototype.$auth.isLoggedIn()) {
+
+      if ((typeof (localStorage.getItem('access_token')) == 'undefined') || (localStorage.getItem('access_token') == null)) {
+          next({
+              path: '/login',
+              query: {redirect: to.fullPath}
+          })
+      } else {
+          next()
+      }
+  } else {
+      next() // make sure to always call next()!
+  }
+});
 
 export default router;

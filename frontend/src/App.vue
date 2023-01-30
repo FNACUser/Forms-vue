@@ -98,7 +98,7 @@
         <v-main>
                 <!-- <vue-particles color="#7afff6"/> -->
 
-                <flash-message style="height: 8px;"/>
+                <flash-message style="height: 8px; padding-top: 40px;"/>
                 <keep-alive >
                     <router-view></router-view>
                 </keep-alive>
@@ -150,6 +150,8 @@
     },
     
     created() {
+
+
         if (this.mainStore.isLoggedIn) {
             this.mainStore.initialize();
             this.mainStore.setLoggedUser();
@@ -171,7 +173,7 @@
             this.mainStore.loader = false;
             return response;
         }, (error) => {
-
+            this.mainStore.loader=false;
             console.log(error);
             // Do something with response error
             if (error.response.status == 401) {
@@ -179,17 +181,19 @@
                 console.log('Ocurre error 401!');
                 this.mainStore.$reset();
                 localStorage.removeItem('access_token');
-                this.mainStore.logged_user=Object.assign({},{
-                                                                id:'',
-                                                                name:'',
-                                                                email:'',
-                                                                role:''
-                                                                });
+                this.mainStore.logged_user=Object.assign({},{id:'',
+                                                            name:'',
+                                                            email:'',
+                                                            role:''});
                 this.mainStore.token='';
-                this.router.push('/login');
+                if (['login.invalid_token','login.missing_token'].includes(error.response.data.message)){
+                    this.mainStore.setFlashMessage({message:'login.invalid_or_expired_token',type:'error'});
+                    this.$router.push('/login');
+                    
+                }
+                    
             }
 
-            this.mainStore.loader=false;
             return Promise.reject(error);
         });
     },

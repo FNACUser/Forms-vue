@@ -40,7 +40,7 @@
                     >
                     </v-text-field>
 
-                    <a :href="forgotURL">{{$t('login.forgot_pwd')}}</a>
+                    <router-link to="forgot-password">{{$t('login.forgot_pwd')}}</router-link>
 
                   
                 </v-form>
@@ -68,7 +68,7 @@ import { mapStores} from 'pinia'
         email:null,
         password:null,
         show:false,
-        forgotURL: window.location.origin+"/forgot-password",
+        // forgotURL: window.location.origin+"/forgot-password",
         valid_form:false
       }
     },

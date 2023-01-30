@@ -58,12 +58,12 @@
     "bad_credentials":"Invalid credentials!",
     "confirmation_pwd_not_match":"Confirmation password does not match!",
     "confirmation_password":"Confirmation password",
+    "invalid_or_expired_token":"The token is invalid or has already expired! Please login again!",
     "reset_password":{
       
       "title":"Reset password...",
       "email_sent":"An email has just been sent to you in order to reset your password!",
-      "email_error":"An error occured while trying to send the email!",
-      "invalid_or_expired_token":"The token is invalid or has already expired!",
+      "email_error":"An error occured while trying to send the email!",  
       "pwd_reset_successful":"Your password was reset successfully!",
       "send_request":"Send request",
       "change_pwd":"Change password"
