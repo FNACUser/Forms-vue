@@ -5,7 +5,7 @@
         :height="isSelected ? 30:18"
         :value="now"
         striped
-        :class="now<100 ? 'red--text': isSelected ? 'white--text' : 'black--text'"
+        :class="now!=100 ? 'red--text': isSelected ? 'white--text' : 'black--text'"
       >
       <strong>{{ now }}</strong>
       </v-progress-linear>
@@ -15,7 +15,7 @@
         :height="isSelected ? 30:18"
         :value="preferred"
         striped
-        :class="preferred<100 ? 'red--text': isSelected ? 'white--text' : 'black--text'"
+        :class="preferred!=100 ? 'red--text': isSelected ? 'white--text' : 'black--text'"
       >
       <strong>{{ preferred }}</strong>
       </v-progress-linear>
