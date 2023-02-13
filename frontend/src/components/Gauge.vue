@@ -7,6 +7,7 @@
             :width="width"
             :color="color"
             :value="value"
+            class="pointer"
             
         >
         {{ value }} %
@@ -139,7 +140,11 @@ export default {
     },
   }
 
-
-
-
 </script>
+<style>
+     
+     .pointer {
+        cursor: pointer;
+      }
+      
+</style>

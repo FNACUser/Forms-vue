@@ -6,6 +6,7 @@
         :value="now"
         striped
         :class="now!=100 ? 'red--text': isSelected ? 'white--text' : 'black--text'"
+        class="pointer"
       >
       <strong>{{ now }}</strong>
       </v-progress-linear>
@@ -16,6 +17,7 @@
         :value="preferred"
         striped
         :class="preferred!=100 ? 'red--text': isSelected ? 'white--text' : 'black--text'"
+        class="pointer"
       >
       <strong>{{ preferred }}</strong>
       </v-progress-linear>
@@ -41,31 +43,15 @@ export default {
           'preferred',
           'isSelected'
     ],  
-
-
-    data () {
-      return {
-        
-      }
-    },
    
-    mounted () {
-     
-    },
-
-    computed:{
-
-      
-
-
-    },
-
-    watch: {
-      
-    },
   }
 
-
-
-
 </script>
+
+<style>
+     
+     .pointer {
+        cursor: pointer;
+      }
+      
+</style>
