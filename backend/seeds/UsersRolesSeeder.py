@@ -1,8 +1,7 @@
+
 from flask_security.utils import hash_password
 from flask_seeder import Seeder
-
-from models import db, user_datastore
-from models import User
+from models import db, user_datastore, User
 from common.Utilities import generate_random_string
 
 # All seeders inherit from Seeder

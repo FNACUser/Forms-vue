@@ -3,18 +3,23 @@ from flask import Flask, jsonify, request, make_response
 from flask.cli import with_appcontext
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc 
 from flask_seeder import FlaskSeeder
 from flask_bcrypt import Bcrypt
 from flask_security import Security
-from flask_mail import Mail
+from flask_security.utils import hash_password,verify_password
+from flask_mail import Mail, Message
+
+
+# from flask_security import login_user, current_user, logout_user, login_required
 #from flask import url_for, current_app
-from flask_mail import Message
 #from flask_marshmallow import Marshmallow
 # from flask_restful import Api, Resource
 # from werkzeug.security import generate_password_hash, check_password_hash
+#import jsonpickle
+
 import jwt
 import json
-#import jsonpickle
 import datetime
 from functools import wraps
 import itertools
@@ -24,8 +29,6 @@ import logging
 import random
 import string
 
-from flask_security import login_user, current_user, logout_user, login_required
-from flask_security.utils import hash_password,verify_password
 
 
 from config import Config
@@ -92,7 +95,7 @@ seeder = FlaskSeeder()
 seeder.init_app(app, db)
 #api = Api(app)
 
-
+seeder
 # custom commands
 
 def generate_random_string(N = 7):
@@ -176,11 +179,22 @@ def remover_roles_usuario(email, roles):
     else:
         print('usuario no existe!')
 
+
+
+@click.command(name="drop_create_db")
+@with_appcontext
+def drop_create_db():
+    db.drop_all()
+    db.create_all()
+   
+
 # CLI User/Role management
 app.cli.add_command(crear_usuario)
 app.cli.add_command(eliminar_usuario)
 app.cli.add_command(agregar_roles_usuario)
 app.cli.add_command(remover_roles_usuario)
+
+app.cli.add_command(drop_create_db)
 
 
 

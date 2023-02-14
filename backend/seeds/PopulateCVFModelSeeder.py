@@ -1,12 +1,8 @@
 from datetime import datetime
-
 import pandas as pd
 from flask_seeder import Seeder
-
-from models import db
-
 from common.Utilities import (UT_String_to_datetime, strip, getDataPath, generate_random_string)
-from models import (IRA_Networks_modes, IRA_Nodes_segments_categories)
+from models import (db, IRA_Networks_modes, IRA_Nodes_segments_categories)
 from flask_security.utils import hash_password
 
 
@@ -25,7 +21,7 @@ class PopulateCVFModelSeeder(Seeder):
 
         # .-.-.-.-.-.-.- questions
 
-        excel_preguntas = pathDB /'alcaparrosCVF_Preguntas.xlsx'
+        excel_preguntas = pathDB /'CVF_data.xlsx'
 
         cvf_questions_XL = pd.read_excel(excel_preguntas,
                                          sheet_name='Preguntas')
