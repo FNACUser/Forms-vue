@@ -1,6 +1,6 @@
 <template>
 
-    <v-container  fluid>
+    <v-container  class="px-10" fluid>
       <br/>
         <v-row >
             <v-col

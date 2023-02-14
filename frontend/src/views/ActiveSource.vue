@@ -1,6 +1,6 @@
 <template>
 
-    <v-container  fluid>
+    <v-container  class="px-10" fluid>
       <br/>
         <v-row >
           <v-col
@@ -32,7 +32,7 @@
                 clearable
                 return-object
                 @click:clear="clearVariables"
-                @change="getQuestions"
+                @change="getQuestionsAndNodes"
                 dense
               ></v-select>
           </v-col>
@@ -40,7 +40,7 @@
           <v-col
             cols="3"
             class="d-flex justify-space-around mb-6 align-end"
-            v-if="filteredNetwokModeThemes && selected_actors.length>0"
+            v-if="filteredNetwokModeThemes"
             >
               <v-select
                 v-model="selected_network_mode_theme"
@@ -49,11 +49,12 @@
                 :item-text="`Network_mode_theme_${$i18n.locale}`"
                 item-value="id_network_mode_theme"
                 clearable
-                @change="getQuestions"
+                @change="getQuestionsAndNodes"
                 @click:clear="clearVariables"
                 dense
               ></v-select>
             </v-col>
+            
             
             <v-col
               cols="2"
@@ -91,7 +92,9 @@
                 dense
                 :disabled="currentForm && currentForm.is_concluded"
               ></v-autocomplete>
-            </v-col>    
+            </v-col>  
+            
+        
             
         </v-row>
         <v-row v-if="mainStore.network_modes.length">
@@ -498,7 +501,8 @@ import Gauge from '@/components/Gauge.vue';
 
         }
 
-        this.getQuestions();
+        //this.getQuestions();
+        this.getQuestionsAndNodes();
 
       },
 
@@ -774,9 +778,12 @@ import Gauge from '@/components/Gauge.vue';
 
         async getNodes(network_mode_id){
 
-          const nodes = await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/network_mode/'+network_mode_id +'/nodes');
-          // this.nodes = nodes.data;
-          return  nodes.data;
+          if(network_mode_id){
+
+            const nodes = await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/network_mode/'+network_mode_id +'/nodes');
+            this.nodes = nodes.data;
+          }
+          //return  nodes.data;
          // console.log(this.nodes);
 
         },
@@ -873,9 +880,6 @@ import Gauge from '@/components/Gauge.vue';
                   });
 
                 }
-
-
-
         },
 
 
@@ -894,17 +898,17 @@ import Gauge from '@/components/Gauge.vue';
 
             this.questions=[];
             this.current_network_mode=[];
-            if(this.selected_network && this.selected_network.code==='actor' && this.filteredNetwokModeThemes) {
+
+            if(this.selected_network &&  this.filteredNetwokModeThemes) {
 
               if(this.selected_network_mode_theme){
                 this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id && item.id_network_mode_theme===this.selected_network_mode_theme)[0];
               }
             }
-            else if(this.selected_network && this.selected_network.code!=='actor'){
+            else if(this.selected_network && this.filteredNetwokModeThemes === null){
               
               this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id)[0];
-              // await this.getNodes(this.current_network_mode.id_network_mode);
-                this.nodes = await this.getNodes(this.current_network_mode.id_network_mode);
+            
             
             }
 
@@ -912,6 +916,14 @@ import Gauge from '@/components/Gauge.vue';
              this.questions= await this.getNetworkModeQuestions(this.current_network_mode.id_network_mode)
             }
             
+      },
+
+
+      async getQuestionsAndNodes(){
+
+        await this.getQuestions();
+        await this.getNodes(this.current_network_mode.id_network_mode);
+
       },
 
 
@@ -940,8 +952,10 @@ import Gauge from '@/components/Gauge.vue';
                 form['total_questions'] = questions.length;
                 
                 if(network_mode.network.code!=='actor'){
-                  const nodes= await this.getNodes(network_mode.id_network_mode);
-                  form['total_items'] = nodes.length;       
+                  // const nodes= await this.getNodes(network_mode.id_network_mode);
+                  // form['total_items'] = nodes.length;    
+                  await this.getNodes(network_mode.id_network_mode);
+                  form['total_items'] = this.nodes.length;     
                 }
                 else{ 
                   form['total_items'] = this.selected_actors.length>0?this.selected_actors.length:1; 
