@@ -41,11 +41,11 @@ class User(db.Model, UserMixin):
                                      db.ForeignKey('IRA_Organization_areas.id_organization_area'),
                                      nullable=True)
     
-    adjacency_forms = db.relationship('IRA_Adjacency_input_form',
-                                      backref=db.backref('users', lazy=True))
+    adjacency_forms = db.relationship('IRA_Adjacency_input_form',backref=db.backref('users', lazy=True))
 
-    culture_input_forms = db.relationship('CVF_Culture_input_form',
-                                          backref=db.backref('users', lazy=True))
+    culture_input_forms = db.relationship('CVF_Culture_input_form',backref=db.backref('users', lazy=True))
+    
+    nodes = db.relationship('IRA_Nodes',backref=db.backref('users', lazy=True))
     
     #interacting_persons = db.relationship('IRA_Employees_interactions', backref=db.backref('users', lazy=True))
 
@@ -240,16 +240,14 @@ class IRA_Networks_modes(db.Model):
                       'IRA_Networks_modes_themes.id_network_mode_theme'),
                   nullable=True)
 
-    adyacency_forms = db.relationship('IRA_Adjacency_input_form',
+    adjacency_forms = db.relationship('IRA_Adjacency_input_form',
                                       backref=db.backref('network_mode', lazy=True))
 
     # responses=db.relationship('IRA_Responses',
     #                             backref=db.backref('network_mode',lazy=True))
 
     def __repr__(self):
-        return f"IRA_Networks_modes('{self.id_network_mode}', \
-            '{self.Network_mode}', \
-            '{self.id_node_segment_category}','{self.id_network_mode_theme}')"
+        return f"IRA_Networks_modes('{self.id_network_mode}','{self.id_node_segment_category}','{self.id_network_mode_theme}')"
 
 
 class IRA_Networks_modes_themes(db.Model):
@@ -276,6 +274,9 @@ class IRA_Nodes(db.Model):
                                 db.ForeignKey(
                                     'IRA_Nodes_segments.id_node_segment'),
                                 nullable=False)
+    id_employee = db.Column(db.Integer,
+                            db.ForeignKey('users.id'),
+                            nullable=True)
 
     networks_modes = db.relationship('IRA_Networks_modes',
                                      secondary=nodes_vs_networks_modes,
@@ -283,8 +284,7 @@ class IRA_Nodes(db.Model):
                                                         lazy='dynamic'))
 
     def __repr__(self):
-        return f"IRA_Nodes('{self.id_node}', '{self.Node},'" \
-               f"'{self.id_node_segment}')"
+        return f"IRA_Nodes('{self.id_node}', ' {self.Node_es}','{self.id_node_segment}','{self.id_employee}')"
 
 
 class IRA_Nodes_segments(db.Model):
@@ -325,14 +325,11 @@ class IRA_Organization_areas(db.Model):
     Organization_area_es = db.Column(db.String(100), nullable=False)
     Organization_area_en = db.Column(db.String(100), nullable=False)
 
-    employees = \
-        db.relationship('User',
-                        backref=db.backref('organization_area',
-                                           lazy=True))
+    employees = db.relationship('User',backref=db.backref('organization_area',lazy=True))
 
     def __repr__(self):
         return f"IRA_Organization_area('{self.id_organization_area}'," \
-               f"'{self.Organization_area}')"
+               f"'{self.Organization_area_es}')"
 
 
 class IRA_Questions(db.Model):
@@ -674,7 +671,7 @@ class NodeSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = IRA_Nodes
-        fields = ("id_node", "Node_es","Node_en","id_node_segment","node_segment")
+        fields = ("id_node", "Node_es","Node_en","id_node_segment","node_segment","id_employee")
     
     node_segment = ma.Nested(NodeSegmentSchema)
         

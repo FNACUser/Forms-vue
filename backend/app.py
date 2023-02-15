@@ -33,27 +33,29 @@ import string
 
 from config import Config
 #from defaultapp.miscelaneous import mail, bcrypt, security
-from models import db,ma, user_datastore, Role
+# from models import db,ma, user_datastore, Role
  
 
-from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
-                    IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,\
-                    IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes, IRA_Employees_interactions,IRA_Responses,\
-                    IRA_Adjacency_input_form   
+# from models import User,IRA_Cycles,IRA_Networks, IRA_Organization_areas ,\
+#                     IRA_Nodes_segments_categories,IRA_Networks_modes_themes, IRA_Questions ,\
+#                     IRA_Questions_possible_answers, IRA_Nodes,IRA_Networks_modes, IRA_Employees_interactions,IRA_Responses,\
+#                     IRA_Adjacency_input_form   
 
-from models import  users_schema, user_schema,cycles_schema, networks_schema, network_mode_schema, areas_schema,\
-                    roles_schema, role_schema,node_segment_category_schema,\
-                    network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema,responses_schema,\
-                    adjacency_input_forms_schema
+# from models import  users_schema, user_schema,cycles_schema, networks_schema, network_mode_schema, areas_schema,\
+#                     roles_schema, role_schema,node_segment_category_schema,\
+#                     network_mode_theme_schema,questions_schema,questions_possible_answers_schema, nodes_schema,responses_schema,\
+#                     adjacency_input_forms_schema
                     
                     
  
-from models import  CVF_Culture_modes,CVF_Culture_quadrants,CVF_Culture_modes_themes,CVF_Culture_modes_themes_questions,\
-                    CVF_Questions_responses,CVF_Themes_responses, CVF_Culture_input_form
+# from models import  CVF_Culture_modes,CVF_Culture_quadrants,CVF_Culture_modes_themes,CVF_Culture_modes_themes_questions,\
+#                     CVF_Questions_responses,CVF_Themes_responses, CVF_Culture_input_form
 
-from models import culture_mode_schema,culture_quadrant_schema,culture_mode_theme_schema,\
-                    culture_mode_theme_question_schema,culture_question_response_schema,culture_theme_response_schema
+# from models import culture_mode_schema,culture_quadrant_schema,culture_mode_theme_schema,\
+#                     culture_mode_theme_question_schema,culture_question_response_schema,culture_theme_response_schema
 
+
+from models import *
 
 def setLogger(app):
     
@@ -432,8 +434,17 @@ def network_mode_questions(current_user,network_mode_id):
 def network_mode_nodes(current_user,network_mode_id):
 
     network_mode = IRA_Networks_modes.query.get(network_mode_id)   
-    resp = network_mode.nodes
-    return jsonify(nodes_schema.dump(resp))
+    nodes = network_mode.nodes
+ 
+    # print(current_user.id) 
+    filtered_nodes = []
+
+    if nodes: 
+        filtered_nodes = [e for e in nodes if e.id_employee == None or e.id_employee == current_user.id]
+        
+    # print(filtered_nodes)   
+    
+    return jsonify(nodes_schema.dump(filtered_nodes))
 
 
 @app.route('/api/v1/questions_possible_answers', methods=['GET'])
@@ -447,9 +458,37 @@ def possible_answer(current_user):
 @app.route('/api/v1/nodes', methods=['GET'])
 @token_required
 def nodes(current_user):
-
-    resp = IRA_Nodes.query.all()
+    
+    resp = IRA_Nodes.query.filter((IRA_Nodes.id_employee==None) | (IRA_Nodes.id_employee==current_user.id))  
+    # print(resp)
+                                  
     return jsonify(nodes_schema.dump(resp))
+
+
+@app.route('/api/v1/nodes', methods=['POST'])
+@token_required
+def add_node(current_user):
+    
+    data = request.json
+    if(data['user_email']==current_user.email):
+        
+        new_node = IRA_Nodes(
+                Node_es=data['nombre_es'],
+                Node_en=data['nombre_en'],
+                id_node_segment=data["id_node_segment"],
+                id_employee=current_user.id)
+        
+        db.session.add(new_node)
+        db.session.flush()
+        
+        node_nwtmode = nodes_vs_networks_modes.insert().values(id_node=new_node.id, id_network_mode=data["id_network_mode"])
+        db.session.execute(node_nwtmode)
+        db.session.commit()
+
+
+    resp = network_mode_nodes(current_user,data["id_network_mode"])
+    return jsonify(nodes_schema.dump(resp))
+
 
 
 @app.route('/api/v1/networks_modes', methods=['GET'])
@@ -472,7 +511,6 @@ def get_interacting_actors(current_user,user_id,cycle_id):
         
     interactions = IRA_Employees_interactions.query.with_entities(IRA_Employees_interactions.id_interacting_employee).filter_by(id_cycle=cycle_id,id_responding_employee=user_id).all()
     actors_ids = list(itertools.chain(*interactions))
-        
     
     return jsonify(actors_ids)
 
@@ -537,17 +575,7 @@ def add_interacting_actor(current_user):
             
             db.session.commit()
 
-        # remove_ids=list(set(already_saved).difference(data['employee_ids']))
-
-        # print(f"Remove Ids={remove_ids}")
-
-        # if len(remove_ids):
-        #     for remove_id in remove_ids:
-        #         actor_interaction = IRA_Employees_interactions.query.filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=remove_id).first()
-        #         if actor_interaction:
-        #             db.session.delete(actor_interaction)
-        #             db.session.commit()
-
+    
 
          
           

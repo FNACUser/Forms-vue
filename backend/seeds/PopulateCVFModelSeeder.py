@@ -1,9 +1,11 @@
 from datetime import datetime
 import pandas as pd
-from flask_seeder import Seeder
-from common.Utilities import (UT_String_to_datetime, strip, getDataPath, generate_random_string)
-from models import (db, IRA_Networks_modes, IRA_Nodes_segments_categories)
 from flask_security.utils import hash_password
+from flask_seeder import Seeder
+
+from common.Utilities import  getDataPath
+from models import db
+
 
 
 # All seeders inherit from Seeder
@@ -18,7 +20,6 @@ class PopulateCVFModelSeeder(Seeder):
         print(pathDB)
 
     
-
         # .-.-.-.-.-.-.- questions
 
         excel_preguntas = pathDB /'CVF_data.xlsx'
@@ -27,28 +28,15 @@ class PopulateCVFModelSeeder(Seeder):
                                          sheet_name='Preguntas')
 
 
-        # cvf_questions_XL_en = pd.read_excel(excel_preguntas,
-        #                                     sheet_name='Preguntas_en')
-        # cvf_questions_XL = pd.concat([cvf_questions_XL, cvf_questions_XL_en], axis=1)
-        # cvf_questions_XL.to_dict('records')
-
         # .-.-.-.-.-.-.-.-.-.-.-.- prefijos
         cvf_prefijos_XL = pd.read_excel(excel_preguntas,
                                         sheet_name='Prefijos')
-        # cvf_prefijos_XL.columns
-        # cvf_prefijos_XL
-        # cvf_prefijos_XL_en = pd.read_excel(excel_preguntas,
-        #                                    sheet_name='Prefijos_en')
-        # cvf_prefijos_XL = pd.concat([cvf_prefijos_XL, cvf_prefijos_XL_en], axis=1)
 
 
         # .-.-.-.-.-.-.-.-.-.-- cuadrantes
         cvf_cuadrantes_XL = pd.read_excel(excel_preguntas,
                                           sheet_name='Cuadrantes')
-        # cvf_cuadrantes_XL.columns
-        # cvf_cuadrantes_XL_en = pd.read_excel(excel_preguntas,
-        #                                      sheet_name='Cuadrantes_en')
-        # cvf_cuadrantes_XL = pd.concat([cvf_cuadrantes_XL, cvf_cuadrantes_XL_en], axis=1)
+
 
         cvf_quadrants_df = cvf_cuadrantes_XL.reset_index()
         cvf_quadrants_df.rename(columns={'index': 'id',
@@ -56,11 +44,11 @@ class PopulateCVFModelSeeder(Seeder):
                                          'Cuadrante_en': 'Culture_quadrant_en'},
                                 inplace=True)
         cvf_quadrants_df['id'] = 1 + cvf_quadrants_df['id']
-        # cvf_quadrants_df
+       
 
         cuadrantes_dict = \
             cvf_quadrants_df.set_index('Culture_quadrant_es')['id'].to_dict()
-        # cuadrantes_dict
+       
 
         # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_modes
         cvf_culture_modes_df = pd.DataFrame({'id': [1],
@@ -70,8 +58,7 @@ class PopulateCVFModelSeeder(Seeder):
         cvf_culture_modes_df.to_sql(name='CVF_Culture_modes', con=db.engine,
                                     if_exists='append',
                                     index=False)
-        # cvf_culture_modes_df.columns
-
+       
         # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_modes_themes
         themes_es = list(cvf_prefijos_XL['Tema_es'])
         prefixes_es = list(cvf_prefijos_XL['Prefijo_es'])
@@ -129,7 +116,6 @@ class PopulateCVFModelSeeder(Seeder):
                 culture_mode_theme_question_id += 1
 
             return questions_df
-
 
 
         # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_modes_themes_questions

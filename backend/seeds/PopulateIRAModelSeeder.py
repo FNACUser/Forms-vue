@@ -1,9 +1,10 @@
 from flask_seeder import Seeder
+from flask_security.utils import hash_password
 from datetime import datetime
 import pandas as pd
+
 from common.Utilities import (UT_String_to_datetime, strip, getDataPath, generate_random_string)
-from flask_security.utils import hash_password
-from models import (db, IRA_Networks_modes, IRA_Nodes_segments_categories)
+from models import *
 
 # All seeders inherit from Seeder
 class PopulateIRAModelSeeder(Seeder):
@@ -46,7 +47,17 @@ class PopulateIRAModelSeeder(Seeder):
                                 'Nombre_es': 'Organization_area_es',
                                 'Nombre_en': 'Organization_area_en'
                                 }, inplace=True)
+        # areasXL.rename(columns={
+        #                         'Nombre_es': 'Organization_area_es',
+        #                         'Nombre_en': 'Organization_area_en'
+        #                         }, inplace=True)
         areasXL.to_sql(name='IRA_Organization_areas', con=db.engine, if_exists='append',index=False)
+        
+        # ira_org_areas = IRA_Organization_areas.query.all()
+        
+        # df_from_records = pd.DataFrame.from_records(ira_org_areas, index='id_organization_area')
+        
+        # print(df_from_records)
         
         print('Carga AREAS...')
         
@@ -71,14 +82,17 @@ class PopulateIRAModelSeeder(Seeder):
                                               right_on='Organization_area_es',
                                               how='left')
 
-        funcionariosXL.rename(columns={'id': 'id', 'Nombre': 'username', 'UsuarioRedmine': 'id_redmine'},
-                              inplace=True)
-        funcionariosXL.drop(columns=['Organization_area_es', 'Organization_area_en','Area_id'], inplace=True)
+        funcionariosXL.rename(columns={'id': 'id', 
+                                       'Nombre': 'username', 
+                                       'UsuarioRedmine': 'id_redmine'
+                                       },
+                                        inplace=True)
+        funcionariosXL.drop(columns=['Organization_area_es', 'Organization_area_en'], inplace=True)
         
-        
-
         funcionariosXL.to_sql(name='users', con=db.engine,
                               if_exists='append', index=False)
+        
+        
         
         print('Carga Funcionarios...')
         
@@ -91,10 +105,10 @@ class PopulateIRAModelSeeder(Seeder):
 
 
         networks_XL.rename(columns={'id': 'id',
-                                               'code':'code',
-                                               'Name_es': 'name_es',
-                                               'Name_en': 'name_en'},
-                                      inplace=True)
+                                    'code':'code',
+                                    'Nombre_es': 'name_es',
+                                    'Nombre_en': 'name_en'},
+                                    inplace=True)
         
         
         networks_XL.to_sql(name='IRA_Networks', con=db.engine,
@@ -117,8 +131,6 @@ class PopulateIRAModelSeeder(Seeder):
         print('Carga IRA_Nodes_segments_categories...')
         
       
-        
-        
             
         # .-.-.-.-.-.-.-.-. LEE CONOCIMIENTOS
         segmentos_nodosXL = pd.read_excel(excel_book,sheet_name='Conocimientos')
@@ -159,10 +171,12 @@ class PopulateIRAModelSeeder(Seeder):
                                     right_on='id_node_segment_category', how='left')
         segmentos_nodosXL['node_segment_and_category'] = \
             segmentos_nodosXL.Node_segment + '-' + segmentos_nodosXL.Node_segment_category
-
-        set(segmentos_nodosXL['id_node'])
-        set(segmentos_nodosXL['id_node_segment_category'])
+            
+    
+        # set(segmentos_nodosXL['id_node'])
+        # set(segmentos_nodosXL['id_node_segment_category'])
         # segmentos_df
+        
         segmentos_df = \
             segmentos_nodosXL.groupby(['Node_segment',
                                        'node_segment_and_category',
@@ -180,9 +194,9 @@ class PopulateIRAModelSeeder(Seeder):
                                                     right_on='node_segment_and_category',
                                                     how='left')
 
-        set(segmentos_nodosXL['id_node'])
-        set(segmentos_nodosXL['id_node_segment_category'])
-        set(segmentos_nodosXL['id_node_segment'])
+        # set(segmentos_nodosXL['id_node'])
+        # set(segmentos_nodosXL['id_node_segment_category'])
+        # set(segmentos_nodosXL['id_node_segment'])
 
         # quitar columns innecesarias
         segmentos_df.drop(columns=['node_segment_and_category'], inplace=True)
@@ -228,13 +242,30 @@ class PopulateIRAModelSeeder(Seeder):
         print('Carga IRA_Networks_modes_themes...')
 
         
-    
          # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA  IRA_Networks_modes
-        networks_modes_df = pd.DataFrame({'id_network_mode': [1, 2, 3, 4, 5, 6],
-                                          'id_network': [1,2,3,3,3,3],
-                                          'id_node_segment_category': [2, 3, None, None,
-                                                                       None, None],
-                                          'id_network_mode_theme': [None, None, 1, 2, 3, 4]})
+        
+        
+        networks_modesXL = pd.read_excel(excel_book,sheet_name='Rel-Netw-Nodo-CatPreg')
+        
+        tmp1 = networks_modesXL.merge(networks_XL,
+                                                    left_on='network',
+                                                    right_on='name_es',
+                                                    how='left')
+        
+        tmp2 = networks_modesXL.merge(categorías_segmentos_nodos_df,
+                                                    left_on='nodo',
+                                                    right_on='Node_segment_category',
+                                                    how='left')
+        
+        tmp3 = networks_modesXL.merge(categorias_preguntasXL,
+                                                    left_on='code_categoria_pregunta',
+                                                    right_on='code',
+                                                    how='left')
+                
+        
+        networks_modes_df = pd.DataFrame({'id_network': tmp1['id'].squeeze(),
+                                          'id_node_segment_category': tmp2['id_node_segment_category'].squeeze(),
+                                          'id_network_mode_theme': tmp3['id_network_mode_theme'].squeeze()})
 
         networks_modes_df.to_sql(name='IRA_Networks_modes', con=db.engine,
                                  if_exists='append', index=False)
@@ -242,6 +273,8 @@ class PopulateIRAModelSeeder(Seeder):
         
         print('Carga IRA_Networks_modes...')     
 
+        
+        
         # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA  IRA_Questions_possible_answers
         
 
@@ -285,30 +318,18 @@ class PopulateIRAModelSeeder(Seeder):
         
     
         # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA questions_vs_networks_modes PIVOT TABLE
-        questions_vs_networks_modes_df = \
-            pd.DataFrame({'id_question': [1, 1, 1,
-                                          2, 2, 2,
-                                          3, 3,
-                                          4, 4,
-                                          5, 5,
-                                          6,
-                                          7, 8,
-                                          9, 10, 11, 12],
-                          'id_network_mode': [3, 4, 6,
-                                              3, 4, 6,
-                                              3, 4,
-                                              3, 4,
-                                              5, 6,
-                                              5,
-                                              2, 2,
-                                              1, 1, 1, 1]})
-
+        
+        questions_vs_networks_modes_df = pd.read_excel(excel_book, sheet_name='Rel-Preg-NetworkMode')
+         
+        questions_vs_networks_modes_df.rename(columns={'id_pregunta': 'id_question'},inplace=True)
+        
         questions_vs_networks_modes_df.to_sql(name='questions_vs_networks_modes',
                                               con=db.engine, if_exists='append', index=False)
 
 
 
         print('Carga questions_vs_networks_modes PIVOT TABLE...') 
+        
         
         
 
@@ -320,6 +341,7 @@ class PopulateIRAModelSeeder(Seeder):
             df = pd.DataFrame.from_records(r, columns=['id_cycle', 'id_network_mode'])
 
             return df
+
 
         cycle_vs_networks_modes_df = \
             FD_IRA_cycle_vs_networks_modes_to_DF(IRA_Networks_modes.query.all(), 1,
@@ -335,14 +357,25 @@ class PopulateIRAModelSeeder(Seeder):
         
 
          # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA  nodes_vs_networks_modes
-        def FD_segments_DF(xsegments):
-            r = [(n.id_node_segment, n.Node_segment, n.id_node_segment_category) \
-                 for n in xsegments]
-            df = pd.DataFrame.from_records(r, columns=['id_node_segment',
-                                                       ' n.node_segment',
-                                                       'id_node_segment_category'])
-            return df
+        # def FD_segments_DF(xsegments):
+        #     r = [(n.id_node_segment, n.Node_segment, n.id_node_segment_category) \
+        #          for n in xsegments]
+        #     df = pd.DataFrame.from_records(r, columns=['id_node_segment',
+        #                                                ' n.node_segment',
+        #                                                'id_node_segment_category'])
+        #     return df
+        
+        def network_modes_to_DF(xmodel):
+            r = [(nm.id_network_mode, nm.id_network, nm.id_node_segment_category, nm.id_network_mode_theme)  for nm in xmodel]
+            df = pd.DataFrame.from_records(r,columns=[
+                                                'id_network_mode',
+                                                'id_network',
+                                                'id_node_segment_category',
+                                                'id_network_mode_theme' ])
 
+            return df
+        
+        
         def FD_nodes_segments_categories_DF(xnodes_segments_categories):
             r = [(n.id_node_segment_category, n.Node_segment_category) \
                  for n in xnodes_segments_categories]
@@ -356,26 +389,35 @@ class PopulateIRAModelSeeder(Seeder):
 
             return df
 
-        def FD_nodes_vs_networks_modes(xcategory):
-            category = IRA_Nodes_segments_categories. \
-                query.filter_by(id_node_segment_category=xcategory)
+        def FD_nodes_vs_networks_modes(xcategory,xnetworks_modes_df):
+            category = IRA_Nodes_segments_categories.query.filter_by(Node_segment_category=xcategory)
             category_df = FD_nodes_segments_categories_DF(category)
-            category_df = category_df.merge(networks_modes_df,
+            category_df = category_df.merge(xnetworks_modes_df,
                                             left_on='id_node_segment_category',
                                             right_on='id_node_segment_category',
                                             how='left')
+            #print(category_df)
             _id_network_mode = category_df['id_network_mode'][0]
+            
+            #print(_id_network_mode)
             segments = category.first().nodes_segments
             nodes_flat = [node for segment in segments for node in segment.nodes]
             return FD_IRA_Nodes_to_DF(nodes_flat, _id_network_mode)
 
-        nodes_vs_networks_modes_df = FD_nodes_vs_networks_modes(2)
-        nodes_vs_networks_modes_df
+
+        reslt = IRA_Networks_modes.query.all()
+        netw_modes_df=network_modes_to_DF(reslt)
+        
+       # print(netw_modes_df)
+    
+        nodes_vs_networks_modes_df = FD_nodes_vs_networks_modes("Aspectos modelo educativo", netw_modes_df)
+        
 
         nodes_vs_networks_modes_df = \
-            nodes_vs_networks_modes_df.append(FD_nodes_vs_networks_modes(3),
+            nodes_vs_networks_modes_df.append(FD_nodes_vs_networks_modes("Recursos",netw_modes_df),
                                               ignore_index=True)
-        nodes_vs_networks_modes_df
+        
+       
 
         nodes_vs_networks_modes_df.to_sql(name='nodes_vs_networks_modes',
                                           con=db.engine, if_exists='append', index=False)
