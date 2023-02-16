@@ -93,9 +93,7 @@
                 :disabled="currentForm && currentForm.is_concluded"
               ></v-autocomplete>
             </v-col>  
-            
-        
-            
+                     
         </v-row>
         <v-row v-if="mainStore.network_modes.length">
           <v-col
@@ -116,7 +114,7 @@
         </v-row> 
         <v-row  v-if="current_network_mode">
           <v-col 
-                cols="4" 
+                cols="3" 
             >   
             
                 <v-switch
@@ -127,6 +125,18 @@
                   ></v-switch>
                 
               </v-col>
+
+          <v-col
+            
+            v-if="selected_network && selected_network.code!=='actor'"
+
+            class="d-flex justify-end mr-11"
+          >
+            <add-node
+              :label="selected_network[`name_${$i18n.locale}`]"
+            >
+            </add-node> 
+          </v-col>
 
           
           </v-row>
@@ -221,7 +231,8 @@
               cols="8"
               v-if="selected_network && selected_network.code!=='actor'"
             >
-              <v-data-table
+
+             <v-data-table
                     :headers="tableNodesHeader"
                     :items="nodes"
                     :items-per-page="-1"
@@ -281,12 +292,14 @@ import { useMainStore } from '@/store/main'
 import { mapStores,mapState} from 'pinia'
 import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 import Gauge from '@/components/Gauge.vue';
+import AddNode from '@/components/AddNode.vue';
 
-  export default {
+export default {
 
     components: { 
       ConfirmationDialog,
-      Gauge
+      Gauge,
+      AddNode
     },
 
     data() {

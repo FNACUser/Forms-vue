@@ -20,7 +20,7 @@ from flask_mail import Mail, Message
 
 import jwt
 import json
-import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 import itertools
 import click
@@ -258,19 +258,25 @@ def login():
 
     # if check_password_hash(user.password, auth['password']):
     if verify_password(auth['password'],user.password):
+        print('verifico pwd')
         
         roles = roles_schema.dump(user.roles)
+        print('A1')
        # app.logger.info(f'password si coincide!! Roles=> {roles}')
         try:
+            print('A2')
             token = jwt.encode({'id':user.id, 
                                 'username' : user.username, 
                                 'email':user.email, 
                                 'roles': roles, 
-                                'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=MAX_TOKEN_LIFE)}, 
+                                'exp' : datetime.utcnow() + timedelta(minutes=MAX_TOKEN_LIFE)}, 
                                app.config['SECRET_KEY'])
-           # app.logger.info(f'token {token}')
+            print('A3')
+            print(token)
+            app.logger.info(f'token {token}')
             return jsonify({'token' : token})
         except Exception as e:
+            print(e)
             app.logger.error(f'Error=> {e}')
         
 
@@ -481,8 +487,9 @@ def add_node(current_user):
         db.session.add(new_node)
         db.session.flush()
         
-        node_nwtmode = nodes_vs_networks_modes.insert().values(id_node=new_node.id, id_network_mode=data["id_network_mode"])
+        node_nwtmode = nodes_vs_networks_modes.insert().values(id_node=new_node.id_node, id_network_mode=data["id_network_mode"])
         db.session.execute(node_nwtmode)
+        
         db.session.commit()
 
 

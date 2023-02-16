@@ -12,7 +12,9 @@
 
   "globals":{
 
-    "period":"Period"
+    "period":"Period",
+    "add":"Add",
+    "cancel":"Cancel"
 
   },
 
