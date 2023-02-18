@@ -631,18 +631,16 @@ export default {
             
             this.forms[index]['total_items'] = this.filteredNodes.length > 0 ? this.filteredNodes.length :  1;      
 
-          }
-         
-              
+          }        
       },
 
 
-      updateAllNetworkModeGauges(){
+      updateAllActorNetworkModeGauges(){
         
         this.mainStore.network_modes.forEach(network_mode => {
 
           if (network_mode.network.code=='actor'){
-            this.updateNetworkModeGauge(network_mode);
+              this.updateNetworkModeGauge(network_mode);
           }
 
         })
@@ -720,10 +718,7 @@ export default {
 
           await this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/open_close_adjacency_input_form', data)
           .then(response => {
-            this.$alertify.success(this.$t(response.data));
-            //this.updateAllNetworkModeGauges();
-           
-          // console.log(response.data)
+             this.$alertify.success(this.$t(response.data));
           })
           .catch(error => {
             
@@ -750,9 +745,8 @@ export default {
           await this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/add_interacting_actor', data)
           .then(response => {
             this.$alertify.success(this.$t(response.data));
-            this.updateAllNetworkModeGauges();
-            //this.createFormsDetails();
-           // console.log(response.data)
+            this.updateAllActorNetworkModeGauges();
+
           })
           .catch(error => {
             
@@ -835,7 +829,7 @@ export default {
                 this.selected_actors.splice(item_index,1);
                 await this.getUserResponses();
 
-                this.updateAllNetworkModeGauges();
+                this.updateAllActorNetworkModeGauges();
                 //this.createFormsDetails();
               })
               .catch(error => {

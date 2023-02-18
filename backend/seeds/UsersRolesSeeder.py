@@ -5,6 +5,8 @@ from models import db, user_datastore, User
 from common.Utilities import generate_random_string
 
 # All seeders inherit from Seeder
+
+
 class UsersRolesSeeder(Seeder):
     def __init__(self, db=None):
         super().__init__(db=db)
@@ -22,7 +24,7 @@ class UsersRolesSeeder(Seeder):
         for registered_user in all_users:
             user_datastore.add_role_to_user(registered_user, encuestado)
 
-        #random_pwd = generate_random_string()
+        # random_pwd = generate_random_string()
         random_pwd = '12345'
         # Creates my user Humberto y LG  as admin and encuestado
         user1 = user_datastore.create_user(username='Humberto Zuluaga', email='hzuluaga@gmail.com',

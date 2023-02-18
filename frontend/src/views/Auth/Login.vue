@@ -86,8 +86,7 @@ import { mapStores} from 'pinia'
         let creds = {email:this.email,password:this.password};
 
         this.mainStore.logIn(creds);
-
-        
+    
      }
 
 

@@ -1,6 +1,6 @@
 <template>
     <div>
-      
+    
         <v-progress-circular
             :rotate="rotate"
             :size="size"
@@ -10,7 +10,8 @@
             class="pointer"
             
         >
-        {{ value }} %
+
+          {{ value }} 
         
         </v-progress-circular>
         <div>

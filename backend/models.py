@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import  current_app
+from flask import current_app
 from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -9,13 +9,14 @@ import json
 db = SQLAlchemy()
 ma = Marshmallow()
 
-########################################################################################################################################################################              
-#                               SQLAlchemy Models            
-######################################################################################################################################################################## 
+########################################################################################################################################################################
+#                               SQLAlchemy Models
+########################################################################################################################################################################
 
 
 roles_users = db.Table('roles_users',
-                       db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+                       db.Column('user_id', db.Integer,
+                                 db.ForeignKey('users.id')),
                        db.Column('role_id', db.Integer, db.ForeignKey('roles.id')))
 
 
@@ -38,16 +39,20 @@ class User(db.Model, UserMixin):
         backref=db.backref('users', lazy='dynamic')
     )
     id_organization_area = db.Column(db.Integer,
-                                     db.ForeignKey('IRA_Organization_areas.id_organization_area'),
+                                     db.ForeignKey(
+                                         'IRA_Organization_areas.id_organization_area'),
                                      nullable=True)
-    
-    adjacency_forms = db.relationship('IRA_Adjacency_input_form',backref=db.backref('users', lazy=True))
 
-    culture_input_forms = db.relationship('CVF_Culture_input_form',backref=db.backref('users', lazy=True))
-    
-    nodes = db.relationship('IRA_Nodes',backref=db.backref('users', lazy=True))
-    
-    #interacting_persons = db.relationship('IRA_Employees_interactions', backref=db.backref('users', lazy=True))
+    adjacency_forms = db.relationship(
+        'IRA_Adjacency_input_form', backref=db.backref('users', lazy=True))
+
+    culture_input_forms = db.relationship(
+        'CVF_Culture_input_form', backref=db.backref('users', lazy=True))
+
+    nodes = db.relationship(
+        'IRA_Nodes', backref=db.backref('users', lazy=True))
+
+    # interacting_persons = db.relationship('IRA_Employees_interactions', backref=db.backref('users', lazy=True))
 
     def get_reset_token(self, expires_sec=1800):
         s = Serializer(current_app.config['SECRET_KEY'], expires_sec)
@@ -67,32 +72,33 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
-    
-    
+
+
 class Role(db.Model, RoleMixin):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40))
     description = db.Column(db.String(255))
-    
+
     def toJson(self):
         return json.dumps({'role': self.name}).decode('utf-8')
-        
-       
+
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+
 
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_posted = db.Column(db.DateTime, nullable=False,
+                            default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
-    
+
 
 questions_vs_networks_modes = \
     db.Table('questions_vs_networks_modes',
@@ -108,7 +114,7 @@ cycles_vs_networks_modes = \
              db.Column('id_network_mode', db.Integer,
                        db.ForeignKey('IRA_Networks_modes.id_network_mode')))
 
-        
+
 nodes_vs_networks_modes = \
     db.Table('nodes_vs_networks_modes',
              db.Column('id_node', db.Integer,
@@ -117,9 +123,9 @@ nodes_vs_networks_modes = \
                        db.ForeignKey('IRA_Networks_modes.id_network_mode')))
 
 
-#-----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 # IRA models
-#-----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 
 class IRA_Adjacency_input_form(db.Model):
     __tablename__ = 'IRA_Adjacency_input_form'
@@ -141,7 +147,6 @@ class IRA_Adjacency_input_form(db.Model):
     responses = db.relationship('IRA_Responses',
                                 backref=db.backref('adjacency_input_form',
                                                    lazy=True))
-    
 
     db.UniqueConstraint('id_employee', 'id_cycle', 'id_network_mode',
                         name='uix_1')
@@ -150,7 +155,7 @@ class IRA_Adjacency_input_form(db.Model):
         return f"IRA_Adjacency_input_form('{self.id_adjacency_input_form}'," \
                f"'{self.id_employee}','{self.id_cycle}','{self.id_network_mode}'," \
                f"'{self.Is_concluded}')"
-               
+
 
 class IRA_Cycles(db.Model):
     __tablename__ = 'IRA_Cycles'
@@ -180,15 +185,15 @@ class IRA_Cycles(db.Model):
                f"'{self.Initial_date}','{self.End_date}','{self.Is_active}')"
 
 
-        
 class IRA_Employees_interactions(db.Model):
     __tablename__ = 'IRA_Employees_interactions'
     __table_args__ = (
-        db.UniqueConstraint('id_cycle', 'id_responding_employee','id_interacting_employee', name='unique_cycle_responding_interacting'),
+        db.UniqueConstraint('id_cycle', 'id_responding_employee',
+                            'id_interacting_employee', name='unique_cycle_responding_interacting'),
     )
-    
+
     id_employee_interaction = db.Column(db.Integer, primary_key=True)
-    
+
     id_cycle = db.Column(db.Integer,
                          db.ForeignKey('IRA_Cycles.id_cycle'),
                          nullable=True)
@@ -213,21 +218,21 @@ class IRA_Networks(db.Model):
     code = db.Column(db.String(100), nullable=False)
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
-    
+
     networks_modes = db.relationship('IRA_Networks_modes',
-                                      backref=db.backref('network', lazy=True))
-    
+                                     backref=db.backref('network', lazy=True))
+
     def __repr__(self):
         return f"IRA_Networks('{self.code}')"
-    
+
 
 class IRA_Networks_modes(db.Model):
     __tablename__ = 'IRA_Networks_modes'
     id_network_mode = db.Column(db.Integer, primary_key=True)
     id_network = db.Column(db.Integer,
-                  db.ForeignKey(
-                      'IRA_Networks.id'),
-                  nullable=False)
+                           db.ForeignKey(
+                               'IRA_Networks.id'),
+                           nullable=False)
     id_node_segment_category = \
         db.Column(db.Integer,
                   db.ForeignKey(
@@ -294,9 +299,10 @@ class IRA_Nodes_segments(db.Model):
     id_node_segment_category = \
         db.Column(db.Integer,
                   db.ForeignKey(
-                      'IRA_Nodes_segments_categories.id_node_segment_category'),nullable=False)
+                      'IRA_Nodes_segments_categories.id_node_segment_category'), nullable=False)
 
-    nodes = db.relationship('IRA_Nodes',backref=db.backref('node_segment', lazy=True))
+    nodes = db.relationship(
+        'IRA_Nodes', backref=db.backref('node_segment', lazy=True))
 
     def __repr__(self):
         return f"IRA_Nodes_segments('{self.id_node_segment}', \
@@ -325,7 +331,8 @@ class IRA_Organization_areas(db.Model):
     Organization_area_es = db.Column(db.String(100), nullable=False)
     Organization_area_en = db.Column(db.String(100), nullable=False)
 
-    employees = db.relationship('User',backref=db.backref('organization_area',lazy=True))
+    employees = db.relationship(
+        'User', backref=db.backref('organization_area', lazy=True))
 
     def __repr__(self):
         return f"IRA_Organization_area('{self.id_organization_area}'," \
@@ -392,10 +399,10 @@ class IRA_Responses(db.Model):
     def __repr__(self):
         return f"IRA_Responses('{self.id_response}','{self.Response}'," \
                f"'{self.id_question}','{self.id_adjacency_input_form}')"
-               
-#-----------------------------------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------------------------------------
 # CVF CULTURE models
-#-----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 
 
 class CVF_Culture_input_form(db.Model):
@@ -436,8 +443,8 @@ class CVF_Culture_modes(db.Model):
     Culture_mode_en = db.Column(db.String(100), nullable=False)
 
     culture_modes_themes = db.relationship('CVF_Culture_modes_themes',
-                                          backref=db.backref('culture_mode',
-                                                             lazy=True))
+                                           backref=db.backref('culture_mode',
+                                                              lazy=True))
 
     # culture_input_forms = db.relationship('CVF_Culture_input_form',
     #                                       backref=db.backref('culture_mode', lazy=True))
@@ -458,7 +465,7 @@ class CVF_Culture_modes_themes(db.Model):
     id_culture_mode = db.Column(db.Integer,
                                 db.ForeignKey('CVF_Culture_modes.id'),
                                 nullable=False)
-    
+
     culture_mode_theme_questions = \
         db.relationship('CVF_Culture_modes_themes_questions',
                         backref=db.backref('culture_mode_theme', lazy=True))
@@ -467,7 +474,6 @@ class CVF_Culture_modes_themes(db.Model):
     #                                    backref=db.backref('culture_mode_theme',
     #                                                       lazy=True))
 
-    
     def __repr__(self):
         return f"CVF_Culture_modes_themes('{self.id}', \
             '{self.Culture_mode_theme}','{self.id_culture_mode}')"
@@ -570,73 +576,79 @@ class CVF_Themes_responses(db.Model):
                f"'{self.id_culture_input_form}','{self.id_culture_mode_theme}'," \
                f"'{self.Is_concluded}','{self.Total_actual}'," \
                f"'{self.Total_preferred}')"
-               
 
 
-####################################################################################################            
-#                               Marshmallow Schemas             
+####################################################################################################
+#                               Marshmallow Schemas
 ####################################################################################################
 
 class AreaSchema(ma.SQLAlchemyAutoSchema):
-    
+
     class Meta:
         model = IRA_Organization_areas
-        #fields = ("id_organization_area", "Organization_area")
+        # fields = ("id_organization_area", "Organization_area")
+
 
 areas_schema = AreaSchema(many=True)
+
 
 class RoleSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Role
-        fields = ("id","name")
+        fields = ("id", "name")
+
 
 role_schema = RoleSchema()
 roles_schema = RoleSchema(many=True)
+
 
 class PostSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Post
 
+
 class ResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = IRA_Responses
-        
-        
 
-    
+
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
-        fields = ("id", "username", "email","id_redmine","roles","id_organization_area","organization_area")
-    
+        fields = ("id", "username", "email", "id_redmine", "roles",
+                  "id_organization_area", "organization_area")
+
     organization_area = ma.Nested(AreaSchema)
     # posts = ma.List(ma.Nested(PostSchema))
     roles = ma.List(ma.Nested(RoleSchema))
     # adjacency_forms = ma.List(ma.Nested(AdjacencyFormSchema))
     # culture_input_forms = ma.List(ma.Nested(CultureFormSchema))
-    
+
+
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
 # class CycleSchema(ma.SQLAlchemyAutoSchema):
-    
+
 #     class Meta:
 #         model = IRA_Cycles
-        
+
 #         network_modes = ma.Nested(NetworksModesSchema)
 
 # cycles_schema = CycleSchema(many=True)
 
+
 class NetworkSchema(ma.SQLAlchemyAutoSchema):
-    
+
     class Meta:
         model = IRA_Networks
         # fields = ("id", "name_es","name")
 
+
 networks_schema = NetworkSchema(many=True)
 
 # class NetworkModeSchema(ma.SQLAlchemyAutoSchema):
-    
+
 #     class Meta:
 #         model = IRA_Networks_modes
 #         fields = ("id_network_mode", "id_network","id_node_segment_category","id_network_mode_theme")
@@ -645,9 +657,10 @@ networks_schema = NetworkSchema(many=True)
 
 
 class NetworkModeThemeSchema(ma.SQLAlchemyAutoSchema):
-    
+
     class Meta:
         model = IRA_Networks_modes_themes
+
 
 network_mode_theme_schema = NetworkModeThemeSchema(many=True)
 
@@ -655,57 +668,68 @@ network_mode_theme_schema = NetworkModeThemeSchema(many=True)
 class NodeSegmentSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = IRA_Nodes_segments
+
+
 node_segment_schema = NodeSegmentSchema(many=True)
 
 
 class NodeSegmentCategorySchema(ma.SQLAlchemyAutoSchema):
-    
+
     class Meta:
         model = IRA_Nodes_segments_categories
         fields = ("id_node_segment_category", "Node_segment_category")
-        
+
+
 node_segment_category_schema = NodeSegmentCategorySchema(many=True)
 
 
 class NodeSchema(ma.SQLAlchemyAutoSchema):
-    
+
     class Meta:
         model = IRA_Nodes
-        fields = ("id_node", "Node_es","Node_en","id_node_segment","node_segment","id_employee")
-    
+        fields = ("id_node", "Node_es", "Node_en",
+                  "id_node_segment", "node_segment", "id_employee")
+
     node_segment = ma.Nested(NodeSegmentSchema)
-        
+
+
 nodes_schema = NodeSchema(many=True)
 
+
 class QuestionsPossibleAnswersSchema(ma.SQLAlchemyAutoSchema):
-    
+
     class Meta:
         model = IRA_Questions_possible_answers
-        #fields = ("id_question_possible_answers", "Question_possible_answers_es", "Question_possible_answers_en")
+        # fields = ("id_question_possible_answers", "Question_possible_answers_es", "Question_possible_answers_en")
+
 
 questions_possible_answers_schema = QuestionsPossibleAnswersSchema(many=True)
 
 
 class QuestionsSchema(ma.SQLAlchemyAutoSchema):
-    
+
     class Meta:
         model = IRA_Questions
-        fields = ("id_question", "Question_es", "Question_en","id_question_possible_answers","question_possible_answers")
-    
+        fields = ("id_question", "Question_es", "Question_en",
+                  "id_question_possible_answers", "question_possible_answers")
+
     question_possible_answers = ma.Nested(QuestionsPossibleAnswersSchema)
+
 
 questions_schema = QuestionsSchema(many=True)
 
 
 class NetworkModeSchema(ma.SQLAlchemyAutoSchema):
-    
+
     class Meta:
         model = IRA_Networks_modes
-        fields = ("id_network_mode","id_network","network","id_node_segment_category","node_segment_category","id_network_mode_theme","network_mode_theme")
-    
+        fields = ("id_network_mode", "id_network", "network", "id_node_segment_category",
+                  "node_segment_category", "id_network_mode_theme", "network_mode_theme")
+
     network = ma.Nested(NetworkSchema)
     node_segment_category = ma.Nested(NodeSegmentCategorySchema)
     network_mode_theme = ma.Nested(NetworkModeThemeSchema)
+
 
 network_mode_schema = NetworkModeSchema(many=True)
 
@@ -713,79 +737,87 @@ network_mode_schema = NetworkModeSchema(many=True)
 class AdjacencyInputFormSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = IRA_Adjacency_input_form
-        fields = ("id_adjacency_input_form","id_employee","id_cycle","id_network_mode","Is_concluded")
-        
-    #network_mode = ma.Nested(NetworkModeSchema)
-    
+        fields = ("id_adjacency_input_form", "id_employee",
+                  "id_cycle", "id_network_mode", "Is_concluded")
+
+    # network_mode = ma.Nested(NetworkModeSchema)
+
+
 adjacency_input_forms_schema = AdjacencyInputFormSchema(many=True)
 
 
 class CycleSchema(ma.SQLAlchemyAutoSchema):
-    
+
     class Meta:
         model = IRA_Cycles
         # fields = ("id_cycle","Cycle_es","Cycle_en","Initial_date","End_date","Is_active","networks_modes")
-        
+
         # network_modes = ma.Nested(NetworksModesSchema)
+
 
 cycles_schema = CycleSchema(many=True)
 
 
-
 class ResponseSchema(ma.SQLAlchemyAutoSchema):
-    
+
     class Meta:
         model = IRA_Responses
-        fields = ("id_response","id_question","id_adjacency_input_form","Response","adjacency_input_form")
-    
+        fields = ("id_response", "id_question",
+                  "id_adjacency_input_form", "Response", "adjacency_input_form")
+
     adjacency_input_form = ma.Nested(AdjacencyInputFormSchema)
-        
+
 
 responses_schema = ResponseSchema(many=True)
 
 
-
-#-----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 # Culture Schemas
-#-----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 
 
 class QuestionResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Questions_responses
-        
+
+
 class ThemeResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Themes_responses
-        
+
     questions_responses = ma.List(ma.Nested(QuestionResponseSchema))
 
-        
+
 class CultureInputFormSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Culture_input_form
-        
+
     themes_responses = ma.List(ma.Nested(ThemeResponseSchema))
 
 
 class CultureModeSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Culture_modes
+
+
 culture_mode_schema = CultureModeSchema(many=True)
 
 
 class CultureQuadrantSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Culture_quadrants
+
+
 culture_quadrant_schema = CultureQuadrantSchema(many=True)
 
 
 class CultureModeThemeSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Culture_modes_themes
-        #fields = ("id", "Culture_mode_theme_es", "Culture_mode_theme_en","Questions_prefix_es","Questions_prefix_en", "id_culture_mode")
-        #fields = ("id", "Culture_mode_theme_es", "Culture_mode_theme_en","Questions_prefix_es","Questions_prefix_en", "id_culture_mode","culture_mode")
-    
+        # fields = ("id", "Culture_mode_theme_es", "Culture_mode_theme_en","Questions_prefix_es","Questions_prefix_en", "id_culture_mode")
+        # fields = ("id", "Culture_mode_theme_es", "Culture_mode_theme_en","Questions_prefix_es","Questions_prefix_en", "id_culture_mode","culture_mode")
+
+
    # culture_mode = ma.Nested(CultureModeSchema)
 culture_mode_theme_schema = CultureModeThemeSchema(many=True)
 
@@ -793,37 +825,40 @@ culture_mode_theme_schema = CultureModeThemeSchema(many=True)
 class CultureModeThemeQuestionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Culture_modes_themes_questions
-        fields = ("id", "Culture_mode_theme_question_es", "Culture_mode_theme_question_en", "id_culture_quadrant")
+        fields = ("id", "Culture_mode_theme_question_es",
+                  "Culture_mode_theme_question_en", "id_culture_quadrant")
         # fields = ("id", "Culture_mode_theme_question_es", "Culture_mode_theme_question_en","id_culture_mode_theme","culture_mode_theme", "id_culture_quadrant","culture_quadrant")
-    
+
     # culture_mode_theme = ma.Nested(CultureModeThemeSchema)
     # culture_quadrant = ma.Nested(CultureQuadrantSchema)
-        
-culture_mode_theme_question_schema = CultureModeThemeQuestionSchema(many=True)
 
+
+culture_mode_theme_question_schema = CultureModeThemeQuestionSchema(many=True)
 
 
 class CultureThemeResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Themes_responses
-        fields = ("id", "id_culture_input_form", "id_culture_mode_theme", "Total_actual","Total_preferred", "Is_concluded")
-        #fields = ("id", "id_culture_input_form","culture_input_form", "id_culture_mode_theme","culture_mode_theme", "Total_actual","Total_preferred", "Is_concluded")
-    
+        fields = ("id", "id_culture_input_form", "id_culture_mode_theme",
+                  "Total_actual", "Total_preferred", "Is_concluded")
+        # fields = ("id", "id_culture_input_form","culture_input_form", "id_culture_mode_theme","culture_mode_theme", "Total_actual","Total_preferred", "Is_concluded")
+
     # culture_input_form = ma.Nested(CultureInputFormSchema)
     # culture_mode_theme = ma.Nested(CultureModeThemeSchema)
-    
-culture_theme_response_schema = CultureThemeResponseSchema(many=True)
 
+
+culture_theme_response_schema = CultureThemeResponseSchema(many=True)
 
 
 class CultureQuestionResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CVF_Questions_responses
-        fields = ("id", "id_theme_responses",  "id_culture_mode_theme_question","Actual","Preferred")
-        #fields = ("id", "id_theme_responses", "theme_responses", "id_culture_mode_theme_question","culture_mode_theme_question","Actual","Preferred")
-    
+        fields = ("id", "id_theme_responses",
+                  "id_culture_mode_theme_question", "Actual", "Preferred")
+        # fields = ("id", "id_theme_responses", "theme_responses", "id_culture_mode_theme_question","culture_mode_theme_question","Actual","Preferred")
+
     # theme_responses = ma.Nested(CultureThemeResponseSchema)
     # culture_mode_theme_question = ma.Nested(CultureModeThemeQuestionSchema)
-    
-culture_question_response_schema = CultureQuestionResponseSchema(many=True)
 
+
+culture_question_response_schema = CultureQuestionResponseSchema(many=True)

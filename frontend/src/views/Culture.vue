@@ -13,9 +13,7 @@
                   :label="$t('globals.period')"
                   :item-text="`Cycle_${$i18n.locale}`"
                   item-value="id_cycle"
-                  clearable
-                 
-                 
+                  clearable              
                   dense
                 ></v-select>
             </v-col>

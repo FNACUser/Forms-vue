@@ -198,10 +198,6 @@
             return Promise.reject(error);
         });
     },
-    mounted() {
-        
-      
-    },
 
     computed: {
         ...mapStores(useMainStore),

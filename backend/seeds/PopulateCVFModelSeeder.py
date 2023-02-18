@@ -7,7 +7,6 @@ from common.Utilities import  getDataPath
 from models import db
 
 
-
 # All seeders inherit from Seeder
 class PopulateCVFModelSeeder(Seeder):
     def __init__(self, db=None):
