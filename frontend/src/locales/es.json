@@ -15,6 +15,7 @@
     "period":"Periodo",
     "add":"Agregar",
     "cancel":"Cancelar"
+    
 
   },
 
@@ -32,7 +33,8 @@
       "name":"Nombre",
       "area":"Area",
       "actions":"Acciones"
-    }
+    },
+    "item_name":"Nombre del {item}"
 
   },
 
@@ -74,13 +76,16 @@
   },
 
   "api_responses":{
-
+    "item_deleted":"{item} fue eliminado, respuestas relacionadas a este en otras secciones podrán ser eliminadas también!!",
     "interacting_actor_deleted":"Actor fue eliminado, así como todas las respuestas relacionadas a este en otras secciones!!",
+    "interacting_actor_not_deleted":"Actor no pudo ser eliminado!!",
     "new_interacting_actor_added":"Nuevo actor ha sido agregado!",
     "answer_saved":"Su respuesta ha sido guardada!",
     "form_closed":"Formulario cerrado!",
     "form_opened":"Formulario habilitado nuevamente!",
-    "no_results": "No se hallaron resultados!"
+    "no_results": "No se hallaron resultados!",
+    "data_saved":"Los datos han sido guardados!",
+    "no_adjacency_input_form_found":"No existe este formulario!"
   },
 
   "alerts":{
@@ -88,7 +93,13 @@
     "limit_value_is": "El valor límite es",
     "sum_limit": "La suma debe ser igual a 100!",
     "delete_record_text":"Está seguro de eliminar este registro?",
-    "delete_interacting_person_text":"Está seguro de eliminar esta persona?<br> Todas las respuestas asociadas a esta persona en otras secciones serán borradas!"
+    "delete_interacting_person_text":"Está seguro de eliminar esta persona?<br> Todas las respuestas asociadas a esta persona en otras secciones serán borradas!",
+    "delete_item_text":"Está seguro de eliminar este {item}?<br> Todas las respuestas asociadas a este {item} en otras secciones serán borradas!"
+  },
+
+  "rules":{
+    "field_required": "Campo es requerido!",
+    "length_max_chars":"Longitud debe ser inferior a {max_chars} caracteres!"
 
   }
 

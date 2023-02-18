@@ -134,6 +134,8 @@
           >
             <add-node
               :label="selected_network[`name_${$i18n.locale}`]"
+              :network_mode_id="current_network_mode.id_network_mode"
+              @newnode="refreshNodes"
             >
             </add-node> 
           </v-col>
@@ -212,7 +214,7 @@
                                       <v-icon
                                           v-on="on"
                                           small
-                                          @click="delRecord(item,'menus.delete_record_title','alerts.delete_interacting_person_text')"
+                                          @click="delRecord(item,'menus.delete_record_title','alerts.delete_interacting_person_text',selected_network[`name_${$i18n.locale}`],'Actor')"
                                           color="orange"      
                                       >
                                           mdi-delete
@@ -234,13 +236,14 @@
 
              <v-data-table
                     :headers="tableNodesHeader"
-                    :items="nodes"
+                    :items="filteredNodes"
                     :items-per-page="-1"
                     class="elevation-1"
                     v-if="nodes"
                     dense
               >
                   <template v-slot:item="{ item }">
+                   
                     <tr>
                           <td class="text-xs-left">
                             {{ item[`Node_${$i18n.locale}`] }}
@@ -272,7 +275,24 @@
                                 </v-select>
                               
                             </td>
-                            
+                            <td >
+
+                                <v-tooltip bottom v-if="(mainStore.logged_user.id== item.id_employee) && currentForm && !currentForm.is_concluded">
+                                    <template #activator="{ on }">
+                                        <v-icon
+                                            v-on="on"
+                                            small
+                                            @click="delRecord(item,'menus.delete_record_title','alerts.delete_item_text',selected_network[`name_${$i18n.locale}`],'Node')"
+                                            color="orange"      
+                                        >
+                                            mdi-delete
+                                        </v-icon>
+                                    </template>
+                                    <span>Borrar</span>
+                                </v-tooltip>
+
+                                </td>
+                                                            
                           </template>
                           
                     </tr>
@@ -288,8 +308,8 @@
 </template>
 <script>
 
-import { useMainStore } from '@/store/main'
-import { mapStores,mapState} from 'pinia'
+import { useMainStore } from '@/store/main';
+import { mapStores,mapState} from 'pinia';
 import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 import Gauge from '@/components/Gauge.vue';
 import AddNode from '@/components/AddNode.vue';
@@ -350,7 +370,11 @@ export default {
             align: 'start',
             value: 'name',
             class: "white--text"
-          }
+          },
+          { 
+            text: 'Acciones',
+            class: "white--text",
+            sortable: false},
         ],
 
 
@@ -448,6 +472,10 @@ export default {
       //   return this.mainStore.cycles.filter(item=> item.Is_active); 
       // },
 
+      filteredNodes(){
+        return this.nodes.filter(item=> (item.id_employee==this.mainStore.logged_user.id) || (item.id_employee==null)); 
+      },
+
       filteredEmployees(){
 
 
@@ -497,6 +525,14 @@ export default {
 
 
     methods:{
+
+
+      refreshNodes(new_nodes){
+
+        this.nodes = new_nodes;
+        this.updateNetworkModeGauge(this.current_network_mode)
+
+      },
 
 
       setSelectedNetworkAndTheme(form){
@@ -582,12 +618,18 @@ export default {
           const index = this.forms.findIndex(item => item.id== network_mode.id_network_mode);
           
           const prefix = network_mode.id_network_mode +'_';
+         
           const num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
          
           this.forms[index]['answers'] = num_answers;
           if(network_mode.network.code=='actor'){
               this.forms[index]['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1; 
                 
+          }
+          else{
+
+            this.forms[index]['total_items'] = this.filteredNodes.length;      
+
           }
          
               
@@ -715,22 +757,56 @@ export default {
           },
 
 
-      async delRecord(item, title, message) {
-        if (
-          await this.$refs.confirmDeleteActor.open(
-            // this.$t('menus.delete_record_title'),
-            // this.$t('menus.delete_record_text'),
-            this.$t(title),
-            this.$t(message),
-            {color:"red lighten-3"}
-          )
-        ) {
-          await this.deleteActor(item);
+      async delRecord(item, title, message, item_name, type) {
+
+        
+        if (await this.$refs.confirmDeleteActor.open( this.$t(title),this.$t(message,{item:item_name}),{color:"red lighten-3"})) {
+
+          if(type=='Actor'){
+            await this.deleteActor(item);
+          }
+          else if (type=='Node'){
+
+            await this.deleteNode(item);
+
+          }
+          
         }
       },
 
-      
+      async deleteNode(item){
 
+            const item_index = this.nodes.findIndex(object => {
+                return object.id_node==item.id_node
+            });
+
+            const data={
+                  "user_email":this.mainStore.logged_user.email,
+                  "item_id":item.id_node,
+                  "cycle_id":this.mainStore.selected_cycle,
+                  "network_mode_id": this.current_network_mode.id_network_mode         
+              };
+
+              console.log(data);
+          
+            await this.$axios.delete(process.env.VUE_APP_BACKEND_URL+'/node', {data:data})
+              .then(async response =>  {
+                // console.log(response.data);
+                this.$alertify.success(this.$t(response.data.message,{item:this.selected_network[`name_${this.$i18n.locale}`]}));
+                this.nodes.splice(item_index,1);
+                await this.getUserResponses();
+                this.updateNetworkModeGauge(this.current_network_mode);
+
+              })
+              .catch(error => {
+                
+                console.error('There was an error!', error.message);
+              });
+
+
+      },
+
+  
 
       async deleteActor(item) {
            
@@ -741,7 +817,8 @@ export default {
             const data={
                   "user_email":this.mainStore.logged_user.email,
                   "item_id":item.id,
-                  "cycle_id":this.mainStore.selected_cycle           
+                  "cycle_id":this.mainStore.selected_cycle,
+                  "network_id":this.selected_network.id         
               };
           
             await this.$axios.delete(process.env.VUE_APP_BACKEND_URL+'/delete_interacting_actor', {data:data})
@@ -968,7 +1045,7 @@ export default {
                   // const nodes= await this.getNodes(network_mode.id_network_mode);
                   // form['total_items'] = nodes.length;    
                   await this.getNodes(network_mode.id_network_mode);
-                  form['total_items'] = this.nodes.length;     
+                  form['total_items'] = this.filteredNodes.length;     
                 }
                 else{ 
                   form['total_items'] = this.selected_actors.length>0?this.selected_actors.length:1; 

@@ -258,22 +258,20 @@ def login():
 
     # if check_password_hash(user.password, auth['password']):
     if verify_password(auth['password'],user.password):
-        print('verifico pwd')
         
         roles = roles_schema.dump(user.roles)
-        print('A1')
+       
        # app.logger.info(f'password si coincide!! Roles=> {roles}')
         try:
-            print('A2')
+            
             token = jwt.encode({'id':user.id, 
                                 'username' : user.username, 
                                 'email':user.email, 
                                 'roles': roles, 
                                 'exp' : datetime.utcnow() + timedelta(minutes=MAX_TOKEN_LIFE)}, 
                                app.config['SECRET_KEY'])
-            print('A3')
-            print(token)
-            app.logger.info(f'token {token}')
+            
+            #app.logger.info(f'token {token}')
             return jsonify({'token' : token})
         except Exception as e:
             print(e)
@@ -465,13 +463,14 @@ def possible_answer(current_user):
 @token_required
 def nodes(current_user):
     
-    resp = IRA_Nodes.query.filter((IRA_Nodes.id_employee==None) | (IRA_Nodes.id_employee==current_user.id))  
+    resp = IRA_Nodes.query.all()  
+    # resp = IRA_Nodes.query.filter((IRA_Nodes.id_employee==None) | (IRA_Nodes.id_employee==current_user.id)) 
     # print(resp)
                                   
     return jsonify(nodes_schema.dump(resp))
 
 
-@app.route('/api/v1/nodes', methods=['POST'])
+@app.route('/api/v1/node/add', methods=['POST'])
 @token_required
 def add_node(current_user):
     
@@ -479,22 +478,78 @@ def add_node(current_user):
     if(data['user_email']==current_user.email):
         
         new_node = IRA_Nodes(
-                Node_es=data['nombre_es'],
-                Node_en=data['nombre_en'],
-                id_node_segment=data["id_node_segment"],
+                Node_es=data['name_es'],
+                Node_en=data['name_en'],
+                id_node_segment=data["node_segment_id"],
                 id_employee=current_user.id)
         
         db.session.add(new_node)
         db.session.flush()
         
-        node_nwtmode = nodes_vs_networks_modes.insert().values(id_node=new_node.id_node, id_network_mode=data["id_network_mode"])
+        node_nwtmode = nodes_vs_networks_modes.insert().values(id_node=new_node.id_node, id_network_mode=data["network_mode_id"])
         db.session.execute(node_nwtmode)
         
         db.session.commit()
+        
+    network_mode = IRA_Networks_modes.query.get(data["network_mode_id"])   
+    nodes = network_mode.nodes
+ 
+    # print(current_user.id) 
+    # filtered_nodes = []
+
+    # if nodes: 
+    #     filtered_nodes = [e for e in nodes if e.id_employee == None or e.id_employee == current_user.id]
+        
+    # print(filtered_nodes)   
 
 
-    resp = network_mode_nodes(current_user,data["id_network_mode"])
-    return jsonify(nodes_schema.dump(resp))
+    return jsonify({'response': nodes_schema.dump(nodes),'message':"api_responses.data_saved"})
+
+
+
+@app.route('/api/v1/node', methods=['DELETE'])
+@token_required
+def delete_node(current_user):
+    
+    data = request.json
+    print(data)
+    if(data['user_email']==current_user.email):
+        
+        # deleted_relations = nodes_vs_networks_modes.delete().where(id_node = data['item_id'])
+        # db.session.execute(deleted_relations)
+        
+        adjacency_input_forms_ids= IRA_Adjacency_input_form.query\
+                                                            .with_entities(IRA_Adjacency_input_form.id_adjacency_input_form)\
+                                                            .filter_by(id_cycle=data['cycle_id'],id_employee=current_user.id,id_network_mode=data['network_mode_id'] )\
+                                                            .all()
+        adjacency_codes = list(itertools.chain(*adjacency_input_forms_ids))
+        
+        if (adjacency_codes):
+            for code in adjacency_codes:
+                existing_responses = IRA_Responses.query.filter_by(id_adjacency_input_form=code).all()
+                for response in existing_responses:
+                    if(response):
+                        current_response=json.loads(response.Response)
+                        #print(current_response)
+                        existing_item=next(filter(lambda x: x['item_id'] == data['item_id'],current_response),None)
+                        if( existing_item is not  None):
+                            current_response = list(filter(lambda x: x['item_id'] != data['item_id'], current_response))
+                            response.Response=json.dumps(current_response)
+        
+        
+        
+        db.session.delete(IRA_Nodes.query.get(data['item_id']))
+        
+        db.session.commit()
+        
+        network_mode = IRA_Networks_modes.query.get(data["network_mode_id"])   
+        nodes = network_mode.nodes
+        
+        return jsonify({'response': nodes_schema.dump(nodes),'message':"api_responses.item_deleted"})
+    
+   
+    return jsonify("api_responses.item_not_deleted") , 500
+
 
 
 
@@ -556,7 +611,7 @@ def open_close_adjacency_input_form(current_user):
         db.session.commit()
         return jsonify("api_responses.form_closed") if data['closed'] else jsonify("api_responses.form_opened")
    
-    return jsonify("api_responses.no_adjacency_input_form_found")
+    return jsonify("api_responses.no_adjacency_input_form_found"),404
 
 
 
@@ -581,10 +636,6 @@ def add_interacting_actor(current_user):
                 db.session.add(IRA_Employees_interactions(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=new_id))
             
             db.session.commit()
-
-    
-
-         
           
     return jsonify("api_responses.new_interacting_actor_added")
 
@@ -600,27 +651,39 @@ def delete_interacting_actor(current_user):
     if(data['user_email']==current_user.email):
         
         actor_interaction = IRA_Employees_interactions.query.filter_by(id_cycle=data['cycle_id'],id_responding_employee=current_user.id,id_interacting_employee=data['item_id']).first()
-        adjacency_input_forms_ids= IRA_Adjacency_input_form.query.with_entities(IRA_Adjacency_input_form.id_adjacency_input_form).filter_by(id_cycle=data['cycle_id'],id_employee=current_user.id).all()
-        adjacency_codes = list(itertools.chain(*adjacency_input_forms_ids))
         
-        if actor_interaction:
-            db.session.delete(actor_interaction)
+        actor_network = IRA_Networks.query.get(data['network_id'])
         
-        if (adjacency_codes):
-            for code in adjacency_codes:
-                existing_responses = IRA_Responses.query.filter_by(id_adjacency_input_form=code).all()
-                for response in existing_responses:
-                    if(response):
-                        current_response=json.loads(response.Response)
-                        #print(current_response)
-                        existing_actor=next(filter(lambda x: x['item_id'] == data['item_id'],current_response),None)
-                        if( existing_actor is not  None):
-                            current_response = list(filter(lambda x: x['item_id'] != data['item_id'], current_response))
-                            response.Response=json.dumps(current_response)
-        db.session.commit()
+        if(actor_network.code=='actor'):
+            actor_network_modes=actor_network.networks_modes
+            
+            if(actor_network_modes):
+                
+                actor_network_mode_ids = [anm.id_network_mode for anm in actor_network_modes]
+                adjacency_input_forms_ids= IRA_Adjacency_input_form.query.with_entities(IRA_Adjacency_input_form.id_adjacency_input_form)\
+                                            .filter(IRA_Adjacency_input_form.id_cycle==data['cycle_id'],IRA_Adjacency_input_form.id_employee==current_user.id, \
+                                                    IRA_Adjacency_input_form.id_network_mode.in_(actor_network_mode_ids)).all()
+                adjacency_codes = list(itertools.chain(*adjacency_input_forms_ids))
+                
+                if actor_interaction:
+                    db.session.delete(actor_interaction)
+                
+                if (adjacency_codes):
+                    for code in adjacency_codes:
+                        existing_responses = IRA_Responses.query.filter_by(id_adjacency_input_form=code).all()
+                        for response in existing_responses:
+                            if(response):
+                                current_response=json.loads(response.Response)
+                                #print(current_response)
+                                existing_actor=next(filter(lambda x: x['item_id'] == data['item_id'],current_response),None)
+                                if( existing_actor is not  None):
+                                    current_response = list(filter(lambda x: x['item_id'] != data['item_id'], current_response))
+                                    response.Response=json.dumps(current_response)
+                db.session.commit()
+                return jsonify("api_responses.interacting_actor_deleted")
             
           
-    return jsonify("api_responses.interacting_actor_deleted")
+    return jsonify("api_responses.interacting_actor_not_deleted") , 500
 
 
 

@@ -28,28 +28,28 @@
                     lazy-validation
                 >
                     <v-text-field
-                        v-model="name_es"
-                        :counter="10"
+                        v-model="name"
+                        :counter="maxChars"
                         :rules="nameRules"
-                        label="Texto en español"
+                        :label="$t('active_source.item_name',{item:`${this.label}`})"
                         required
                     ></v-text-field>
 
-                    <v-text-field
+                    <!-- <v-text-field
                         v-model="name_en"
-                        :counter="10"
+                        :counter="maxChars"
                         :rules="nameRules"
-                        label="Texto en inglés"
+                        :label="$t('globals.name_in_english')"
                         required
-                    ></v-text-field>
+                    ></v-text-field> -->
 
-                    <v-select
+                    <!-- <v-select
                         v-model="selected_item"
                         :items="items"
                         :rules="[v => !!v || 'Item is required']"
                         label="Item"
                         required
-                    ></v-select>
+                    ></v-select> -->
 
                 
                     
@@ -64,7 +64,7 @@
           <v-btn
             color="primary"
             text
-            @click="dialog = false"
+            @click="saveNode"
           >
           {{ $t('globals.add') }}
           </v-btn>
@@ -72,7 +72,7 @@
           <v-btn
             color="default"
             text
-            @click="dialog = false"
+            @click="cancel"
           >
           {{ $t('globals.cancel') }}
           </v-btn>
@@ -86,30 +86,42 @@
 
 <script>
 
+import { useMainStore } from '@/store/main';
+import { mapState} from 'pinia';
 
 export default {
 
     props:[
-        'label'     
+        'label',
+        'network_mode_id'    
     ],  
     data () {
       return {
+        maxChars:55,
         dialog: false,
         valid:false,
-        name_es:'',
-        name_en:'',
+        name:'',
+        // name_en:'',
         items:[],
         selected_item:null,
         nameRules: [
-            v => !!v || 'Name is required',
-            v => (v && v.length <= 10) || 'Name must be less than 10 characters',
-        ],
+            v => !!v || this.$t('rules.field_required'),
+            v => (v && v.length <= this.maxChars) || this.$t('rules.length_max_chars', {max_chars:`${this.maxChars}`}),
+        ]
       }
+    },
+
+   
+
+    computed:{
+
+    ...mapState(useMainStore,[ "logged_user"])
+
     },
 
     methods: {
       validate () {
-        this.$refs.form.validate()
+        return this.$refs.form.validate()
       },
       reset () {
         this.$refs.form.reset()
@@ -117,6 +129,60 @@ export default {
       resetValidation () {
         this.$refs.form.resetValidation()
       },
+
+      saveNode(){
+
+       
+        if (this.validate()){
+
+          const data={
+                  "name_es":this.name,
+                  "name_en":this.name,
+                  "user_email":this.logged_user.email,
+                  "network_mode_id":this.network_mode_id,
+                  "node_segment_id":4
+                                 
+              };
+
+               this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/node/add', data)
+                .then(async response => {
+                    //console.log(response.data.response);
+
+                    const nodes= response.data.response;
+                    
+                    this.$alertify.success(this.$t(response.data.message));
+                    this.reset();
+                    this.resetValidation();
+
+                    this.$emit('newnode',nodes);
+
+                    
+                    // this.populateAnswers(response.data.responses);
+                    // this.updateNetworkModeGauge(this.current_network_mode);
+
+            
+                  })
+                .catch(error => {
+                    this.$alertify.error(this.$t(error.message));
+                    console.error('There was an error!', error.message);
+                    console.error( error);
+                    this.reset();
+                    this.resetValidation();
+              });
+
+              this.dialog = false;
+        }
+
+        
+      },
+
+
+      cancel(){
+        this.reset();
+        this.resetValidation();
+        this.dialog = false;
+
+      }
     },
    
   }
