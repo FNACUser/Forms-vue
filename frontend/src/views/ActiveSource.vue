@@ -622,13 +622,14 @@ export default {
           const num_answers= Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
          
           this.forms[index]['answers'] = num_answers;
+
           if(network_mode.network.code=='actor'){
               this.forms[index]['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1; 
                 
           }
           else{
-
-            this.forms[index]['total_items'] = this.filteredNodes.length;      
+            
+            this.forms[index]['total_items'] = this.filteredNodes.length > 0 ? this.filteredNodes.length :  1;      
 
           }
          
@@ -638,7 +639,13 @@ export default {
 
       updateAllNetworkModeGauges(){
         
-        this.mainStore.network_modes.forEach(network_mode => this.updateNetworkModeGauge(network_mode))
+        this.mainStore.network_modes.forEach(network_mode => {
+
+          if (network_mode.network.code=='actor'){
+            this.updateNetworkModeGauge(network_mode);
+          }
+
+        })
       
       },
 
