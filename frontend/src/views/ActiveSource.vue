@@ -594,7 +594,7 @@ export default {
                 .then(async response => {
                     //console.log(response.data.responses);
                     
-                    this.$alertify.success(this.$t(response.data.message));
+                    //this.$alertify.success(this.$t(response.data.message));
                     
                     this.populateAnswers(response.data.responses);
                     this.updateNetworkModeGauge(this.current_network_mode);
