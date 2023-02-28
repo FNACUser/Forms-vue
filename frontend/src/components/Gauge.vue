@@ -11,7 +11,7 @@
             
         >
 
-          {{ value }} 
+          {{ value }} %
         
         </v-progress-circular>
         <div>
