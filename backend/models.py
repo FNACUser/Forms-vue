@@ -33,16 +33,15 @@ class User(db.Model, UserMixin):
     posts = db.relationship('Post', backref='author', lazy=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     confirmed_at = db.Column(db.DateTime)
-    roles = db.relationship(
-        'Role',
-        secondary=roles_users,
-        backref=db.backref('users', lazy='dynamic')
-    )
+    
     id_organization_area = db.Column(db.Integer,
                                      db.ForeignKey(
                                          'IRA_Organization_areas.id_organization_area'),
                                      nullable=True)
 
+    
+    roles = db.relationship('Role',secondary=roles_users,backref=db.backref('users', lazy='dynamic'))
+    
     adjacency_forms = db.relationship(
         'IRA_Adjacency_input_form', backref=db.backref('users', lazy=True))
 
@@ -51,6 +50,8 @@ class User(db.Model, UserMixin):
 
     nodes = db.relationship(
         'IRA_Nodes', backref=db.backref('users', lazy=True))
+    
+    school_roles = db.relationship("UsersSchoolRolesPivot", back_populates="user")
 
     # interacting_persons = db.relationship('IRA_Employees_interactions', backref=db.backref('users', lazy=True))
 
@@ -415,6 +416,8 @@ class CVF_Culture_input_form(db.Model):
     id_cycle = db.Column(db.Integer,
                          db.ForeignKey('IRA_Cycles.id_cycle'),
                          nullable=False)
+    
+    Is_concluded = db.Column(db.Boolean, nullable=False)
 
     id_culture_mode = \
         db.Column(db.Integer,
@@ -424,11 +427,9 @@ class CVF_Culture_input_form(db.Model):
     db.UniqueConstraint('id_employee', 'id_cycle', 'id_culture_mode',
                         name='uix_1')
 
-    Is_concluded = db.Column(db.Boolean, nullable=False)
-
-    themes_responses = db.relationship('CVF_Themes_responses',
-                                       backref=db.backref('culture_input_form',
-                                                          lazy=True))
+    themes_responses = db.relationship('CVF_Themes_responses',\
+        backref=db.backref('culture_input_form',\
+            lazy=True))
 
     def __repr__(self):
         return f"CVF_Culture_input_form('{self.id}'," \
@@ -526,20 +527,17 @@ class CVF_Culture_quadrants(db.Model):
 class CVF_Questions_responses(db.Model):
     __tablename__ = 'CVF_Questions_responses'
     id = db.Column(db.Integer, primary_key=True)
+    Actual = db.Column(db.Integer, nullable=False)
+    Preferred = db.Column(db.Integer, nullable=False)
 
     id_theme_responses = \
         db.Column(db.Integer,
                   db.ForeignKey('CVF_Themes_responses.id'),
                   nullable=False)
 
-    id_culture_mode_theme_question = \
-        db.Column(db.Integer,
-                  db.ForeignKey('CVF_Culture_modes_themes_questions.id'),
-                  nullable=False)
-
-    Actual = db.Column(db.Integer, nullable=False)
-
-    Preferred = db.Column(db.Integer, nullable=False)
+    id_culture_mode_theme_question = db.Column(db.Integer,\
+        db.ForeignKey('CVF_Culture_modes_themes_questions.id'),\
+            nullable=False)
 
     def __repr__(self):
         return f"CVF_Questions_responses('{self.id}'," \
@@ -576,6 +574,165 @@ class CVF_Themes_responses(db.Model):
                f"'{self.id_culture_input_form}','{self.id_culture_mode_theme}'," \
                f"'{self.Is_concluded}','{self.Total_actual}'," \
                f"'{self.Total_preferred}')"
+               
+               
+               
+####################################################################################################
+#                              School DataWise Models
+#################################################################################################### 
+
+grades_vs_subjects = db.Table('grades_vs_subjects',\
+    db.Column('grade_id', db.Integer,\
+        db.ForeignKey('DW_Grades.id')),\
+            db.Column('subject_id', db.Integer,\
+                db.ForeignKey('DW_Subjects.id')))
+
+class DW_Roles(db.Model):
+    __tablename__ = 'DW_Roles'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    
+    users = db.relationship("UsersSchoolRolesPivot", back_populates="school_role")
+
+    def __repr__(self):
+        return f"DW_Roles('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+               
+class DW_ServiceUnits(db.Model):
+    __tablename__ = 'DW_ServiceUnits'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    
+    users_schoolroles_pivot = db.relationship('UsersSchoolRolesPivot',backref=db.backref('service_unit',lazy=True))
+
+    def __repr__(self):
+        return f"DW_ServiceUnits('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+        
+class DW_Schools(db.Model):
+    __tablename__ = 'DW_Schools'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    
+    grades = db.relationship('DW_Grades',backref=db.backref('school',lazy=True))
+    users_schoolroles_pivot = db.relationship('UsersSchoolRolesPivot',backref=db.backref('school',lazy=True))
+
+    def __repr__(self):
+        return f"DW_Schools('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+               
+class DW_Areas(db.Model):
+    __tablename__ = 'DW_Areas'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    
+    subjects = db.relationship('DW_Subjects',backref=db.backref('area',lazy=True))
+    users_schoolroles_pivot = db.relationship('UsersSchoolRolesPivot',backref=db.backref('area',lazy=True))
+
+    def __repr__(self):
+        return f"DW_Areas('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+
+class DW_Topics(db.Model):
+    __tablename__ = 'DW_Topics'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    
+    tools = db.relationship('DW_Tools',backref=db.backref('topic',lazy=True))
+
+    def __repr__(self):
+        return f"DW_Topics('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+               
+class DW_Grades(db.Model):
+    __tablename__ = 'DW_Grades'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    
+    school_id = db.Column(db.Integer,db.ForeignKey('DW_Schools.id'),nullable=False)
+    
+    sections = db.relationship('DW_Sections',backref=db.backref('grade',lazy=True))
+    
+    subjects = db.relationship('DW_Subjects',
+                                     secondary=grades_vs_subjects,
+                                     backref=db.backref('grades',
+                                                        lazy='dynamic'))
+    
+    users_schoolroles_pivot = db.relationship('UsersSchoolRolesPivot',backref=db.backref('grade',lazy=True))
+
+    def __repr__(self):
+        return f"DW_Grades('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+               
+class DW_Sections(db.Model):
+    __tablename__ = 'DW_Sections'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    grade_id = db.Column(db.Integer,db.ForeignKey('DW_Grades.id'),nullable=False)
+    users_schoolroles_pivot = db.relationship('UsersSchoolRolesPivot',backref=db.backref('section',lazy=True))
+
+    def __repr__(self):
+        return f"DW_Sections('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+               
+class DW_Subjects(db.Model):
+    __tablename__ = 'DW_Subjects'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    area_id = db.Column(db.Integer,db.ForeignKey('DW_Areas.id'),nullable=False)
+    
+    users_schoolroles_pivot = db.relationship('UsersSchoolRolesPivot',backref=db.backref('subject',lazy=True))
+
+    def __repr__(self):
+        return f"DW_Subjects('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+               
+class DW_Tools(db.Model):
+    __tablename__ = 'DW_Tools'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(100), nullable=False)
+    name_en = db.Column(db.String(100), nullable=False)
+    description_es = db.Column(db.String(400), nullable=True)
+    description_en = db.Column(db.String(400), nullable=True)
+    
+    topic_id = db.Column(db.Integer,db.ForeignKey('DW_Topics.id'),nullable=False)
+
+    def __repr__(self):
+        return f"DW_Tools('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+
+class UsersSchoolRolesPivot(db.Model):
+    __tablename__ = 'users_schoolroles'
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('DW_Roles.id'), primary_key=True)
+    
+    area_id = db.Column(db.Integer,db.ForeignKey('DW_Areas.id'),nullable=False)
+    service_unit_id = db.Column(db.Integer,db.ForeignKey('DW_ServiceUnits.id'),nullable=False)
+    school_id = db.Column(db.Integer,db.ForeignKey('DW_Schools.id'),nullable=False)
+    grade_id = db.Column(db.Integer,db.ForeignKey('DW_Grades.id'),nullable=False)
+    section_id = db.Column(db.Integer,db.ForeignKey('DW_Sections.id'),nullable=False)
+    subject_id = db.Column(db.Integer,db.ForeignKey('DW_Subjects.id'),nullable=False)
+        
+    user = db.relationship("User", back_populates="school_roles")
+    school_role = db.relationship("DW_Roles", back_populates="users")
+
 
 
 ####################################################################################################
@@ -774,7 +931,6 @@ responses_schema = ResponseSchema(many=True)
 # -----------------------------------------------------------------------------------------------------------
 # Culture Schemas
 # -----------------------------------------------------------------------------------------------------------
-
 
 class QuestionResponseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

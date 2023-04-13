@@ -334,6 +334,7 @@ def reset_password():
 @app.route('/api/v1/users', methods=['GET'])
 @token_required
 def users(current_user):
+#def users():
     resp = User.query.order_by(User.username).all()
     return jsonify(users_schema.dump(resp))
 

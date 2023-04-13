@@ -7,6 +7,7 @@ import { useMainStore } from '@/store/main'
 import pinia from "@/store/createPinia";
 
 import ActiveSource from '@/views/ActiveSource.vue'
+import DataWise from '@/views/DataWise.vue'
 import Culture from '@/views/Culture.vue'
 import Login from '@/views/Auth/Login'
 
@@ -82,6 +83,12 @@ const router = new Router({
       path: '/culture',
       name: 'Culture',
       component: Culture,
+      beforeEnter: ifAuthenticated
+    },
+    {
+      path: '/datawise',
+      name: 'Datawise',
+      component: DataWise,
       beforeEnter: ifAuthenticated
     }
     // {

@@ -136,6 +136,12 @@
                     text: `${this.$t('menus.culture')}`, 
                     route: "Culture",
                     roles: ["Admin"]
+                },
+                {
+                    icon: "mdi-database-eye",
+                    text: `${this.$t('menus.datawise')}`, 
+                    route: "Datawise",
+                    roles: ["Admin"]
                 }
             ]
         };
