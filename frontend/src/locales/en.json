@@ -45,6 +45,15 @@
 
   },
 
+  "datawise":{
+  
+    "topics":"Topics",
+    "tools":"Tools",
+    "info_tool":"Information Tool"
+
+
+  },
+
   "login":{
 
     "email_required":"E-mail is required!",
