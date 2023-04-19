@@ -33,6 +33,21 @@ class PopulateDataWiseModelsSeeder(Seeder):
         dw_escuelas_XL.to_sql(name='DW_Schools',con=db.engine, if_exists='append',index=False)
         print('Cargó Schools...')
         
+        dw_grades_XL = pd.read_excel(excel_data,sheet_name='Grades')
+        for index, row in dw_grades_XL.iterrows():
+            # print(row)
+            school=DW_Schools.query.filter_by(code=row['school_code']).first()
+            if(school):
+                new_grade=DW_Grades(
+                        name_es=row['name_es'],
+                        name_en=row['name_en'],
+                        school=school      
+                )
+                db.session.add(new_grade)
+        
+            db.session.commit()
+        print('Cargó Grados...')
+        
         dw_areas_XL = pd.read_excel(excel_data,sheet_name='Areas')
         dw_areas_XL.to_sql(name='DW_Areas',con=db.engine, if_exists='append',index=False)
         print('Cargó Areas...')
@@ -44,21 +59,6 @@ class PopulateDataWiseModelsSeeder(Seeder):
         dw_secciones_XL = pd.read_excel(excel_data,sheet_name='Secciones')
         dw_secciones_XL.to_sql(name='DW_Sections',con=db.engine, if_exists='append',index=False)
         print('Carga Secciones...')
-        
-        dw_grades_XL = pd.read_excel(excel_data,sheet_name='Grades')
-        for index, row in dw_grades_XL.iterrows():
-            # print(row)
-            school=DW_Schools.query.filter_by(name_es=row['school']).first()
-            if(school):
-                new_grade=DW_Grades(
-                        name_es=row['name_es'],
-                        name_en=row['name_en'],
-                        school=school      
-                )
-                db.session.add(new_grade)
-        
-            db.session.commit()
-        print('Cargó Grados...')
         
         dw_subjects_XL = pd.read_excel(excel_data,sheet_name='Materias')
         for index, row in dw_subjects_XL.iterrows():
@@ -85,8 +85,9 @@ class PopulateDataWiseModelsSeeder(Seeder):
             if(grade and section ):
                 new_association=DW_GradesSectionsPivot(
                         grade=grade,
+                        code=row['code'],
                         section=section,
-                        code=row['code']  
+                        
                 )
                # print('crea asociación grado-seccion')
                 db.session.add(new_association)
