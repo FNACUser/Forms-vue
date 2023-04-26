@@ -198,7 +198,7 @@ def token_required(f):
 
         try:
             data = jwt.decode(
-                token, app.config['SECRET_KEY'], algorithms=['HS256'])
+                token, Config['SECRET_KEY'], algorithms=['HS256'])
             # print(' data  decoded es...')
             # print(data)
             current_user = User.query.filter_by(email=data['email']).first()
@@ -251,7 +251,7 @@ def login():
                                 'email': user.email,
                                 'roles': roles,
                                 'exp': datetime.utcnow() + timedelta(minutes=MAX_TOKEN_LIFE)},
-                               app.config['SECRET_KEY'])
+                               Config['SECRET_KEY'])
 
             # app.logger.info(f'token {token}')
             return jsonify({'token': token})
@@ -264,7 +264,7 @@ def login():
 
 def send_reset_email(user, language='es'):
     token = user.get_reset_token()
-    href_url = f"{app.config['APP_URL']}/reset-password/{user.email}/{token}"
+    href_url = f"{Config['APP_URL']}/reset-password/{user.email}/{token}"
     subject = ""
     body = ""
 
@@ -283,7 +283,7 @@ def send_reset_email(user, language='es'):
         <p>If you did not make this request then simply ignore this email and no changes will be made.<p>
         '''
     msg = Message(
-        subject, sender=app.config['MAIL_USERNAME'], recipients=[user.email])
+        subject, sender=Config['MAIL_USERNAME'], recipients=[user.email])
     msg.html = body
 
     Mail().send(msg)
