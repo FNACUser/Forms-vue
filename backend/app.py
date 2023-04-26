@@ -70,9 +70,10 @@ ma.init_app(app)
 
 seeder = FlaskSeeder()
 seeder.init_app(app, db)
+
 # api = Api(app)
 
-seeder
+# seeder
 # custom commands
 
 
@@ -167,6 +168,7 @@ def remover_roles_usuario(email, roles):
 def drop_create_db():
     db.drop_all()
     db.create_all()
+    seeder.run()
 
 
 # CLI User/Role management
@@ -175,6 +177,7 @@ app.cli.add_command(eliminar_usuario)
 app.cli.add_command(agregar_roles_usuario)
 app.cli.add_command(remover_roles_usuario)
 
+# DB management
 app.cli.add_command(drop_create_db)
 
 
@@ -334,7 +337,7 @@ def reset_password():
 @app.route('/api/v1/users', methods=['GET'])
 @token_required
 def users(current_user):
-#def users():
+    # def users():
     resp = User.query.order_by(User.username).all()
     return jsonify(users_schema.dump(resp))
 
