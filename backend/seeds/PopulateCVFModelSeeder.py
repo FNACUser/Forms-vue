@@ -1,4 +1,4 @@
-from datetime import datetime
+# from datetime import datetime
 import pandas as pd
 from flask_security.utils import hash_password
 from flask_seeder import Seeder
@@ -11,7 +11,7 @@ from models import db
 class PopulateCVFModelSeeder(Seeder):
     def __init__(self, db=None):
         super().__init__(db=db)
-        self.priority = 1
+        self.priority = 2
 
     # run() will be called by Flask-Seeder
     def run(self):
@@ -57,6 +57,8 @@ class PopulateCVFModelSeeder(Seeder):
         cvf_culture_modes_df.to_sql(name='CVF_Culture_modes', con=db.engine,
                                     if_exists='append',
                                     index=False)
+        
+        print('Cargó CVF_Culture_modes...')
        
         # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_modes_themes
         themes_es = list(cvf_prefijos_XL['Tema_es'])
@@ -79,10 +81,13 @@ class PopulateCVFModelSeeder(Seeder):
         cvf_culture_modes_themes_df.to_sql(name='CVF_Culture_modes_themes',
                                            con=db.engine, if_exists='append',
                                            index=False)
+        print('Cargó CVF_Culture_modes_themes...')
 
         # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_quadrants
         cvf_quadrants_df.to_sql(name='CVF_Culture_quadrants', con=db.engine,
                                 if_exists='append', index=False)
+        
+        print('Cargó CVF_Culture_quadrants...')
 
         # .-.-.-.-.-.-.-.-.-.-.- CVF_Culture_modes_themes_questions
         def FD_create_CSV_question(xcvf_questions_XL, xcvf_culture_modes_themes_df,
@@ -126,3 +131,5 @@ class PopulateCVFModelSeeder(Seeder):
         cvf_culture_modes_themes_questions_df. \
             to_sql(name='CVF_Culture_modes_themes_questions', con=db.engine,
                    if_exists='append', index=False)
+            
+        print('Cargó CVF_Culture_modes_themes_questions...')

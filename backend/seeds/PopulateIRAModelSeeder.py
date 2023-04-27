@@ -4,8 +4,7 @@ from datetime import datetime
 import pandas as pd
 
 
-from common.Utilities import (
-    UT_String_to_datetime, strip, getDataPath, generate_random_string)
+from common.Utilities import ( strip, getDataPath, generate_random_string)
 from models import *
 
 # All seeders inherit from Seeder
@@ -38,7 +37,7 @@ class PopulateIRAModelSeeder(Seeder):
         cyclesXL.to_sql(name='IRA_Cycles', con=db.engine,
                         if_exists='append', index=False)
 
-        print('Carga CICLO...')
+        print('Cargó IRA_CICLO...')
 
         # .-.-.-.-.-.-.-.-.-.-.--.- CREA/CARGA AREAS
 
@@ -61,7 +60,7 @@ class PopulateIRAModelSeeder(Seeder):
 
         # print(df_from_records)
 
-        print('Carga AREAS...')
+        print('Cargó IRA_AREAS...')
 
         # .-.-.-.-.-.-.-.-.-.-.--.- CARGA FUNCIONARIOS
         funcionariosXL = \
@@ -87,7 +86,8 @@ class PopulateIRAModelSeeder(Seeder):
 
         funcionariosXL.rename(columns={'id': 'id',
                                        'Nombre': 'username',
-                                       'UsuarioRedmine': 'id_redmine'
+                                       'UsuarioRedmine': 'id_redmine',
+                                       'DocumentID':'documentID'
                                        },
                               inplace=True)
         funcionariosXL.drop(
@@ -96,7 +96,7 @@ class PopulateIRAModelSeeder(Seeder):
         funcionariosXL.to_sql(name='users', con=db.engine,
                               if_exists='append', index=False)
 
-        print('Carga Funcionarios...')
+        print('Cargó Users...')
 
         # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA IRA_Networks
 
@@ -113,7 +113,7 @@ class PopulateIRAModelSeeder(Seeder):
         networks_XL.to_sql(name='IRA_Networks', con=db.engine,
                            if_exists='append', index=False)
 
-        print('Carga IRA_Networks...')
+        print('Cargó IRA_Networks...')
 
         # .-.-.-.-.-.-.-.-.-.-.--.- CARGA IRA_Nodes_segments_categories
 
@@ -127,7 +127,7 @@ class PopulateIRAModelSeeder(Seeder):
                                              con=db.engine, if_exists='append',
                                              index=False)
 
-        print('Carga IRA_Nodes_segments_categories...')
+        print('Cargó IRA_Nodes_segments_categories...')
 
         # .-.-.-.-.-.-.-.-. LEE CONOCIMIENTOS
         segmentos_nodosXL = pd.read_excel(
@@ -208,13 +208,13 @@ class PopulateIRAModelSeeder(Seeder):
         segmentos_df.to_sql(name='IRA_Nodes_segments', con=db.engine,
                             if_exists='append', index=False)
 
-        print('Carga IRA_Nodes_segments...')
+        print('Cargó IRA_Nodes_segments...')
 
         # .-.-.-.-.-.-.-.-. SE CREA/CARGA IRA_Nodes
         segmentos_nodosXL.to_sql(name='IRA_Nodes', con=db.engine, if_exists='append',
                                  index=False)
 
-        print('Carga IRA_Nodes...')
+        print('Cargó IRA_Nodes...')
 
         # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA IRA_Networks_modes_themes
         categorias_preguntasXL = \
@@ -230,7 +230,7 @@ class PopulateIRAModelSeeder(Seeder):
         categorias_preguntasXL.to_sql(name='IRA_Networks_modes_themes', con=db.engine,
                                       if_exists='append', index=False)
 
-        print('Carga IRA_Networks_modes_themes...')
+        print('Cargó IRA_Networks_modes_themes...')
 
         # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA  IRA_Networks_modes
 
@@ -259,7 +259,7 @@ class PopulateIRAModelSeeder(Seeder):
         networks_modes_df.to_sql(name='IRA_Networks_modes', con=db.engine,
                                  if_exists='append', index=False)
 
-        print('Carga IRA_Networks_modes...')
+        print('Cargó IRA_Networks_modes...')
 
         # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA  IRA_Questions_possible_answers
 
@@ -274,7 +274,7 @@ class PopulateIRAModelSeeder(Seeder):
         posibles_rtasXL.to_sql(name='IRA_Questions_possible_answers',
                                con=db.engine, if_exists='append', index=False)
 
-        print('Carga IRA_Questions_possible_answers...')
+        print('Cargó IRA_Questions_possible_answers...')
 
         # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA  IRA_Questions
 
@@ -293,7 +293,7 @@ class PopulateIRAModelSeeder(Seeder):
         preguntasXL.to_sql(name='IRA_Questions', con=db.engine, if_exists='append',
                            index=False)
 
-        print('Carga IRA_Questions...')
+        print('Cargó IRA_Questions...')
 
         # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA questions_vs_networks_modes PIVOT TABLE
 
@@ -306,7 +306,7 @@ class PopulateIRAModelSeeder(Seeder):
         questions_vs_networks_modes_df.to_sql(name='questions_vs_networks_modes',
                                               con=db.engine, if_exists='append', index=False)
 
-        print('Carga questions_vs_networks_modes PIVOT TABLE...')
+        print('Cargó questions_vs_networks_modes PIVOT TABLE...')
 
         # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA cycles_vs_networks_modes PIVOT TABLE
 
@@ -325,7 +325,7 @@ class PopulateIRAModelSeeder(Seeder):
         cycle_vs_networks_modes_df.to_sql(name='cycles_vs_networks_modes',
                                           con=db.engine, if_exists='append', index=False)
 
-        print('Carga cycles_vs_networks_modes PIVOT TABLE...')
+        print('Cargó cycles_vs_networks_modes PIVOT TABLE...')
 
         # .-.-.-.-.-.-.-.-.-.-.-.-.-.- SE CREA/CARGA  nodes_vs_networks_modes
         # def FD_segments_DF(xsegments):
@@ -393,7 +393,7 @@ class PopulateIRAModelSeeder(Seeder):
         nodes_vs_networks_modes_df.to_sql(name='nodes_vs_networks_modes',
                                           con=db.engine, if_exists='append', index=False)
 
-        print('Carga nodes_vs_networks_modes PIVOT TABLE...')
+        print('Cargó nodes_vs_networks_modes PIVOT TABLE...')
 
         db.session.commit()
 

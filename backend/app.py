@@ -2,7 +2,7 @@
 from flask import Flask, jsonify, request, make_response
 from flask.cli import with_appcontext
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
+# from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from flask_seeder import FlaskSeeder
 from flask_bcrypt import Bcrypt
@@ -168,7 +168,6 @@ def remover_roles_usuario(email, roles):
 def drop_create_db():
     db.drop_all()
     db.create_all()
-    seeder.run()
 
 
 # CLI User/Role management
