@@ -59,7 +59,7 @@ app = Flask(__name__)
 
 setLogger(app)
 app.config.from_object(Config)
-cors = CORS(app, resources={r"/api/*": {"origins": [Config.CORS_ORIGINS]}})
+cors = CORS(app, resources={r"/api/*": {"origins": [app.config['CORS_ORIGINS']]}})
 # app.config['CORS_HEADERS'] = 'Content-Type'
 
 db.init_app(app)
@@ -197,7 +197,7 @@ def token_required(f):
 
         try:
             data = jwt.decode(
-                token, Config['SECRET_KEY'], algorithms=['HS256'])
+                token, app.config['SECRET_KEY'], algorithms=['HS256'])
             # print(' data  decoded es...')
             # print(data)
             current_user = User.query.filter_by(email=data['email']).first()
@@ -232,16 +232,16 @@ def login():
         return make_response('login.missing_credentials', 401)
 
     user = User.query.filter_by(email=auth['email']).first()
-
+    
     if not user:
        # app.logger.info("user_not_registered")
         return make_response('login.user_not_registered', 401)
 
     # if check_password_hash(user.password, auth['password']):
     if verify_password(auth['password'], user.password):
-
+        
         roles = roles_schema.dump(user.roles)
-
+        
        # app.logger.info(f'password si coincide!! Roles=> {roles}')
         try:
 
@@ -250,7 +250,7 @@ def login():
                                 'email': user.email,
                                 'roles': roles,
                                 'exp': datetime.utcnow() + timedelta(minutes=MAX_TOKEN_LIFE)},
-                               Config['SECRET_KEY'])
+                               app.config['SECRET_KEY'])
 
             # app.logger.info(f'token {token}')
             return jsonify({'token': token})
@@ -263,7 +263,7 @@ def login():
 
 def send_reset_email(user, language='es'):
     token = user.get_reset_token()
-    href_url = f"{Config['APP_URL']}/reset-password/{user.email}/{token}"
+    href_url = f"{app.config['APP_URL']}/reset-password/{user.email}/{token}"
     subject = ""
     body = ""
 
@@ -282,7 +282,7 @@ def send_reset_email(user, language='es'):
         <p>If you did not make this request then simply ignore this email and no changes will be made.<p>
         '''
     msg = Message(
-        subject, sender=Config['MAIL_USERNAME'], recipients=[user.email])
+        subject, sender=app.config['MAIL_USERNAME'], recipients=[user.email])
     msg.html = body
 
     Mail().send(msg)

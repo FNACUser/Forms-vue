@@ -808,8 +808,7 @@ class DW_GradesSubjectsPivot(db.Model):
 
     grade_id = db.Column(db.Integer, db.ForeignKey('DW_Grades.id'), primary_key=True)
     subject_id = db.Column(db.Integer,db.ForeignKey('DW_Subjects.id'),primary_key=True)
-    
-        
+            
     grade = db.relationship("DW_Grades", back_populates="subjects")
     subject = db.relationship("DW_Subjects", back_populates="grades")
 
