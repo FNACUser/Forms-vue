@@ -6,7 +6,8 @@ from flask_seeder import Seeder
 from common.Utilities import getDataPath
 from models import (db, User, DW_Areas, DW_Grades, DW_Roles, DW_Schools, DW_Sections,
                     DW_ServiceUnits, DW_Subjects, DW_Tools, DW_Topics,DW_UsersGradesSectionsSubjectsPivot,
-                    DW_GradesSectionsPivot, DW_GradesSubjectsPivot, DW_ToolsGradesSubjectsPivot, DW_UsersSchoolRolesPivot, User)
+                    DW_GradesSectionsPivot, DW_GradesSubjectsPivot,  DW_UsersSchoolRolesPivot, 
+                    DW_ToolsGradesPivot, DW_ToolsRolesPivot,DW_ToolsAreasPivot,User)
 
 
 # All seeders inherit from Seeder
@@ -22,26 +23,22 @@ class PopulateDataWiseModelsSeeder(Seeder):
         excel_data = pathDB / 'DataWise_data.xlsx'
 
         dw_roles_XL = pd.read_excel(excel_data, sheet_name='Roles')
-        dw_roles_XL.to_sql(name='DW_Roles', con=db.engine,
-                           if_exists='append', index=False)
+        dw_roles_XL.to_sql(name='DW_Roles', con=db.engine,if_exists='append', index=False)
         print('Cargó DW_Roles...')
 
         dw_unidadesservicio_XL = pd.read_excel(
             excel_data, sheet_name='UnidadesServicio')
-        dw_unidadesservicio_XL.to_sql(
-            name='DW_ServiceUnits', con=db.engine, if_exists='append', index=False)
+        dw_unidadesservicio_XL.to_sql(name='DW_ServiceUnits', con=db.engine, if_exists='append', index=False)
         print('Cargó DW_Service_Units...')
 
         dw_escuelas_XL = pd.read_excel(excel_data, sheet_name='Escuelas')
-        dw_escuelas_XL.to_sql(name='DW_Schools', con=db.engine,
-                              if_exists='append', index=False)
+        dw_escuelas_XL.to_sql(name='DW_Schools', con=db.engine,if_exists='append', index=False)
         print('Cargó DW_Schools...')
 
         dw_grades_XL = pd.read_excel(excel_data, sheet_name='Grades')
         for index, row in dw_grades_XL.iterrows():
             # print(row)
-            school = DW_Schools.query.filter_by(
-                code=row['school_code']).first()
+            school = DW_Schools.query.filter_by(code=row['school_code']).first()
             if (school):
                 new_grade = DW_Grades(
                     name_es=row['name_es'],
@@ -54,18 +51,15 @@ class PopulateDataWiseModelsSeeder(Seeder):
         print('Cargó DW_Grades...')
 
         dw_areas_XL = pd.read_excel(excel_data, sheet_name='Areas')
-        dw_areas_XL.to_sql(name='DW_Areas', con=db.engine,
-                           if_exists='append', index=False)
+        dw_areas_XL.to_sql(name='DW_Areas', con=db.engine,if_exists='append', index=False)
         print('Cargó DW_Areas...')
 
         dw_temas_XL = pd.read_excel(excel_data, sheet_name='Temas')
-        dw_temas_XL.to_sql(name='DW_Topics', con=db.engine,
-                           if_exists='append', index=False)
+        dw_temas_XL.to_sql(name='DW_Topics', con=db.engine,if_exists='append', index=False)
         print('Cargó DW_Topics...')
 
         dw_secciones_XL = pd.read_excel(excel_data, sheet_name='Secciones')
-        dw_secciones_XL.to_sql(
-            name='DW_Sections', con=db.engine, if_exists='append', index=False)
+        dw_secciones_XL.to_sql(name='DW_Sections', con=db.engine, if_exists='append', index=False)
         print('Cargó DW_Sections...')
 
         dw_subjects_XL = pd.read_excel(excel_data, sheet_name='Materias')
@@ -85,13 +79,11 @@ class PopulateDataWiseModelsSeeder(Seeder):
         print('Cargó DW_Subjects...')
 
         # Asociación Grades-Sections
-        dw_association_XL = pd.read_excel(
-            excel_data, sheet_name='Grades_Sections')
+        dw_association_XL = pd.read_excel(excel_data, sheet_name='Grades_Sections')
         for index, row in dw_association_XL.iterrows():
             # print(row)
             grade = DW_Grades.query.filter_by(name_es=row['grado']).first()
-            section = DW_Sections.query.filter_by(
-                name_es=row['seccion']).first()
+            section = DW_Sections.query.filter_by(name_es=row['seccion']).first()
             if (grade and section):
                 new_association = DW_GradesSectionsPivot(
                     grade=grade,
@@ -106,13 +98,11 @@ class PopulateDataWiseModelsSeeder(Seeder):
         print('Cargó Asociación DW_Grades-Sections PIVOT...')
 
         # Asociación Subjects-Grades
-        dw_association_XL = pd.read_excel(
-            excel_data, sheet_name='Subjects_Grades')
+        dw_association_XL = pd.read_excel(excel_data, sheet_name='Subjects_Grades')
         for index, row in dw_association_XL.iterrows():
             # print(row)
             grade = DW_Grades.query.filter_by(name_es=row['grade']).first()
-            subject = DW_Subjects.query.filter_by(
-                name_es=row['subject']).first()
+            subject = DW_Subjects.query.filter_by(name_es=row['subject']).first()
             if (grade and subject):
                 new_association = DW_GradesSubjectsPivot(
                     grade=grade,
@@ -180,8 +170,6 @@ class PopulateDataWiseModelsSeeder(Seeder):
         
         # Asociación Users-Grades-Sections-Subjects PIVOT
          
-    
-        
         dw_association_XL = pd.read_excel(excel_data, sheet_name='Profesor-Grado-Seccion-Materia')
         for index, row in dw_association_XL.iterrows():
             # print(row)
@@ -211,10 +199,120 @@ class PopulateDataWiseModelsSeeder(Seeder):
                                 subject=subject
                             )
                             db.session.add(new_association)
+                            
+        print('Cargó Asociación DW_Users-Grades-Sections-Subjects PIVOT...')
                 
+        
+        # Asociaciones Tools-Grades Tools-Areas y Tools-Roles
+        dw_XL = pd.read_excel(excel_data, sheet_name='Herramientas')
+       #se selecciona 1 Tema/Topic por defecto ya que no hay clasificacion aún por este criterio
+        topic=DW_Topics.query.get(1) 
+        #se convierten las columnas a string forzosamente
+        dw_XL['Areas']=dw_XL['Areas'].astype(str)
+        dw_XL['Roles']=dw_XL['Roles'].astype(str)
+        dw_XL['Grados']=dw_XL['Grados'].astype(str)
+        
+        for index, row in dw_XL.iterrows():
+            # print(row)
+            new_tool = DW_Tools(
+                    name_es=row['name_es'],
+                    name_en=row['name_en'],
+                    # code=row['name_en'],
+                    topic=topic
+            )
+            db.session.add(new_tool)
+            db.session.commit()
+            print(f"Creó  DW_Tools= '{row['name_es']}'")
+            
+            if(row['Grados'] is not None and pd.notnull(row['Grados']) and pd.notna(row['Grados']) and row['Grados']!='nan'):
+                if(row['Grados']=='All'):
+                    
+                    grades = DW_Grades.query.with_entities(DW_Grades.id).all()
+                    grades_ids = [idx for idx, in grades]
+                    for grade_id in grades_ids:
+                            new_association = DW_ToolsGradesPivot(
+                                grade_id=grade_id,
+                                tool=new_tool
+                            )
+                        # print('crea asociación subject-grade')
+                            db.session.add(new_association)
+                    print('Cargó Asociación DW_ToolsGrades PIVOT- ALL case')
+                    
+                else:
+                    grade_names=row['Grados'].strip().split(',')
+                    for grade_name in grade_names:
+                        grade=DW_Grades.query.filter_by(name_es=grade_name.strip()).first() 
+                        new_association = DW_ToolsGradesPivot(
+                                grade=grade,
+                                tool=new_tool
+                            )
+                        db.session.add(new_association)
+                    print('Cargó Asociación DW_ToolsGrades PIVOT- LIST case')
+                
+                  
+            
+            if(row['Areas'] is not None and pd.notnull(row['Areas']) and pd.notna(row['Areas']) and row['Areas']!='nan'):
+               
+                if(row['Areas'].strip()=='All'):
+                    
+                    areas = DW_Areas.query.with_entities(DW_Areas.id).all()
+                    areas_ids = [idx for idx, in areas]
+                    for area_id in areas_ids:
+                            new_association = DW_ToolsAreasPivot(
+                                area_id=area_id,
+                                tool=new_tool
+                            )
+                        # print('crea asociación subject-grade')
+                            db.session.add(new_association)
+                    print('Cargó Asociación DW_ToolsAreas PIVOT- ALL case')
+                    
+                else:
+                    area_codes=row['Areas'].strip().split(',')
+                    
+                    for area_code in area_codes:
+                        area=DW_Areas.query.filter_by(code=area_code.strip()).first() 
+                        new_association = DW_ToolsAreasPivot(
+                                area=area,
+                                tool=new_tool
+                            )
+                        db.session.add(new_association)
+                    print('Cargó Asociación DW_ToolsAreas PIVOT- LIST case')
+                   
+                
+                
+            if(row['Roles'] is not None and pd.notnull(row['Roles']) and pd.notna(row['Roles']) and row['Roles']!='nan'):
+               
+                if(row['Roles'].strip()=='All'):
+                    
+                    roles = DW_Roles.query.with_entities(DW_Roles.id).all()
+                    roles_ids = [idx for idx, in roles]
+                    for role_id in roles_ids:
+                            new_association = DW_ToolsRolesPivot(
+                                role_id=role_id,
+                                tool=new_tool
+                            )
+                        # print('crea asociación subject-grade')
+                            db.session.add(new_association)
+                    print('Cargó Asociación DW_ToolsRoles PIVOT- ALL case')
+                    
+                else:
+                    area_codes=row['Roles'].strip().split(',')
+                    
+                    # for area_code in area_codes:
+                    #     area=DW_Areas.query.filter_by(code=area_code.strip()).first() 
+                    #     new_association = DW_ToolsAreasPivot(
+                    #             area=area,
+                    #             tool=new_tool
+                    #         )
+                    #     db.session.add(new_association)
+                    print('Cargó Asociación DW_ToolsAreas PIVOT- LIST case')
+        
+        
         
         db.session.commit()
         
-        print('Cargó Asociación DW_Users-Grades-Sections-Subjects PIVOT...')
+        print('Cargó Tools-Grades Tools-Areas y Tools-Roles...')
+        
+        
 
     

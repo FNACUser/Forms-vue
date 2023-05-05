@@ -595,6 +595,7 @@ class DW_Roles(db.Model):
     name_en = db.Column(db.String(100), nullable=False)
     
     users = db.relationship("DW_UsersSchoolRolesPivot", back_populates="school_role")
+    tools = db.relationship("DW_ToolsRolesPivot", back_populates="role")
 
     def __repr__(self):
         return f"DW_Roles('{self.id}'," \
@@ -643,6 +644,7 @@ class DW_Areas(db.Model):
     name_en = db.Column(db.String(100), nullable=False)
     
     subjects = db.relationship('DW_Subjects',backref=db.backref('area',lazy=True))
+    tools = db.relationship("DW_ToolsAreasPivot", back_populates="area")
     # users_schoolroles_pivot = db.relationship('DW_UsersSchoolRolesPivot',backref=db.backref('area',lazy=True))
 
     def __repr__(self):
@@ -679,7 +681,8 @@ class DW_Grades(db.Model):
     
     subjects=db.relationship("DW_GradesSubjectsPivot", back_populates="grade")
     sections = db.relationship("DW_GradesSectionsPivot", back_populates="grade")
-    tools_subjects = db.relationship("DW_ToolsGradesSubjectsPivot", back_populates="grade")
+    tools = db.relationship("DW_ToolsGradesPivot", back_populates="grade")
+    
     users_sections_subjects=db.relationship("DW_UsersGradesSectionsSubjectsPivot", back_populates="grade")
     # users_schoolroles_pivot = db.relationship('DW_UsersSchoolRolesPivot',backref=db.backref('grade',lazy=True))
     
@@ -716,7 +719,7 @@ class DW_Subjects(db.Model):
     area_id = db.Column(db.Integer,db.ForeignKey('DW_Areas.id'),nullable=False)
     
     # users_schoolroles_pivot = db.relationship('DW_UsersSchoolRolesPivot',backref=db.backref('subject',lazy=True))
-    tools_grades = db.relationship("DW_ToolsGradesSubjectsPivot", back_populates="subject")
+    
     grades = db.relationship("DW_GradesSubjectsPivot", back_populates="subject")
     users_grades_sections=db.relationship("DW_UsersGradesSectionsSubjectsPivot", back_populates="subject")
     
@@ -739,7 +742,11 @@ class DW_Tools(db.Model):
     
     topic_id = db.Column(db.Integer,db.ForeignKey('DW_Topics.id'),nullable=False)
     
-    grades_subjects = db.relationship("DW_ToolsGradesSubjectsPivot", back_populates="tool")
+    grades = db.relationship("DW_ToolsGradesPivot", back_populates="tool")
+    roles = db.relationship("DW_ToolsRolesPivot", back_populates="tool")
+    areas = db.relationship("DW_ToolsAreasPivot", back_populates="tool")
+    
+   
 
     def __repr__(self):
         return f"DW_Tools('{self.id}'," \
@@ -753,14 +760,6 @@ class DW_UsersSchoolRolesPivot(db.Model):
     
     areas = db.Column(db.String(100),nullable=True)
     schools = db.Column(db.String(100),nullable=True)
-    
-    # service_units = db.Column(db.JSON,nullable=True)
-    # area_id = db.Column(db.Integer,db.ForeignKey('DW_Areas.id'),nullable=True)
-    # service_unit_id = db.Column(db.Integer,db.ForeignKey('DW_ServiceUnits.id'),nullable=True)
-    # school_id = db.Column(db.Integer,db.ForeignKey('DW_Schools.id'),nullable=True)
-    # grade_id = db.Column(db.Integer,db.ForeignKey('DW_Grades.id'),nullable=True)
-    # section_id = db.Column(db.Integer,db.ForeignKey('DW_Sections.id'),nullable=True)
-    # subject_id = db.Column(db.Integer,db.ForeignKey('DW_Subjects.id'),nullable=True)
         
     user = db.relationship("User", back_populates="school_roles")
     school_role = db.relationship("DW_Roles", back_populates="users")
@@ -780,16 +779,34 @@ class DW_UsersGradesSectionsSubjectsPivot(db.Model):
     subject = db.relationship("DW_Subjects", back_populates="users_grades_sections")
 
 
-class DW_ToolsGradesSubjectsPivot(db.Model):
-    __tablename__ = 'DW_tools_grades_subjects'
+class DW_ToolsGradesPivot(db.Model):
+    __tablename__ = 'DW_tools_grades'
     
     tool_id = db.Column(db.Integer, db.ForeignKey('DW_Tools.id'), primary_key=True)
     grade_id = db.Column(db.Integer, db.ForeignKey('DW_Grades.id'), primary_key=True)
-    subject_id = db.Column(db.Integer,db.ForeignKey('DW_Subjects.id'),primary_key=True)
         
-    tool = db.relationship("DW_Tools", back_populates="grades_subjects")
-    grade = db.relationship("DW_Grades", back_populates="tools_subjects")
-    subject = db.relationship("DW_Subjects", back_populates="tools_grades")
+    tool = db.relationship("DW_Tools", back_populates="grades")
+    grade = db.relationship("DW_Grades", back_populates="tools")
+    
+class DW_ToolsAreasPivot(db.Model):
+    __tablename__ = 'DW_tools_areas'
+    
+    tool_id = db.Column(db.Integer, db.ForeignKey('DW_Tools.id'), primary_key=True)
+    area_id = db.Column(db.Integer, db.ForeignKey('DW_Areas.id'), primary_key=True)
+         
+    tool = db.relationship("DW_Tools", back_populates="areas")
+    area = db.relationship("DW_Areas", back_populates="tools")
+    
+
+class DW_ToolsRolesPivot(db.Model):
+    __tablename__ = 'DW_tools_roles'
+    
+    tool_id = db.Column(db.Integer, db.ForeignKey('DW_Tools.id'), primary_key=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('DW_Roles.id'), primary_key=True)
+          
+    tool = db.relationship("DW_Tools", back_populates="roles")
+    role = db.relationship("DW_Roles", back_populates="tools")
+
     
     
 class DW_GradesSectionsPivot(db.Model):
