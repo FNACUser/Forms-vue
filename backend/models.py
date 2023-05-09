@@ -664,6 +664,20 @@ class DW_Topics(db.Model):
         return f"DW_Topics('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
                
+               
+class DW_Options(db.Model):
+    __tablename__ = 'DW_Options'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(200), nullable=False)
+    name_en = db.Column(db.String(200), nullable=False)
+    
+    tools = db.relationship("DW_ToolsOptionsPivot", back_populates="option")
+
+    def __repr__(self):
+        return f"DW_Options('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+               
 class DW_Grades(db.Model):
     __tablename__ = 'DW_Grades'
     
@@ -745,6 +759,8 @@ class DW_Tools(db.Model):
     grades = db.relationship("DW_ToolsGradesPivot", back_populates="tool")
     roles = db.relationship("DW_ToolsRolesPivot", back_populates="tool")
     areas = db.relationship("DW_ToolsAreasPivot", back_populates="tool")
+    
+    options = db.relationship("DW_ToolsOptionsPivot", back_populates="tool")
     
    
 
@@ -828,6 +844,16 @@ class DW_GradesSubjectsPivot(db.Model):
             
     grade = db.relationship("DW_Grades", back_populates="subjects")
     subject = db.relationship("DW_Subjects", back_populates="grades")
+    
+
+class DW_ToolsOptionsPivot(db.Model):
+    __tablename__ = 'DW_tools_options'
+
+    tool_id = db.Column(db.Integer, db.ForeignKey('DW_Tools.id'), primary_key=True)
+    option_id = db.Column(db.Integer,db.ForeignKey('DW_Options.id'),primary_key=True)
+            
+    tool = db.relationship("DW_Tools", back_populates="options")
+    option = db.relationship("DW_Options", back_populates="tools")
 
 
 ####################################################################################################

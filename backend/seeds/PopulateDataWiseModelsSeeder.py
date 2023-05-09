@@ -7,7 +7,8 @@ from common.Utilities import getDataPath
 from models import (db, User, DW_Areas, DW_Grades, DW_Roles, DW_Schools, DW_Sections,
                     DW_ServiceUnits, DW_Subjects, DW_Tools, DW_Topics,DW_UsersGradesSectionsSubjectsPivot,
                     DW_GradesSectionsPivot, DW_GradesSubjectsPivot,  DW_UsersSchoolRolesPivot, 
-                    DW_ToolsGradesPivot, DW_ToolsRolesPivot,DW_ToolsAreasPivot,User)
+                    DW_ToolsGradesPivot, DW_ToolsRolesPivot,DW_ToolsAreasPivot,
+                    DW_Options, DW_ToolsOptionsPivot, User)
 
 
 # All seeders inherit from Seeder
@@ -119,7 +120,7 @@ class PopulateDataWiseModelsSeeder(Seeder):
          # Asociación Staff-Roles-Areas-Schools PIVOT
          
         
-        area_director=DW_Roles.query.filter_by(name_es='Director de Area').first()
+        area_director=DW_Roles.query.filter_by(name_es='Jefe de Area').first()
         coordinator=DW_Roles.query.filter_by(name_es='Coordinador').first()
         learning_center=DW_Roles.query.filter_by(name_es='Learning Center').first()
         human_development=DW_Roles.query.filter_by(name_es='Desarrollo Humano').first()
@@ -131,11 +132,11 @@ class PopulateDataWiseModelsSeeder(Seeder):
             user=User.query.get(row['StaffID'])
             if(user):
 
-                if(row['Director de Area'] is not None and pd.notnull(row['Director de Area'])):
+                if(row['Jefe de Area'] is not None and pd.notnull(row['Jefe de Area'])):
                     new_association = DW_UsersSchoolRolesPivot(
                         user=user,
                         school_role=area_director,
-                        areas=row['Director de Area']
+                        areas=row['Jefe de Area']
                     )
                     db.session.add(new_association)
                 if(row['Coordinador'] is not None and pd.notnull(row['Coordinador'])):
@@ -215,8 +216,8 @@ class PopulateDataWiseModelsSeeder(Seeder):
         for index, row in dw_XL.iterrows():
             # print(row)
             new_tool = DW_Tools(
-                    name_es=row['name_es'],
-                    name_en=row['name_en'],
+                    name_es=row['name_es'].strip(),
+                    name_en=row['name_en'].strip(),
                     # code=row['name_en'],
                     topic=topic
             )
@@ -296,22 +297,64 @@ class PopulateDataWiseModelsSeeder(Seeder):
                     print('Cargó Asociación DW_ToolsRoles PIVOT- ALL case')
                     
                 else:
-                    area_codes=row['Roles'].strip().split(',')
+                    roles=row['Roles'].strip().split(',')
+                    print(f'Roles to associate = {roles}')
                     
-                    # for area_code in area_codes:
-                    #     area=DW_Areas.query.filter_by(code=area_code.strip()).first() 
-                    #     new_association = DW_ToolsAreasPivot(
-                    #             area=area,
-                    #             tool=new_tool
-                    #         )
-                    #     db.session.add(new_association)
-                    print('Cargó Asociación DW_ToolsAreas PIVOT- LIST case')
+                    for role_name in roles:
+                        role=DW_Roles.query.filter_by(name_es=role_name.strip()).first() 
+                        if(role):
+                            new_association = DW_ToolsRolesPivot(
+                                    role=role,
+                                    tool=new_tool
+                                )
+                            db.session.add(new_association)
+                        else:
+                            print(f'Rol ={role} no existe!')
+                    print('Cargó Asociación DW_ToolsRoles PIVOT- LIST case')
         
         
         
         db.session.commit()
         
         print('Cargó Tools-Grades Tools-Areas y Tools-Roles...')
+        
+        dw_areas_XL = pd.read_excel(excel_data, sheet_name='Opciones')
+        dw_areas_XL.to_sql(name='DW_Options', con=db.engine,if_exists='append', index=False)
+        print('Cargó DW_Options...')
+        
+        
+        
+        # Asociacion Herramientas-Opciones
+        dw_XL = pd.read_excel(excel_data, sheet_name='Herramientas-Opciones')
+        usos=['Uso1','Uso2','Uso3','Uso4','Uso5','Uso6','Uso7','Uso8','Uso9']
+        for index, row in dw_XL.iterrows():
+            tool=DW_Tools.query.filter_by(name_en=row['Tool'].strip()).first()
+            if(tool):
+                for uso in usos:
+                    if(row[uso] is not None and pd.notnull(row[uso]) and pd.notna(row[uso]) and row[uso]!='nan'):
+                        option=DW_Options.query.filter_by(name_es=row[uso].strip()).first()
+                        if(option):
+                            new_association = DW_ToolsOptionsPivot(
+                                        option=option,
+                                        tool=tool
+                                    )
+                            db.session.add(new_association)
+                            db.session.commit()
+                            print(f'se creó asociación {row["Tool"]}-{row[uso]}')
+                        else:
+                            print(f'No existe opcion={row[uso]}')
+            else:
+                print(f'No existe tool={row["Tool"]}')            
+                    
+        print('Cargó DW_ToolsOptions Pivot...')
+        
+        
+        
+        
+        
+        
+        
+        
         
         
 
