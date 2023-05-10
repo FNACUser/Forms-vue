@@ -3,6 +3,7 @@
 /__pycache__
 /common/__pycache__
 /seeds/__pycache__
+/models/__pycache__
 /include
 /lib
 pyvenv.cfg
