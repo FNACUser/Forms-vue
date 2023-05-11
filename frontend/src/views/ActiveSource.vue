@@ -55,6 +55,28 @@
               ></v-select>
             </v-col>
             
+            <v-col
+              class="d-flex justify-space-around mb-6 align-end"
+              cols="3"
+              v-if="selected_network && selected_network.code==='explora'"
+            >
+              <v-autocomplete
+                v-model="selected_tools"
+                :items="filteredTools"
+                item-text="username"
+                item-value="id"
+                :label="$t('active_source.tools')"
+                persistent-hint
+                small-chips
+                multiple
+                return-object
+                @change="addTools()"
+                dense
+                :disabled="currentForm && currentForm.is_concluded"
+              ></v-autocomplete>
+            </v-col>  
+
+
             
             <v-col
               cols="2"
@@ -128,7 +150,7 @@
 
           <v-col
             
-            v-if="selected_network && selected_network.code!=='actor'"
+            v-if="selected_network && !['actor','explora'].includes(selected_network.code)"
 
             class="d-flex justify-end mr-11"
           >
@@ -143,7 +165,9 @@
           
           </v-row>
 
-        <v-row dense justify="space-around">
+        <v-row dense justify="space-around"
+          v-if="selected_network && !['explora'].includes(selected_network.code)"
+        >
           <v-col cols="3">
             <div v-for="(item, i) in questions" :key="i" >
               <v-card > 
@@ -326,6 +350,7 @@ export default {
       return {
 
         selected_actors:[],
+        selected_tools:[],
        // selected_cycle:null,
         selected_network:null,
         selected_area:null,
@@ -487,6 +512,20 @@ export default {
         else return null;
         
       },
+
+      filteredTools(){
+
+
+        // if(this.selected_area){
+
+        //   return this.mainStore.employees.filter(item=> item.id_organization_area===this.selected_area); 
+
+        // }
+        // else return null;
+
+        return [];
+
+        },
 
       filteredNetwokModeThemes(){
 
@@ -991,16 +1030,15 @@ export default {
             this.current_network_mode=[];
 
             if(this.selected_network &&  this.filteredNetwokModeThemes) {
-
+              
               if(this.selected_network_mode_theme){
                 this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id && item.id_network_mode_theme===this.selected_network_mode_theme)[0];
               }
             }
             else if(this.selected_network && this.filteredNetwokModeThemes === null){
-              
-              this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network===this.selected_network.id)[0];
-            
-            
+         
+              this.current_network_mode = this.mainStore.network_modes.filter(item =>  item.id_network==this.selected_network.id)[0];
+       
             }
 
             if(this.current_network_mode){

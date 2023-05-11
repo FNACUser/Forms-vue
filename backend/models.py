@@ -375,7 +375,9 @@ class IRA_Questions_possible_answers(db.Model):
     # Question_possible_answers_en = db.Column(db.String(1000), nullable=False)
     Question_possible_answers_es = db.Column(db.Text, nullable=False)
     Question_possible_answers_en = db.Column(db.Text, nullable=False)
-    multiple = db.Column(db.Boolean, default=False, nullable=False)
+    multiple = db.Column(db.Boolean, default=False)
+    use_external_source=db.Column(db.Boolean, default=False)
+    source_name=db.Column(db.String(200), nullable=True)
 
     questions = db.relationship('IRA_Questions',
                                 backref=db.backref('question_possible_answers',

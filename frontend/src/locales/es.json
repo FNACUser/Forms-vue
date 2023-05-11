@@ -35,7 +35,8 @@
       "area":"Area",
       "actions":"Acciones"
     },
-    "item_name":"Nombre del {item}"
+    "item_name":"Nombre del {item}",
+    "tools":"Herramientas"
 
   },
 
