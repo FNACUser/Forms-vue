@@ -7,7 +7,9 @@
     "about":"About",
     "delete_record_title":"Delete record",
     "cancel":"Cancel",
-    "loading":"Loading..."
+    "loading":"Loading...",
+    "delete":"Delete",
+    "select_usage_options":"Select usage options"
     
   },
 

@@ -250,7 +250,7 @@
                                           mdi-delete
                                       </v-icon>
                                   </template>
-                                  <span>Borrar</span>
+                                  <span>{{$t('menus.delete')}}</span>
                               </v-tooltip>
                            
                           </td>
@@ -319,7 +319,7 @@
                                             mdi-delete
                                         </v-icon>
                                     </template>
-                                    <span>Borrar</span>
+                                    <span>{{ $t('menus.delete') }}</span>
                                 </v-tooltip>
 
                               </td>
@@ -386,6 +386,21 @@
                           
                         <td align="right">
 
+                          <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
+                                  <template #activator="{ on }">
+                                      <v-icon
+                                          v-on="on"
+                                          small
+                                          @click="showUsageOptions(item, 'menus.usage_options')"
+                                          color="green"      
+                                      >
+                                          mdi-form-select
+                                      </v-icon>
+                                  </template>
+                                  <span>{{ $t('menus.select_usage_options') }} </span>
+                              </v-tooltip>
+
+
                             <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
                                 <template #activator="{ on }">
                                     <v-icon
@@ -397,7 +412,7 @@
                                         mdi-delete
                                     </v-icon>
                                 </template>
-                                <span>Borrar</span>
+                                <span>{{ $t('menus.delete') }}</span>
                             </v-tooltip>
 
                         </td>
@@ -673,6 +688,13 @@ export default {
 
 
     methods:{
+
+
+      showUsageOptions(item, label) {
+
+        console.log(item, label);
+        
+      },
 
 
       refreshNodes(new_nodes){
