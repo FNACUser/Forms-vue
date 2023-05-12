@@ -170,11 +170,9 @@ class PopulateDataWiseModelsSeeder(Seeder):
         
         print('Cargó Asociación DW_Staff-Roles-Areas-Schools PIVOT ...')
         
-        
-        
-        
+          
         # Asociación Users-Grades-Sections-Subjects PIVOT
-         
+        teacher_role = DW_Roles.query.filter_by(name_en='Teacher').first()
         dw_association_XL = pd.read_excel(excel_data, sheet_name='Profesor-Grado-Seccion-Materia')
         for index, row in dw_association_XL.iterrows():
             # print(row)
@@ -204,6 +202,30 @@ class PopulateDataWiseModelsSeeder(Seeder):
                                 subject=subject
                             )
                             db.session.add(new_association)
+                            
+                            lista_roles=list(map(lambda x: x.school_role.name_en, user.school_roles))
+                            
+                            if("Teacher" not in lista_roles):
+                                
+                                new_user_role = DW_UsersSchoolRolesPivot(
+                                    user=user,
+                                    school_role=teacher_role,
+                                    schools=grade.school.code,
+                                    areas=subject.area.code
+                                )
+                                db.session.add(new_user_role)
+                            else:
+                                user_teacher=[x for x in user.school_roles if  x.school_role.name_en=='Teacher'][0]
+                                schools_list=user_teacher.schools.split(',')
+                                areas_list=user_teacher.areas.split(',')
+                                
+                                if(grade.school.code not in schools_list):
+                                    user_teacher.schools=user_teacher.schools+","+grade.school.code
+                                if(subject.area.code not in areas_list):
+                                    user_teacher.areas=user_teacher.areas+","+subject.area.code   
+                                
+                            
+                        
                             
         print('Cargó Asociación DW_Users-Grades-Sections-Subjects PIVOT...')
                 
@@ -410,7 +432,7 @@ class PopulateDataWiseModelsSeeder(Seeder):
             
             Question_possible_answers_es='[{"texto":"Nunca", "valor":0 },{"texto":"Diariamente", "valor":1 }, {"texto":"Semanalmente", "valor":2},  {"texto":"Mensualmente", "valor":3},{"texto":"Otro", "valor":4}]',
             Question_possible_answers_en='[{"texto":"Never", "valor":0 },{"texto":"Daily", "valor":1 }, {"texto":"Weekly", "valor":2},  {"texto":"Monthly", "valor":3},{"texto":"Other", "valor":4}]',
-            multiple=1
+            multiple=0
         )
         new_possible_answers3= IRA_Questions_possible_answers(
             

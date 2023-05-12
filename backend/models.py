@@ -1141,3 +1141,27 @@ class CultureQuestionResponseSchema(ma.SQLAlchemyAutoSchema):
 
 
 culture_question_response_schema = CultureQuestionResponseSchema(many=True)
+
+
+# -----------------------------------------------------------------------------------------------------------
+# Datawise Schemas
+# -----------------------------------------------------------------------------------------------------------
+
+class DW_ToolsOptionsPivotSchema(ma.SQLAlchemyAutoSchema):
+
+    class Meta:
+        model = DW_ToolsOptionsPivot
+        
+
+
+class DW_ToolsSchema(ma.SQLAlchemyAutoSchema):
+
+    class Meta:
+        model = DW_Tools
+        # fields = ("id", "name_es", "name_en","options")
+        fields = ("id", "name_es", "name_en")
+
+        # options = ma.List(ma.Nested(DW_ToolsOptionsPivotSchema))
+    
+dw_tools_schema = DW_ToolsSchema(many=True)
+

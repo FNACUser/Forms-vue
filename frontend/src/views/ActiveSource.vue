@@ -32,7 +32,7 @@
                 clearable
                 return-object
                 @click:clear="clearVariables"
-                @change="getQuestionsAndNodes"
+                @change="getData"
                 dense
               ></v-select>
           </v-col>
@@ -49,7 +49,7 @@
                 :item-text="`Network_mode_theme_${$i18n.locale}`"
                 item-value="id_network_mode_theme"
                 clearable
-                @change="getQuestionsAndNodes"
+                @change="getData"
                 @click:clear="clearVariables"
                 dense
               ></v-select>
@@ -57,22 +57,25 @@
             
             <v-col
               class="d-flex justify-space-around mb-6 align-end"
-              cols="3"
+              cols="4"
               v-if="selected_network && selected_network.code==='explora'"
             >
               <v-autocomplete
                 v-model="selected_tools"
-                :items="filteredTools"
-                item-text="username"
+                :items="user_tools"
+                :item-text="`name_${$i18n.locale}`"
                 item-value="id"
                 :label="$t('active_source.tools')"
                 persistent-hint
                 small-chips
+                deletable-chips
                 multiple
+                clearable 
                 return-object
                 @change="addTools()"
                 dense
                 :disabled="currentForm && currentForm.is_concluded"
+                
               ></v-autocomplete>
             </v-col>  
 
@@ -166,26 +169,29 @@
           </v-row>
 
         <v-row dense justify="space-around"
-          v-if="selected_network && !['explora'].includes(selected_network.code)"
+          
         >
-          <v-col cols="3">
-            <div v-for="(item, i) in questions" :key="i" >
-              <v-card > 
-                <v-app-bar
-                flat
-                color="blue"
-                >          
-                    <v-card-title
-                      class="white--text" 
-                    >
-                    {{$t('active_source.question')}} {{i+1}}
-                    </v-card-title>
-                </v-app-bar>    
-                    <v-card-text>{{item[`Question_${$i18n.locale}`]}}</v-card-text>            
-              </v-card>
-            <br/>
-            </div>
-            </v-col>
+          <v-col 
+            cols="3"
+            v-if="selected_network && !['explora'].includes(selected_network.code)"  
+          >
+              <div v-for="(item, i) in questions" :key="i" >
+                  <v-card > 
+                    <v-app-bar
+                    flat
+                    color="blue"
+                    >          
+                        <v-card-title
+                          class="white--text" 
+                        >
+                        {{$t('active_source.question')}} {{i+1}}
+                        </v-card-title>
+                    </v-app-bar>    
+                        <v-card-text>{{item[`Question_${$i18n.locale}`]}}</v-card-text>            
+                  </v-card>
+                  <br/>
+              </div>
+          </v-col>
 
             <v-col
               cols="8"
@@ -255,7 +261,7 @@
 
             <v-col
               cols="8"
-              v-if="selected_network && selected_network.code!=='actor'"
+              v-if="selected_network && !['explora','actor'].includes(selected_network.code)"
             >
 
              <v-data-table
@@ -299,6 +305,7 @@
                                 </v-select>
                               
                             </td>
+                          </template>
                             <td >
 
                                 <v-tooltip bottom v-if="(mainStore.logged_user.id== item.id_employee) && currentForm && !currentForm.is_concluded">
@@ -315,14 +322,92 @@
                                     <span>Borrar</span>
                                 </v-tooltip>
 
-                                </td>
+                              </td>
                                                             
-                          </template>
+                        
                           
                     </tr>
                   </template>
               </v-data-table>
             </v-col>
+
+            <v-col
+              cols="12"
+              v-if="selected_network && selected_network.code==='explora'"
+            >
+
+              <v-data-table
+                    :headers="tableToolsHeader"
+                    :items="selected_tools"
+                    :items-per-page="-1"
+                    class="elevation-1"
+                    v-if="selected_tools.length>0"
+                    dense
+              >
+                  <template v-slot:item="{ item }">
+                        <tr>
+                          <td class="text-xs-left" style="width:15%">{{ item[`name_${$i18n.locale}`] }}</td>
+                          <template >
+                              <td 
+                              v-for="(question,index) in filteredQuestions" :key="index"
+                              style="width:7%"
+                              >
+                                  
+                                  <v-select
+                                      :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`"
+                                      v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`]"
+                                      :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
+                                      item-text="texto"
+                                      item-value="valor"
+                                      clearable
+                                      @change="saveAnswersArray($event,item.id,question.id_question)"
+                                      :multiple="question.question_possible_answers.multiple"
+                                      deletable-chips
+                                      small-chips
+                                      outlined
+                                      flat
+                                      rounded
+                                      class="my-5"
+                                      dense
+                                      :disabled="currentForm && currentForm.is_concluded"
+                                      
+                                    >
+                                  
+                                  </v-select>
+                                
+                              </td>
+                        </template>
+                        
+                            
+
+                        <td>
+                          
+                        </td >
+                          
+                        <td align="right">
+
+                            <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
+                                <template #activator="{ on }">
+                                    <v-icon
+                                        v-on="on"
+                                        small
+                                        @click="delRecord(item,'menus.delete_record_title','alerts.delete_item_text',selected_network[`name_${$i18n.locale}`],'Explora')"
+                                        color="orange"      
+                                    >
+                                        mdi-delete
+                                    </v-icon>
+                                </template>
+                                <span>Borrar</span>
+                            </v-tooltip>
+
+                        </td>
+                                                                                 
+                    </tr>             
+                  </template>           
+              </v-data-table>
+            </v-col>
+
+
         </v-row>
         
         <confirmation-dialog ref="confirmDeleteActor"/>
@@ -351,6 +436,7 @@ export default {
 
         selected_actors:[],
         selected_tools:[],
+        user_tools:[],
        // selected_cycle:null,
         selected_network:null,
         selected_area:null,
@@ -363,6 +449,7 @@ export default {
         formClosed:false,
         adjacency_input_forms:[],
         forms:[],
+
 
         selRules: [
           
@@ -402,6 +489,21 @@ export default {
             sortable: false},
         ],
 
+        defaultToolsHeader:[
+          {
+            text: 'Herramienta',
+            align: 'start',
+            value: 'username',
+            class: "white--text"
+          },
+          
+          
+          { 
+            text: 'Acciones',
+            class: "white--text",
+            align: 'end',
+            sortable: false},
+        ],
 
       }
     },
@@ -513,19 +615,19 @@ export default {
         
       },
 
-      filteredTools(){
+
+      filteredQuestions(){
 
 
-        // if(this.selected_area){
+        if(this.selected_network && this.selected_network.code=='explora' && this.questions.length>0){
 
-        //   return this.mainStore.employees.filter(item=> item.id_organization_area===this.selected_area); 
+            return this.questions.filter(item=> !item.question_possible_answers.use_external_source); 
 
-        // }
-        // else return null;
-
-        return [];
+          }
+          else return null;
 
         },
+
 
       filteredNetwokModeThemes(){
 
@@ -557,6 +659,13 @@ export default {
             return this.makeNodesTableHeader(this.questions, this.defaultNodesHeader, this.$t('active_source.question'));
 
         },
+
+      
+      tableToolsHeader() {
+        
+        return this.makeToolsTableHeader(this.questions, this.defaultToolsHeader);
+
+      },
     
       
 
@@ -590,7 +699,7 @@ export default {
         }
 
         //this.getQuestions();
-        this.getQuestionsAndNodes();
+        this.getData();
 
       },
 
@@ -738,6 +847,31 @@ export default {
           
           },
 
+
+          makeToolsTableHeader(val, defaultHeader) {
+
+            let headers = Object.assign([], defaultHeader);
+
+            if (val && val.length > 0) {
+
+                val.forEach((question, index) => {
+                    headers.splice(1 + index, 0, {
+                        text: question[`Question_${this.$i18n.locale}`],
+                        align: 'center',
+                        class: 'white--text',
+                        sortable: false,
+                    });
+                });
+            }
+
+            headers[0].text = this.$t('active_source.tools');
+            headers[headers.length-1].text = this.$t('active_source.actor_table.actions');
+
+            return headers;
+
+
+            },
+
       sortSelectedColleagues(){
         this.selected_actors.sort((a,b) => 
           (a.username.toLowerCase() < b.username.toLowerCase()) ? -1 : ((b.username.toLowerCase() > a.username.toLowerCase()) ? 1 : 0));
@@ -793,6 +927,25 @@ export default {
           });
 
           this.sortSelectedColleagues();
+
+          },
+
+      async addTools(){
+
+    
+
+          // await this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/add_interacting_actor', data)
+          // .then(response => {
+          //   this.$alertify.success(this.$t(response.data));
+          //   this.updateAllActorNetworkModeGauges();
+
+          // })
+          // .catch(error => {
+            
+          //   console.error('There was an error!', error.message);
+          // });
+
+        
 
           },
 
@@ -1047,14 +1200,22 @@ export default {
             
       },
 
+      async getUserTools(){
 
-      async getQuestionsAndNodes(){
+        const tools = await this.$axios.get(process.env.VUE_APP_BACKEND_URL+'/datawise/user_tools');
+        this.user_tools = tools.data;
+      },
+
+
+      async getData(){
 
         await this.getQuestions();
         await this.getNodes(this.current_network_mode.id_network_mode);
+        if(this.selected_network.code==='explora')  await  this.getUserTools();
 
       },
 
+     
 
       async createFormsDetails(){
 

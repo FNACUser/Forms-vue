@@ -940,5 +940,23 @@ def get_culture_user_mode_themes_totals(current_user, user_id, cycle_id, mode_id
     return jsonify({'message': "api_responses.no_results"})
 
 
+# -----------------------------------------------------------------------------------------------------------
+# DataWise  api routes
+# -----------------------------------------------------------------------------------------------------------
+
+@app.route('/api/v1/datawise/user_tools', methods=['GET'])
+@token_required
+def get_user_tools(current_user):
+    
+    school_roles = list(map(lambda x: x.school_role.name_en, current_user.school_roles))
+
+    resp = DW_Tools.query.all()
+    return jsonify(dw_tools_schema.dump(resp))
+
+
+
+
+
+
 if __name__ == '__main__':
     app.run()
