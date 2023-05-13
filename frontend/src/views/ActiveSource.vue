@@ -391,7 +391,7 @@
                                       <v-icon
                                           v-on="on"
                                           small
-                                          @click="showUsageOptions(item, 'menus.usage_options')"
+                                          @click="showUsageOptions"
                                           color="green"      
                                       >
                                           mdi-form-select
@@ -418,7 +418,10 @@
                         </td>
                                                                                  
                     </tr>             
-                  </template>           
+                  </template>   
+                  
+                 
+                 
               </v-data-table>
             </v-col>
 
@@ -426,6 +429,11 @@
         </v-row>
         
         <confirmation-dialog ref="confirmDeleteActor"/>
+
+        <UsageOptionsDialog
+                    :showDialog="openUsageOptionsDialog"
+                    @close="openUsageOptionsDialog = false"
+        ></UsageOptionsDialog>
             
     </v-container>
   
@@ -437,14 +445,17 @@ import { mapStores,mapState} from 'pinia';
 import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 import Gauge from '@/components/Gauge.vue';
 import AddNode from '@/components/AddNode.vue';
+import UsageOptionsDialog from '@/components/UsageOptionsDialog.vue';
+
 
 export default {
 
-    components: { 
-      ConfirmationDialog,
-      Gauge,
-      AddNode
-    },
+    components: {
+    ConfirmationDialog,
+    Gauge,
+    AddNode,
+    UsageOptionsDialog
+},
 
     data() {
       return {
@@ -464,6 +475,7 @@ export default {
         formClosed:false,
         adjacency_input_forms:[],
         forms:[],
+        openUsageOptionsDialog:false,
 
 
         selRules: [
@@ -690,9 +702,11 @@ export default {
     methods:{
 
 
-      showUsageOptions(item, label) {
+      showUsageOptions() {
 
-        console.log(item, label);
+        this.openUsageOptionsDialog=true;
+       
+        console.log(this.openUsageOptionsDialog);
         
       },
 
