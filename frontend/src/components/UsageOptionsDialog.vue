@@ -55,7 +55,9 @@
             'showDialog',
             'usageOptions',
             'toolID',
-            'questionID'
+            'questionID',
+            'defaultOptions'
+            
         ],
 
       data: () => ({
@@ -87,6 +89,18 @@
             // deep: true,
             // immediate:true
 
+        },
+
+
+        defaultOptions: {
+
+            handler: function (val) {
+
+              this.selected_options = val;
+
+            },
+            //  deep: true,
+            //  immediate:true
 
         },
 

@@ -25,8 +25,6 @@
           @change="addTools()" dense :disabled="currentForm && currentForm.is_concluded"></v-autocomplete>
       </v-col>
 
-
-
       <v-col cols="2" class="d-flex justify-space-around mb-6 align-end"
         v-if="selected_network && selected_network.code === 'actor'">
         <v-autocomplete v-model="selected_area" :items="mainStore.areas" :label="$t('active_source.area')"
@@ -209,6 +207,12 @@
                         v-for="(optionID, index) in answers[`${current_network_mode.id_network_mode}_${externalSourceQuestion.id_question}_${item.id}`]" :key="index"
                       >
                         {{ item.options.find(obj =>  obj.id === optionID)[`name_${$i18n.locale}`]}}
+                        <v-icon
+                            small
+                            color="red darken-2"
+                          >
+                            mdi-close-circle-outline
+                          </v-icon>
                       </li>
                     
                   </ul>
@@ -257,9 +261,12 @@
       :usageOptions="toolOptions"
       :toolID="toolID"
       :questionID="questionID"
+      :defaultOptions="selected_options"
       :showDialog="openUsageOptionsDialog"
+
       @close="closeUsageOptionsDialog" 
       @usageOptionsSelected="saveAnswersArray($event.selected_options, $event.toolID, $event.questionID)"
+
     ></UsageOptionsDialog>
 
   </v-container>
@@ -304,7 +311,8 @@ export default {
       openUsageOptionsDialog: false,
       toolOptions: [],
       toolID:null,
-      questionID:null,
+      questionID: null,
+      selected_options:[],
 
 
       selRules: [
@@ -559,8 +567,11 @@ export default {
       if (item && item.options.length > 0){
         this.toolOptions = item.options;
         this.toolID=item.id;
-        this.questionID=question_id
-
+        this.questionID = question_id;
+        if (this.current_network_mode) {
+          this.selected_options = this.answers[`${this.current_network_mode.id_network_mode}_${question_id}_${item.id}`] ?? []; 
+        }
+        
       }
         
 
@@ -579,7 +590,8 @@ export default {
     closeUsageOptionsDialog(){
 
       this.openUsageOptionsDialog = false;
-      this.toolOptions=[];
+      this.toolOptions = [];
+      this.selected_options = [];
 
     },
 
@@ -623,9 +635,7 @@ export default {
 
     saveAnswersArray(event, item_id, question_id) {
 
-       console.log('Entra a SaveAnswerArray');
-
-
+       
       if (this.answers[`${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`]) {
 
         this.answers[`${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`] = event;
@@ -637,10 +647,6 @@ export default {
 
       }
 
-      console.log( item_id);
-      console.log( question_id);
-
-      console.log( this.answers[`${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`]);
 
       const data = {
         "cycle_id": this.mainStore.selected_cycle,
