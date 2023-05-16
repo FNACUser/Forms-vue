@@ -493,7 +493,7 @@ def add_node(current_user):
 def delete_node(current_user):
 
     data = request.json
-    print(data)
+    # print(data)
     if (data['user_email'] == current_user.email):
 
         # deleted_relations = nodes_vs_networks_modes.delete().where(id_node = data['item_id'])
@@ -530,6 +530,45 @@ def delete_node(current_user):
         return jsonify({'response': nodes_schema.dump(nodes), 'message': "api_responses.item_deleted"})
 
     return jsonify("api_responses.item_not_deleted"), 500
+
+
+@app.route('/api/v1/explora', methods=['DELETE'])
+@token_required
+def delete_explora(current_user):
+
+    data = request.json
+    print(data)
+    if (data['user_email'] == current_user.email):
+
+
+        adjacency_input_forms_ids = IRA_Adjacency_input_form.query\
+            .with_entities(IRA_Adjacency_input_form.id_adjacency_input_form)\
+            .filter_by(id_cycle=data['cycle_id'], id_employee=current_user.id, id_network_mode=data['network_mode_id'])\
+            .all()
+        adjacency_codes = list(itertools.chain(*adjacency_input_forms_ids))
+
+        if (adjacency_codes):
+            for code in adjacency_codes:
+                existing_responses = IRA_Responses.query.filter_by(
+                    id_adjacency_input_form=code).all()
+                for response in existing_responses:
+                    if (response):
+                        current_response = json.loads(response.Response)
+                        # print(current_response)
+                        existing_item = next(
+                            filter(lambda x: x['item_id'] == data['item_id'], current_response), None)
+                        if (existing_item is not None):
+                            current_response = list(
+                                filter(lambda x: x['item_id'] != data['item_id'], current_response))
+                            response.Response = json.dumps(current_response)
+
+        db.session.commit()
+        existing_responses = IRA_Responses.query.filter_by(id_adjacency_input_form=code).all()
+
+        return jsonify({'response': responses_schema.dump(existing_responses), 'message': "api_responses.item_deleted"})
+
+    return jsonify("api_responses.item_not_deleted"), 500
+
 
 
 @app.route('/api/v1/networks_modes', methods=['GET'])

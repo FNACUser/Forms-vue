@@ -883,8 +883,46 @@ export default {
           await this.deleteNode(item);
 
         }
+        else if (type == 'Explora') {
+
+          await this.deleteExplora(item);
+
+        }
 
       }
+    },
+
+
+    async deleteExplora(item) {
+
+          const item_index = this.selected_tools.findIndex(object => {
+            return object.id == item.id
+          });
+
+          const data = {
+            "user_email": this.mainStore.logged_user.email,
+            "item_id": item.id,
+            "cycle_id": this.mainStore.selected_cycle,
+            "network_mode_id": this.current_network_mode.id_network_mode
+          };
+
+          // console.log(data);
+
+          await this.$axios.delete(process.env.VUE_APP_BACKEND_URL + '/explora', { data: data })
+            .then(async response => {
+              console.log(response.data);
+              this.$alertify.success(this.$t(response.data.message, { item: this.selected_network[`name_${this.$i18n.locale}`] }));
+              this.selected_tools.splice(item_index, 1);
+              await this.getUserResponses();
+              this.updateNetworkModeGauge(this.current_network_mode);
+
+            })
+            .catch(error => {
+
+              console.error('There was an error!', error.message);
+            });
+
+
     },
 
     async deleteNode(item) {
@@ -900,7 +938,7 @@ export default {
         "network_mode_id": this.current_network_mode.id_network_mode
       };
 
-      console.log(data);
+      // console.log(data);
 
       await this.$axios.delete(process.env.VUE_APP_BACKEND_URL + '/node', { data: data })
         .then(async response => {
