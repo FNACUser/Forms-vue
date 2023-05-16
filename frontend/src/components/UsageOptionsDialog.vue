@@ -4,26 +4,35 @@
         <v-form ref="form" v-model="valid_form" lazy-validation>
             <v-dialog
                 v-model="openDialog"
-                max-width="500px"
+                max-width="800px"
                 @click:outside="close"
             >
 
               
-              <v-card>
+              <v-card class="mx-auto">
                 <v-card-title>
                   <span class="headline">Opciones de Uso</span>
                 </v-card-title>
                 <v-card-text>
                   <v-container grid-list-md>
 
+                 
+                    <v-checkbox 
+                      v-for="(option, index) in usageOptions" :key="index"
+                      :value="option['id']"
+                      :label="option[`name_${$i18n.locale}`]" 
+                      v-model="selected_options" 
+                    >
+                    </v-checkbox>
                     
 
                   </v-container>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                    <v-btn color="pink"   @click.native="clear" class="ma-2 black--text">Limpiar</v-btn>
+                    
                     <v-btn color="blue"   dark  @click="close">Cancelar</v-btn>
+                    <v-btn color="success"   @click.native="saveSelectedOptions" >Seleccionar</v-btn>
                     
                 </v-card-actions>
               </v-card>
@@ -39,22 +48,32 @@
   
     export default {
 
-        name: "UsageOptionsDialog",
+      name: "UsageOptionsDialog",
 
-        props:[
+      props:[
            
-            'showDialog'
+            'showDialog',
+            'usageOptions',
+            'toolID',
+            'questionID'
         ],
 
-        data: () => ({
+      data: () => ({
 
             openDialog:false,
             valid_form:false ,
-            selected_options:{},
+            selected_options:[],
 
         }),
 
-    watch: {
+
+      mounted(){
+
+        // console.log('entra amounted!')
+
+      },
+
+      watch: {
 
         showDialog: {
 
@@ -71,31 +90,45 @@
 
         },
 
-        
-
         },
 
-        computed: {
+      computed: {
 
          
 
         },
 
 
-        methods: {
+      methods: {
 
 
           
           close() {
 
               this.openDialog = false;
+              this.selected_options=[];
               this.$emit('close');
 
             },
 
           clear() {
             this.$refs.form.reset();
+            this.selected_options=[];
            },
+
+          saveSelectedOptions(){
+
+            const data ={
+              'selected_options':this.selected_options,
+              'toolID':this.toolID,
+              'questionID':this.questionID
+
+            }
+            this.$emit('usageOptionsSelected', data);
+            this.close();
+
+
+           }
 
         }
     }

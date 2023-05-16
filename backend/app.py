@@ -352,8 +352,7 @@ def cycles(current_user):
 @token_required
 def network(current_user, lang):
     attribute_name = 'name_'+lang
-    resp = IRA_Networks.query.order_by(
-        getattr(IRA_Networks, attribute_name)).all()
+    resp = IRA_Networks.query.order_by(getattr(IRA_Networks, attribute_name)).all()
     return jsonify(networks_schema.dump(resp))
 
 
@@ -370,8 +369,7 @@ def cycle_network_modes(current_user, cycle_id):
 @token_required
 def adjacency_input_forms(current_user, user_id, cycle_id):
 
-    input_forms = IRA_Adjacency_input_form.query.filter_by(
-        id_cycle=cycle_id, id_employee=user_id).all()
+    input_forms = IRA_Adjacency_input_form.query.filter_by(id_cycle=cycle_id, id_employee=user_id).all()
     return jsonify(adjacency_input_forms_schema.dump(input_forms))
 
 
@@ -387,8 +385,7 @@ def areas(current_user):
 @token_required
 def nodes_segments_categories(current_user):
 
-    resp = IRA_Nodes_segments_categories.query.order_by(
-        IRA_Nodes_segments_categories.Node_segment_category).all()
+    resp = IRA_Nodes_segments_categories.query.order_by(IRA_Nodes_segments_categories.Node_segment_category).all()
     return jsonify(node_segment_category_schema.dump(resp))
 
 
@@ -948,12 +945,11 @@ def get_culture_user_mode_themes_totals(current_user, user_id, cycle_id, mode_id
 @token_required
 def get_user_tools(current_user):
     
-    school_roles = list(map(lambda x: x.school_role.name_en, current_user.school_roles))
+    # school_roles = list(map(lambda x: x.school_role.name_en, current_user.school_roles))
 
     resp = DW_Tools.query.all()
+    # print(resp)
     return jsonify(dw_tools_schema.dump(resp))
-
-
 
 
 

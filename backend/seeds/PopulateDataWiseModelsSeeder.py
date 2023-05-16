@@ -8,7 +8,8 @@ from models import (db, User, DW_Areas, DW_Grades, DW_Roles, DW_Schools, DW_Sect
                     DW_ServiceUnits, DW_Subjects, DW_Tools, DW_Topics,DW_UsersGradesSectionsSubjectsPivot,
                     DW_GradesSectionsPivot, DW_GradesSubjectsPivot,  DW_UsersSchoolRolesPivot, 
                     DW_ToolsGradesPivot, DW_ToolsRolesPivot,DW_ToolsAreasPivot,
-                    DW_Options, DW_ToolsOptionsPivot, 
+                    DW_Options, 
+                    # DW_ToolsOptionsPivot, 
                     IRA_Networks, IRA_Nodes_segments_categories, IRA_Networks_modes, 
                     IRA_Questions, IRA_Questions_possible_answers,IRA_Cycles
                     
@@ -360,19 +361,21 @@ class PopulateDataWiseModelsSeeder(Seeder):
                     if(row[uso] is not None and pd.notnull(row[uso]) and pd.notna(row[uso]) and row[uso]!='nan'):
                         option=DW_Options.query.filter_by(name_es=row[uso].strip()).first()
                         if(option):
-                            new_association = DW_ToolsOptionsPivot(
-                                        option=option,
-                                        tool=tool
-                                    )
-                            db.session.add(new_association)
-                            db.session.commit()
+                            # new_association = DW_ToolsOptionsPivot(
+                            #             option=option,
+                            #             tool=tool
+                            #         )
+                            # db.session.add(new_association)
+                            # db.session.commit()
+                            tool.options.append(option)
                             print(f'se creó asociación {row["Tool"]}-{row[uso]}')
                         else:
                             print(f'No existe opcion={row[uso]}')
             else:
                 print(f'No existe tool={row["Tool"]}')            
                     
-        print('Cargó DW_ToolsOptions Pivot...')
+        # print('Cargó DW_ToolsOptions Pivot...')
+        print('Cargó DW_tools_vs_options Pivot...')
         
       ##
       ## CARGA nuevos valores dentro de los modelos IRA para representar este nuevo tipo de formulario.

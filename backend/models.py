@@ -667,18 +667,7 @@ class DW_Topics(db.Model):
                f"'{self.name_es}','{self.name_en}')"
                
                
-class DW_Options(db.Model):
-    __tablename__ = 'DW_Options'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    name_es = db.Column(db.String(200), nullable=False)
-    name_en = db.Column(db.String(200), nullable=False)
-    
-    tools = db.relationship("DW_ToolsOptionsPivot", back_populates="option")
 
-    def __repr__(self):
-        return f"DW_Options('{self.id}'," \
-               f"'{self.name_es}','{self.name_en}')"
                
 class DW_Grades(db.Model):
     __tablename__ = 'DW_Grades'
@@ -745,6 +734,10 @@ class DW_Subjects(db.Model):
         return f"DW_Subjects('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
                
+               
+tools_vs_options = db.Table('DW_tools_vs_options',\
+    db.Column('tool_id', db.Integer,db.ForeignKey('DW_Tools.id')),\
+    db.Column('option_id', db.Integer,db.ForeignKey('DW_Options.id')))
 class DW_Tools(db.Model):
     __tablename__ = 'DW_Tools'
     
@@ -762,13 +755,35 @@ class DW_Tools(db.Model):
     roles = db.relationship("DW_ToolsRolesPivot", back_populates="tool")
     areas = db.relationship("DW_ToolsAreasPivot", back_populates="tool")
     
-    options = db.relationship("DW_ToolsOptionsPivot", back_populates="tool")
+    # options = db.relationship("DW_ToolsOptionsPivot", back_populates="tool")
+    options = db.relationship('DW_Options',secondary=tools_vs_options,backref=db.backref('tools',lazy='dynamic'))
     
-   
 
     def __repr__(self):
         return f"DW_Tools('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
+               
+class DW_Options(db.Model):
+    __tablename__ = 'DW_Options'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name_es = db.Column(db.String(200), nullable=False)
+    name_en = db.Column(db.String(200), nullable=False)
+    
+    # tools = db.relationship("DW_ToolsOptionsPivot", back_populates="option")
+    
+    def toJson(self):
+        return json.dumps({'id': self.id,
+                           'name_es': self.name_es,
+                           'name_en': self.name_en, 
+                           }).decode('utf-8')
+
+    def __repr__(self):
+        return f"DW_Options('{self.id}'," \
+               f"'{self.name_es}','{self.name_en}')"
+
+
+
 
 class DW_UsersSchoolRolesPivot(db.Model):
     __tablename__ = 'DW_users_schoolroles'
@@ -848,14 +863,17 @@ class DW_GradesSubjectsPivot(db.Model):
     subject = db.relationship("DW_Subjects", back_populates="grades")
     
 
-class DW_ToolsOptionsPivot(db.Model):
-    __tablename__ = 'DW_tools_options'
+# class DW_ToolsOptionsPivot(db.Model):
+#     __tablename__ = 'DW_tools_options'
 
-    tool_id = db.Column(db.Integer, db.ForeignKey('DW_Tools.id'), primary_key=True)
-    option_id = db.Column(db.Integer,db.ForeignKey('DW_Options.id'),primary_key=True)
+#     tool_id = db.Column(db.Integer, db.ForeignKey('DW_Tools.id'), primary_key=True)
+#     option_id = db.Column(db.Integer,db.ForeignKey('DW_Options.id'),primary_key=True)
             
-    tool = db.relationship("DW_Tools", back_populates="options")
-    option = db.relationship("DW_Options", back_populates="tools")
+#     tool = db.relationship("DW_Tools", back_populates="options")
+#     option = db.relationship("DW_Options", back_populates="tools")
+
+
+
 
 
 ####################################################################################################
@@ -1147,10 +1165,11 @@ culture_question_response_schema = CultureQuestionResponseSchema(many=True)
 # Datawise Schemas
 # -----------------------------------------------------------------------------------------------------------
 
-class DW_ToolsOptionsPivotSchema(ma.SQLAlchemyAutoSchema):
+class DW_OptionsSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
-        model = DW_ToolsOptionsPivot
+        model = DW_Options
+        fields = ("id", "name_es", "name_en")
         
 
 
@@ -1158,10 +1177,9 @@ class DW_ToolsSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = DW_Tools
-        # fields = ("id", "name_es", "name_en","options")
-        fields = ("id", "name_es", "name_en")
-
-        # options = ma.List(ma.Nested(DW_ToolsOptionsPivotSchema))
+        fields = ("id", "name_es", "name_en","topic_id","code", "options")
+    
+    options = ma.List(ma.Nested(DW_OptionsSchema))
     
 dw_tools_schema = DW_ToolsSchema(many=True)
 
