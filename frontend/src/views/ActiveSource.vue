@@ -22,7 +22,7 @@
         v-if="selected_network && selected_network.code === 'explora'">
         <v-autocomplete v-model="selected_tools" :items="user_tools" :item-text="`name_${$i18n.locale}`" item-value="id"
           :label="$t('active_source.tools')" persistent-hint small-chips deletable-chips multiple clearable return-object
-          @change="addTools()" dense :disabled="currentForm && currentForm.is_concluded"></v-autocomplete>
+            dense :disabled="currentForm && currentForm.is_concluded"></v-autocomplete>
       </v-col>
 
       <v-col cols="2" class="d-flex justify-space-around mb-6 align-end"
@@ -112,7 +112,7 @@
                 <v-tooltip bottom v-if="!selected_network_mode_theme || (currentForm && !currentForm.is_concluded)">
                   <template #activator="{ on }">
                     <v-icon v-on="on" small
-                      @click="delRecord(item, 'menus.delete_record_title', 'alerts.delete_interacting_person_text', selected_network[`name_${$i18n.locale}`], 'Actor')"
+                      @click="delRecord(item.id, 'menus.delete_record_title', 'alerts.delete_interacting_person_text', selected_network[`name_${$i18n.locale}`], 'Actor')"
                       color="orange">
                       mdi-delete
                     </v-icon>
@@ -158,7 +158,7 @@
                   v-if="(mainStore.logged_user.id == item.id_employee) && currentForm && !currentForm.is_concluded">
                   <template #activator="{ on }">
                     <v-icon v-on="on" small
-                      @click="delRecord(item, 'menus.delete_record_title', 'alerts.delete_item_text', selected_network[`name_${$i18n.locale}`], 'Node')"
+                      @click="delRecord(item.id_node, 'menus.delete_record_title', 'alerts.delete_item_text', selected_network[`name_${$i18n.locale}`], 'Node')"
                       color="orange">
                       mdi-delete
                     </v-icon>
@@ -167,8 +167,6 @@
                 </v-tooltip>
 
               </td>
-
-
 
             </tr>
           </template>
@@ -200,7 +198,7 @@
               <td>
 
                 
-                <div v-if="item.options && item.options.length > 0 && answers[`${current_network_mode.id_network_mode}_${externalSourceQuestion.id_question}_${item.id}`]">
+                <div v-if="item.options && item.options.length > 0 && externalSourceQuestion && answers[`${current_network_mode.id_network_mode}_${externalSourceQuestion.id_question}_${item.id}`]">
             
                   <ul>
                       <li
@@ -223,7 +221,7 @@
 
                 <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
                   <template #activator="{ on }">
-                    <v-icon v-on="on" small @click="showUsageOptions(item,externalSourceQuestion.id_question)" color="green">
+                    <v-icon v-on="on" small @click="showUsageOptionsDialog(item,externalSourceQuestion.id_question)" color="green">
                       mdi-form-select
                     </v-icon>
                   </template>
@@ -234,7 +232,7 @@
                 <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
                   <template #activator="{ on }">
                     <v-icon v-on="on" small
-                      @click="delRecord(item, 'menus.delete_record_title', 'alerts.delete_item_text', selected_network[`name_${$i18n.locale}`], 'Explora')"
+                      @click="delRecord(item.id, 'menus.delete_record_title', 'alerts.delete_item_text', selected_network[`name_${$i18n.locale}`], 'Explora')"
                       color="orange">
                       mdi-delete
                     </v-icon>
@@ -246,9 +244,6 @@
 
             </tr>
           </template>
-
-
-
         </v-data-table>
       </v-col>
 
@@ -296,7 +291,7 @@ export default {
       selected_actors: [],
       selected_tools: [],
       user_tools: [],
-      // selected_cycle:null,
+      selected_options:[],
       selected_network: null,
       selected_area: null,
       selected_node_segment_category: null,
@@ -312,9 +307,7 @@ export default {
       toolOptions: [],
       toolID:null,
       questionID: null,
-      selected_options:[],
-
-
+      
       selRules: [
 
         v => (v && v.length <= 2) || 'Máximo 2 opciones!! ${v.length}',
@@ -484,7 +477,7 @@ export default {
 
 
 
-    //filters all questions that do not use any  extrernal source 
+    //filters all questions that do not use any  external source 
    
     filteredQuestions() {
 
@@ -494,7 +487,7 @@ export default {
         return this.questions.filter(item => !item.question_possible_answers.use_external_source);
 
       }
-      else return null;
+      else return [];
 
     },
 
@@ -506,7 +499,6 @@ export default {
         const question_external_source= this.questions.find(item => item.question_possible_answers.use_external_source);
         
         return question_external_source;
-
 
       }
         else return null;
@@ -561,7 +553,38 @@ export default {
   methods: {
 
 
-    showUsageOptions(item, question_id) {
+    getSavedSelectedTools(){
+
+      //  console.log('Entra a getAnswerKeys');
+      const tools_ids= this.getSelectedToolsIds();
+      if( tools_ids.length>0){
+
+        let  selected_tools=[];
+        tools_ids.forEach(id =>  selected_tools.push(this.user_tools.filter(item=> item.id==id)[0]));
+
+        return selected_tools;
+      }
+      return [];
+
+    },
+
+    getSelectedToolsIds(){
+
+      
+      if( Object.keys(this.answers).length>0){
+
+        const network_mode=this.mainStore.network_modes.filter(item => item.network.code === 'explora')[0];
+
+        return  [...new Set(Object.keys(this.answers).filter(item => item.split('_')[0]==network_mode.id_network_mode).map(item => item.split('_')[2]))];
+
+      }
+      return [];
+
+      },
+
+
+
+    showUsageOptionsDialog(item, question_id) {
 
 
       if (item && item.options.length > 0){
@@ -574,19 +597,13 @@ export default {
         
       }
         
-
       this.openUsageOptionsDialog = true;
 
       // console.log(this.openUsageOptionsDialog);
 
     },
 
-    updateSelectedOptions(data) {
-
-      console.log(data);
-
-    },
-
+   
     closeUsageOptionsDialog(){
 
       this.openUsageOptionsDialog = false;
@@ -619,7 +636,7 @@ export default {
 
       }
 
-      //this.getQuestions();
+      
       this.getData();
 
     },
@@ -695,11 +712,17 @@ export default {
         this.forms[index]['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1;
 
       }
-      else {
+      else if (['resource', 'educ_model'].includes(network_mode.network.code)) {
 
         this.forms[index]['total_items'] = this.filteredNodes.length > 0 ? this.filteredNodes.length : 1;
 
       }
+      else if (network_mode.network.code == 'explora') {
+        this.forms[index]['total_items'] = this.selected_tools.length > 0 ? this.selected_tools.length : 1;
+
+      }
+
+
     },
 
 
@@ -850,42 +873,25 @@ export default {
 
     },
 
-    async addTools() {
+   
 
 
-
-      // await this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/add_interacting_actor', data)
-      // .then(response => {
-      //   this.$alertify.success(this.$t(response.data));
-      //   this.updateAllActorNetworkModeGauges();
-
-      // })
-      // .catch(error => {
-
-      //   console.error('There was an error!', error.message);
-      // });
-
-
-
-    },
-
-
-    async delRecord(item, title, message, item_name, type) {
+    async delRecord(itemID, title, message, item_name, type) {
 
 
       if (await this.$refs.confirmDeleteActor.open(this.$t(title), this.$t(message, { item: item_name }), { color: "red lighten-3" })) {
 
         if (type == 'Actor') {
-          await this.deleteActor(item);
+          await this.deleteActor(itemID);
         }
         else if (type == 'Node') {
 
-          await this.deleteNode(item);
+          await this.deleteNode(itemID);
 
         }
         else if (type == 'Explora') {
 
-          await this.deleteExplora(item);
+          await this.deleteSelectedTool(itemID);
 
         }
 
@@ -893,24 +899,24 @@ export default {
     },
 
 
-    async deleteExplora(item) {
+    async deleteSelectedTool(itemID) {
 
           const item_index = this.selected_tools.findIndex(object => {
-            return object.id == item.id
+            return object.id == itemID
           });
 
           const data = {
             "user_email": this.mainStore.logged_user.email,
-            "item_id": item.id,
+            "item_id": itemID,
             "cycle_id": this.mainStore.selected_cycle,
             "network_mode_id": this.current_network_mode.id_network_mode
           };
 
           // console.log(data);
 
-          await this.$axios.delete(process.env.VUE_APP_BACKEND_URL + '/explora', { data: data })
+          await this.$axios.delete(process.env.VUE_APP_BACKEND_URL + '/selected_tool', { data: data })
             .then(async response => {
-              console.log(response.data);
+              // console.log(response.data);
               this.$alertify.success(this.$t(response.data.message, { item: this.selected_network[`name_${this.$i18n.locale}`] }));
               this.selected_tools.splice(item_index, 1);
               await this.getUserResponses();
@@ -925,15 +931,15 @@ export default {
 
     },
 
-    async deleteNode(item) {
+    async deleteNode(itemID) {
 
       const item_index = this.nodes.findIndex(object => {
-        return object.id_node == item.id_node
+        return object.id_node == itemID
       });
 
       const data = {
         "user_email": this.mainStore.logged_user.email,
-        "item_id": item.id_node,
+        "item_id": itemID,
         "cycle_id": this.mainStore.selected_cycle,
         "network_mode_id": this.current_network_mode.id_network_mode
       };
@@ -959,15 +965,15 @@ export default {
 
 
 
-    async deleteActor(item) {
+    async deleteActor(itemID) {
 
       const item_index = this.selected_actors.findIndex(object => {
-        return object.id == item.id
+        return object.id == itemID
       });
 
       const data = {
         "user_email": this.mainStore.logged_user.email,
-        "item_id": item.id,
+        "item_id": itemID,
         "cycle_id": this.mainStore.selected_cycle,
         "network_id": this.selected_network.id
       };
@@ -1004,6 +1010,9 @@ export default {
       this.answers = [];
       this.mainStore.network_modes = [];
       this.forms = [];
+      this.selected_tools=[];
+      this.selected_options=[];
+      this.user_tools=[];
 
     },
 
@@ -1014,6 +1023,9 @@ export default {
       this.selected_network_mode_theme = null;
       this.current_network_mode = null;
       this.nodes = [];
+      this.selected_tools=[];
+      this.selected_options=[];
+      this.user_tools=[];
 
     },
 
@@ -1047,13 +1059,13 @@ export default {
 
     async getUserResponses() {
 
-      await this.$axios.get(process.env.VUE_APP_BACKEND_URL + '/user/' + this.mainStore.logged_user.id + '/cycle/' + this.mainStore.selected_cycle + '/responses')
-        .then(response => {
+       await this.$axios.get(process.env.VUE_APP_BACKEND_URL + '/user/' + this.mainStore.logged_user.id + '/cycle/' + this.mainStore.selected_cycle + '/responses')
+        .then(response =>  { 
 
           const responses = response.data;
           this.extractAjacencyInputForms(responses);
           this.populateAnswers(responses);
-
+        
         })
         .catch(error => {
 
@@ -1120,6 +1132,8 @@ export default {
 
         });
 
+        
+
       }
     },
 
@@ -1128,6 +1142,7 @@ export default {
 
       if (selected_network_mode) {
         const resp = await this.$axios.get(process.env.VUE_APP_BACKEND_URL + '/network_mode/' + selected_network_mode + '/questions');
+        // console.log(resp);
         // this.questions=resp.data;
         return resp.data;
       }
@@ -1141,18 +1156,20 @@ export default {
       this.current_network_mode = [];
 
       if (this.selected_network && this.filteredNetwokModeThemes) {
-
+        
         if (this.selected_network_mode_theme) {
+         
           this.current_network_mode = this.mainStore.network_modes.filter(item => item.id_network === this.selected_network.id && item.id_network_mode_theme === this.selected_network_mode_theme)[0];
         }
       }
       else if (this.selected_network && this.filteredNetwokModeThemes === null) {
-
+        
         this.current_network_mode = this.mainStore.network_modes.filter(item => item.id_network == this.selected_network.id)[0];
 
       }
 
       if (this.current_network_mode) {
+      
         this.questions = await this.getNetworkModeQuestions(this.current_network_mode.id_network_mode)
       }
 
@@ -1169,7 +1186,10 @@ export default {
 
       await this.getQuestions();
       await this.getNodes(this.current_network_mode.id_network_mode);
-      if (this.selected_network && this.selected_network.code === 'explora') await this.getUserTools();
+      if (this.selected_network && this.selected_network.code === 'explora' && this.user_tools.length==0) {
+          await this.getUserTools();
+          this.selected_tools= this.getSavedSelectedTools();
+        }
 
     },
 
@@ -1196,21 +1216,26 @@ export default {
 
           const questions = await this.getNetworkModeQuestions(network_mode.id_network_mode);
 
-          //console.log(questions);
           form['total_questions'] = questions.length;
 
-          if (network_mode.network.code !== 'actor') {
+          if (['resource','educ_model' ].includes(network_mode.network.code)) {
             // const nodes= await this.getNodes(network_mode.id_network_mode);
             // form['total_items'] = nodes.length;    
             await this.getNodes(network_mode.id_network_mode);
             form['total_items'] = this.filteredNodes.length;
           }
-          else {
+          else if (network_mode.network.code == 'actor'){
             form['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1;
           }
-
+          else if (network_mode.network.code == 'explora'){
+            const selected_tools_ids = this.getSelectedToolsIds();
+            form['total_items'] = selected_tools_ids.length > 0 ? selected_tools_ids.length : 1;
+          }
+         
           const prefix = network_mode.id_network_mode + '_';
+         
           const init_num_answers = Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
+          
           form['answers'] = init_num_answers;
 
           //console.log(this.adjacency_input_forms);

@@ -532,9 +532,9 @@ def delete_node(current_user):
     return jsonify("api_responses.item_not_deleted"), 500
 
 
-@app.route('/api/v1/explora', methods=['DELETE'])
+@app.route('/api/v1/selected_tool', methods=['DELETE'])
 @token_required
-def delete_explora(current_user):
+def delete_selected_tool(current_user):
 
     data = request.json
     print(data)
