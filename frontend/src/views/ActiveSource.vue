@@ -9,20 +9,32 @@
       <v-col cols="2" class="d-flex justify-space-around mb-6 align-end" v-if="mainStore.selected_cycle">
         <v-select v-model="selected_network" :items="mainStore.networks" :label="$t('active_source.questionaire_type')"
           :item-text="`name_${$i18n.locale}`" item-value="id" clearable return-object @click:clear="clearVariables"
-          @change="getData" dense></v-select>
+          @change="getData()" dense></v-select>
       </v-col>
 
       <v-col cols="3" class="d-flex justify-space-around mb-6 align-end" v-if="filteredNetwokModeThemes">
         <v-select v-model="selected_network_mode_theme" :items="filteredNetwokModeThemes"
           :label="$t('active_source.question_theme')" :item-text="`Network_mode_theme_${$i18n.locale}`"
-          item-value="id_network_mode_theme" clearable @change="getData" @click:clear="clearVariables" dense></v-select>
+          item-value="id_network_mode_theme" clearable @change="getData()" @click:clear="clearVariables" dense></v-select>
       </v-col>
 
-      <v-col class="d-flex justify-space-around mb-6 align-end" cols="7"
+      <v-col class="d-flex justify-space-around mb-6 align-end" cols="6"
         v-if="selected_network && selected_network.code === 'explora'">
         <v-autocomplete v-model="selected_tools" :items="user_tools" :item-text="`name_${$i18n.locale}`" item-value="id"
-          :label="$t('active_source.tools')" persistent-hint small-chips deletable-chips multiple clearable return-object
-            dense :disabled="currentForm && currentForm.is_concluded"></v-autocomplete>
+          :label="$t('active_source.tools')" persistent-hint   multiple  return-object
+            dense :disabled="currentForm && currentForm.is_concluded" @change="removeToolsIfDeselected()">
+              <template v-slot:selection="{ attrs, item, selected }">
+                <v-chip
+                    v-bind="attrs"
+                    :input-value="selected"
+                    close
+                    small
+                    @click:close="delRecord(item.id, 'menus.delete_record_title', 'alerts.delete_item_text', selected_network[`name_${$i18n.locale}`], 'Explora')"
+                >
+                   {{ item[`name_${$i18n.locale}`] }}
+                </v-chip>
+              </template>
+          </v-autocomplete>
       </v-col>
 
       <v-col cols="2" class="d-flex justify-space-around mb-6 align-end"
@@ -190,16 +202,12 @@
                     @change="saveAnswersArray($event, item.id, question.id_question)"
                     :multiple="question.question_possible_answers.multiple" deletable-chips small-chips outlined flat
                     rounded class="my-5" dense :disabled="currentForm && currentForm.is_concluded">
-
                   </v-select>
 
                 </td>
               </template>
               <td>
-
-                
                 <div v-if="item.options && item.options.length > 0 && externalSourceQuestion && answers[`${current_network_mode.id_network_mode}_${externalSourceQuestion.id_question}_${item.id}`]">
-            
                   <ul>
                       <li
                         v-for="(optionID, index) in answers[`${current_network_mode.id_network_mode}_${externalSourceQuestion.id_question}_${item.id}`]" :key="index"
@@ -208,11 +216,12 @@
                         <v-icon
                             small
                             color="red darken-2"
+                            @click="deleteSelectedOption(current_network_mode.id_network_mode,externalSourceQuestion.id_question,item.id,index)"
+                            v-if="currentForm && !currentForm.is_concluded"
                           >
                             mdi-close-circle-outline
-                          </v-icon>
+                        </v-icon>
                       </li>
-                    
                   </ul>
                 </div>
               </td>
@@ -228,7 +237,6 @@
                   <span>{{ $t('menus.select_usage_options') }} </span>
                 </v-tooltip>
 
-
                 <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
                   <template #activator="{ on }">
                     <v-icon v-on="on" small
@@ -239,9 +247,7 @@
                   </template>
                   <span>{{ $t('menus.delete') }}</span>
                 </v-tooltip>
-
               </td>
-
             </tr>
           </template>
         </v-data-table>
@@ -553,10 +559,47 @@ export default {
   methods: {
 
 
+   async  removeToolsIfDeselected(){
+
+      const saved_tools_ids = this.getSavedToolsIds();
+
+      const selected_tools_ids = this.selected_tools.map(item => item.id);
+    
+      // if(saved_tools_ids.length>=selected_tools_ids.length){
+
+        const deselected_tool_id = saved_tools_ids.filter(f => !selected_tools_ids.includes(f))[0];
+        
+        if(deselected_tool_id){
+          
+          if (await this.$refs.confirmDeleteActor.open(this.$t('menus.delete_record_title'), this.$t('alerts.delete_item_text', { item: this.selected_network[`name_${this.$i18n.locale}`] }), { color: "red lighten-3" })) {
+
+            await  this.deleteSelectedTool(deselected_tool_id, false);
+          }
+          else {
+
+            this.selected_tools.push(this.user_tools.filter(item=> item.id==deselected_tool_id)[0]);
+
+          }
+      // }
+       
+
+      }
+
+    },
+
+
+    deleteSelectedOption(networkModeID, questionID, toolID, index){
+
+        this.answers[`${networkModeID}_${questionID}_${toolID}`].splice(index,1);
+        this.saveAnswersArray(this.answers[`${networkModeID}_${questionID}_${toolID}`], toolID, questionID);
+
+    },
+
+
     getSavedSelectedTools(){
 
       //  console.log('Entra a getAnswerKeys');
-      const tools_ids= this.getSelectedToolsIds();
+      const tools_ids= this.getSavedToolsIds();
       if( tools_ids.length>0){
 
         let  selected_tools=[];
@@ -568,14 +611,14 @@ export default {
 
     },
 
-    getSelectedToolsIds(){
+    getSavedToolsIds(){
 
       
       if( Object.keys(this.answers).length>0){
 
         const network_mode=this.mainStore.network_modes.filter(item => item.network.code === 'explora')[0];
 
-        return  [...new Set(Object.keys(this.answers).filter(item => item.split('_')[0]==network_mode.id_network_mode).map(item => item.split('_')[2]))];
+        return  [...new Set(Object.keys(this.answers).filter(item => item.split('_')[0]==network_mode.id_network_mode).map(item => parseInt(item.split('_')[2])))];
 
       }
       return [];
@@ -652,7 +695,8 @@ export default {
 
     saveAnswersArray(event, item_id, question_id) {
 
-       
+    
+      // console.log(event);
       if (this.answers[`${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`]) {
 
         this.answers[`${this.current_network_mode.id_network_mode}_${question_id}_${item_id}`] = event;
@@ -891,7 +935,7 @@ export default {
         }
         else if (type == 'Explora') {
 
-          await this.deleteSelectedTool(itemID);
+          await this.deleteSelectedTool(itemID, true);
 
         }
 
@@ -899,11 +943,14 @@ export default {
     },
 
 
-    async deleteSelectedTool(itemID) {
+    async deleteSelectedTool(itemID,spliceArray) {
 
-          const item_index = this.selected_tools.findIndex(object => {
-            return object.id == itemID
-          });
+        let item_index =null;
+        if(spliceArray){
+          item_index = this.selected_tools.findIndex(object => {
+              return object.id == itemID
+            });
+        }  
 
           const data = {
             "user_email": this.mainStore.logged_user.email,
@@ -918,7 +965,7 @@ export default {
             .then(async response => {
               // console.log(response.data);
               this.$alertify.success(this.$t(response.data.message, { item: this.selected_network[`name_${this.$i18n.locale}`] }));
-              this.selected_tools.splice(item_index, 1);
+              if(spliceArray) this.selected_tools.splice(item_index, 1);
               await this.getUserResponses();
               this.updateNetworkModeGauge(this.current_network_mode);
 
@@ -1228,8 +1275,8 @@ export default {
             form['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1;
           }
           else if (network_mode.network.code == 'explora'){
-            const selected_tools_ids = this.getSelectedToolsIds();
-            form['total_items'] = selected_tools_ids.length > 0 ? selected_tools_ids.length : 1;
+            const saved_tools_ids = this.getSavedToolsIds();
+            form['total_items'] = saved_tools_ids.length > 0 ? saved_tools_ids.length : 1;
           }
          
           const prefix = network_mode.id_network_mode + '_';
