@@ -3,33 +3,65 @@
     <br />
     <v-row>
       <v-col class="d-flex justify-space-around mb-6 align-end" cols="2">
-        <v-select v-model="mainStore.selected_cycle" :items="mainStore.filteredCycles" :label="$t('globals.period')"
-          :item-text="`Cycle_${$i18n.locale}`" item-value="id_cycle" clearable dense></v-select>
+        <v-select 
+            v-model="mainStore.selected_cycle" 
+            :items="mainStore.filteredCycles" 
+            :label="$t('globals.period')"
+            :item-text="`Cycle_${$i18n.locale}`" 
+            item-value="id_cycle" 
+            clearable 
+            dense>
+        </v-select>
       </v-col>
       <v-col cols="2" class="d-flex justify-space-around mb-6 align-end" v-if="mainStore.selected_cycle">
-        <v-select v-model="selected_network" :items="mainStore.networks" :label="$t('active_source.questionaire_type')"
-          :item-text="`name_${$i18n.locale}`" item-value="id" clearable return-object @click:clear="clearVariables"
-          @change="getData()" dense></v-select>
+        <v-select 
+            v-model="selected_network" 
+            :items="mainStore.networks" 
+            :label="$t('active_source.questionaire_type')"
+            :item-text="`name_${$i18n.locale}`" 
+            item-value="id" 
+            clearable 
+            return-object 
+            @click:clear="clearVariables"
+            @change="getData()" 
+            dense>
+        </v-select>
       </v-col>
 
       <v-col cols="3" class="d-flex justify-space-around mb-6 align-end" v-if="filteredNetwokModeThemes">
-        <v-select v-model="selected_network_mode_theme" :items="filteredNetwokModeThemes"
-          :label="$t('active_source.question_theme')" :item-text="`Network_mode_theme_${$i18n.locale}`"
-          item-value="id_network_mode_theme" clearable @change="getData()" @click:clear="clearVariables" dense></v-select>
+        <v-select 
+            v-model="selected_network_mode_theme" 
+            :items="filteredNetwokModeThemes"
+            :label="$t('active_source.question_theme')" 
+            :item-text="`Network_mode_theme_${$i18n.locale}`"
+            item-value="id_network_mode_theme" 
+            clearable @change="getData()" 
+            @click:clear="clearVariables" 
+            dense>
+        </v-select>
       </v-col>
 
       <v-col class="d-flex justify-space-around mb-6 align-end" cols="6"
         v-if="selected_network && selected_network.code === 'explora'">
-        <v-autocomplete v-model="selected_tools" :items="user_tools" :item-text="`name_${$i18n.locale}`" item-value="id"
-          :label="$t('active_source.tools')" persistent-hint   multiple  return-object
-            dense :disabled="currentForm && currentForm.is_concluded" @change="removeToolsIfDeselected()">
+        <v-autocomplete 
+            v-model="selected_tools" 
+            :items="user_tools" 
+            :item-text="`name_${$i18n.locale}`" 
+            item-value="id"
+            :label="$t('active_source.tools')" 
+            multiple  
+            return-object
+            dense 
+            :disabled="currentForm && currentForm.is_concluded" 
+            @change="removeToolsIfDeselected()"
+        >
               <template v-slot:selection="{ attrs, item, selected }">
                 <v-chip
                     v-bind="attrs"
                     :input-value="selected"
                     close
                     small
-                    @click:close="delRecord(item.id, 'menus.delete_record_title', 'alerts.delete_item_text', selected_network[`name_${$i18n.locale}`], 'Explora')"
+                    @click:close="delRecord(item.id, 'menus.delete_record_title', 'alerts.delete_tool_text', selected_network[`name_${$i18n.locale}`], 'Explora')"
                 >
                    {{ item[`name_${$i18n.locale}`] }}
                 </v-chip>
@@ -38,17 +70,36 @@
       </v-col>
 
       <v-col cols="2" class="d-flex justify-space-around mb-6 align-end"
-        v-if="selected_network && selected_network.code === 'actor'">
-        <v-autocomplete v-model="selected_area" :items="mainStore.areas" :label="$t('active_source.area')"
-          :item-text="`Organization_area_${$i18n.locale}`" item-value="id_organization_area" clearable dense
-          :disabled="currentForm && currentForm.is_concluded"></v-autocomplete>
+          v-if="selected_network && selected_network.code === 'actor'">
+          <v-autocomplete 
+              v-model="selected_area" 
+              :items="mainStore.areas" 
+              :label="$t('active_source.area')"
+              :item-text="`Organization_area_${$i18n.locale}`" 
+              item-value="id_organization_area" 
+              clearable 
+              dense
+              :disabled="currentForm && currentForm.is_concluded">
+          </v-autocomplete>
       </v-col>
 
       <v-col class="d-flex justify-space-around mb-6 align-end" cols="3"
-        v-if="selected_network && selected_network.code === 'actor'">
-        <v-autocomplete v-model="selected_actors" :items="filteredEmployees" item-text="username" item-value="id"
-          :label="$t('active_source.user')" persistent-hint small-chips multiple return-object
-          @change="addInteractingActor()" dense :disabled="currentForm && currentForm.is_concluded"></v-autocomplete>
+          v-if="selected_network && selected_network.code === 'actor'">
+          <v-autocomplete 
+              v-model="selected_actors" 
+              :items="filteredEmployees" 
+              item-text="username" 
+              item-value="id"
+              :label="$t('active_source.user')" 
+              persistent-hint 
+              small-chips 
+              multiple 
+              return-object
+              @change="addInteractingActor()" 
+              dense 
+              :disabled="currentForm && currentForm.is_concluded"
+              >
+          </v-autocomplete>
       </v-col>
 
     </v-row>
@@ -82,7 +133,7 @@
     </v-row>
 
     <v-row dense justify="space-around">
-      <v-col cols="3" v-if="selected_network && !['explora'].includes(selected_network.code)">
+      <v-col cols="3" v-if="selected_network && !['explora','narrative'].includes(selected_network.code)">
         <div v-for="(item, i) in questions" :key="i">
           <v-card>
             <v-app-bar flat color="blue">
@@ -98,8 +149,13 @@
 
       <v-col cols="8" v-if="selected_network && selected_network.code === 'actor'">
 
-        <v-data-table :headers="tableActorsHeader" :items="selected_actors" :items-per-page="-1" class="elevation-1"
-          v-if="selected_actors.length > 0" dense>
+        <v-data-table 
+            :headers="tableActorsHeader" 
+            :items="selected_actors" 
+            :items-per-page="-1" 
+            class="elevation-1"
+            v-if="selected_actors.length > 0" 
+            dense>
           <template v-slot:item="{ item }">
 
             <tr>
@@ -108,13 +164,18 @@
               <template>
                 <td v-for="(question, index) in questions" :key="index" class="">
 
-                  <v-select :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`"
-                    v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`]"
-                    :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
-                    item-text="texto" item-value="valor" clearable
-                    @change="saveAnswersArray($event, item.id, question.id_question)"
-                    :multiple="question.question_possible_answers.multiple" deletable-chips small-chips outlined flat
-                    rounded class="my-5" dense :disabled="currentForm && currentForm.is_concluded">
+                  <v-select 
+                      :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`"
+                      v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`]"
+                      :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
+                      item-text="texto" 
+                      item-value="valor" 
+                      clearable
+                      @change="saveAnswersArray($event, item.id, question.id_question)"
+                      :multiple="question.question_possible_answers.multiple" deletable-chips small-chips outlined flat
+                      rounded 
+                      class="my-5" dense :disabled="currentForm && currentForm.is_concluded"
+                  >
                   </v-select>
 
                 </td>
@@ -138,10 +199,15 @@
         </v-data-table>
       </v-col>
 
-      <v-col cols="8" v-if="selected_network && !['explora', 'actor'].includes(selected_network.code)">
+      <v-col cols="8" v-if="selected_network && ['educ_model', 'resource'].includes(selected_network.code)">
 
-        <v-data-table :headers="tableNodesHeader" :items="filteredNodes" :items-per-page="-1" class="elevation-1"
-          v-if="nodes" dense>
+        <v-data-table 
+            :headers="tableNodesHeader" 
+            :items="filteredNodes" 
+            :items-per-page="-1" 
+            class="elevation-1"
+            v-if="nodes" 
+            dense>
           <template v-slot:item="{ item }">
 
             <tr>
@@ -152,14 +218,24 @@
               <template>
                 <td v-for="(question, index) in questions" :key="index">
 
-                  <v-select :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`"
+                  <v-select 
+                    :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`"
                     v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`]"
                     :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
-                    item-text="texto" item-value="valor" clearable
+                    item-text="texto" 
+                    item-value="valor" 
+                    clearable
                     @change="saveAnswersArray($event, item.id_node, question.id_question)"
-                    :multiple="question.question_possible_answers.multiple" deletable-chips small-chips outlined flat
-                    rounded class="my-5" dense :disabled="currentForm && currentForm.is_concluded">
-
+                    :multiple="question.question_possible_answers.multiple" 
+                    deletable-chips 
+                    small-chips 
+                    outlined 
+                    flat
+                    rounded 
+                    class="my-5" 
+                    dense 
+                    :disabled="currentForm && currentForm.is_concluded"
+                  >
                   </v-select>
 
                 </td>
@@ -187,21 +263,43 @@
 
       <v-col cols="12" v-if="selected_network && selected_network.code === 'explora'">
 
-        <v-data-table :headers="tableToolsHeader" :items="selected_tools" :items-per-page="-1" class="elevation-1"
-          v-if="selected_tools.length > 0" dense>
+        <v-data-table 
+          :headers="tableToolsHeader" 
+          :items="selected_tools" 
+          :items-per-page="-1" 
+          class="elevation-1"
+          v-if="selected_tools.length > 0" 
+          fixed-header
+          hide-default-footer
+          disable-pagination
+          height="500"
+          dense
+          
+        >
           <template v-slot:item="{ item }">
             <tr>
               <td class="text-xs-left" style="width:15%">{{ item[`name_${$i18n.locale}`] }}</td>
               <template>
                 <td v-for="(question, index) in filteredQuestions" :key="index" style="width:7%">
 
-                  <v-select :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`"
+                  <v-select 
+                    :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`"
                     v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`]"
                     :items="JSON.parse(question.question_possible_answers[`Question_possible_answers_${$i18n.locale}`])"
-                    item-text="texto" item-value="valor" clearable
+                    item-text="texto" 
+                    item-value="valor" 
+                    clearable
                     @change="saveAnswersArray($event, item.id, question.id_question)"
-                    :multiple="question.question_possible_answers.multiple" deletable-chips small-chips outlined flat
-                    rounded class="my-5" dense :disabled="currentForm && currentForm.is_concluded">
+                    :multiple="question.question_possible_answers.multiple" 
+                    deletable-chips 
+                    small-chips 
+                    outlined 
+                    flat
+                    rounded 
+                    class="my-5" 
+                    dense 
+                    :disabled="currentForm && currentForm.is_concluded"
+                  >
                   </v-select>
 
                 </td>
@@ -240,7 +338,7 @@
                 <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
                   <template #activator="{ on }">
                     <v-icon v-on="on" small
-                      @click="delRecord(item.id, 'menus.delete_record_title', 'alerts.delete_item_text', selected_network[`name_${$i18n.locale}`], 'Explora')"
+                      @click="delRecord(item.id, 'menus.delete_record_title', 'alerts.delete_tool_text', selected_network[`name_${$i18n.locale}`], 'Explora')"
                       color="orange">
                       mdi-delete
                     </v-icon>
@@ -252,6 +350,61 @@
           </template>
         </v-data-table>
       </v-col>
+
+
+      <v-col cols="12" v-if="selected_network && selected_network.code === 'narrative'">
+
+          <v-data-table 
+            :headers="tableNarrativeHeader" 
+            :items="selected_narratives" 
+            :items-per-page="-1" 
+            class="elevation-1"
+            v-if="selected_narratives.length > 0" 
+            fixed-header
+            hide-default-footer
+            disable-pagination
+            height="500"
+            dense
+          
+          >
+            <template v-slot:item="{ item }">
+              <tr>
+                <td class="text-xs-left" style="width:15%">{{ item[`name_${$i18n.locale}`] }}</td>
+                
+                  <td style="width:7%">
+
+                    
+
+                  </td>
+               
+        
+
+                <td align="right">
+
+                  <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
+                    <template #activator="{ on }">
+                      <v-icon v-on="on" small  color="green">
+                        mdi-pen
+                      </v-icon>
+                    </template>
+                    <span>{{ $t('menus.select_usage_options') }} </span>
+                  </v-tooltip>
+
+                  <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
+                    <template #activator="{ on }">
+                      <v-icon v-on="on" small
+                        @click="delRecord(item.id, 'menus.delete_record_title', 'alerts.delete_tool_text', selected_network[`name_${$i18n.locale}`], 'Explora')"
+                        color="orange">
+                        mdi-delete
+                      </v-icon>
+                    </template>
+                    <span>{{ $t('menus.delete') }}</span>
+                  </v-tooltip>
+                </td>
+              </tr>
+            </template>
+          </v-data-table>
+        </v-col>
 
 
     </v-row>
@@ -296,6 +449,7 @@ export default {
 
       selected_actors: [],
       selected_tools: [],
+      selected_narratives:[],
       user_tools: [],
       selected_options:[],
       selected_network: null,
@@ -369,10 +523,13 @@ export default {
           align: 'end',
           sortable: false
         },
-      ],
+      ]
 
     }
   },
+
+
+  
 
   mounted() {
 
@@ -571,7 +728,7 @@ export default {
         
         if(deselected_tool_id){
           
-          if (await this.$refs.confirmDeleteActor.open(this.$t('menus.delete_record_title'), this.$t('alerts.delete_item_text', { item: this.selected_network[`name_${this.$i18n.locale}`] }), { color: "red lighten-3" })) {
+          if (await this.$refs.confirmDeleteActor.open(this.$t('menus.delete_record_title'), this.$t('alerts.delete_tool_text', { item: this.selected_network[`name_${this.$i18n.locale}`] }), { color: "red lighten-3" })) {
 
             await  this.deleteSelectedTool(deselected_tool_id, false);
           }
@@ -1178,9 +1335,6 @@ export default {
           });
 
         });
-
-        
-
       }
     },
 
@@ -1325,12 +1479,18 @@ export default {
 </script>
 
 <style>
-.v-data-table-header {
-  background: #2196f3 !important;
-}
+  .v-data-table-header {
+    background: #2196f3 !important;
+  }
 
-.v-data-table {
-  overflow-x: auto;
-}
+  .v-data-table {
+    overflow-x: auto;
+  }
+
+  /* .flex-table {
+    display: flex;
+    flex-grow: 1;
+    width: 100%;
+  } */
 </style>
 

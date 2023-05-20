@@ -17,7 +17,8 @@
 
     "period":"Periodo",
     "add":"Agregar",
-    "cancel":"Cancelar"
+    "cancel":"Cancelar",
+    "select":"Seleccionar"
     
 
   },
@@ -38,7 +39,8 @@
       "actions":"Acciones"
     },
     "item_name":"Nombre del {item}",
-    "tools":"Herramientas"
+    "tools":"Herramientas",
+    "usage_options":"Opciones de uso"
 
   },
 
@@ -107,7 +109,8 @@
     "sum_limit": "La suma debe ser igual a 100!",
     "delete_record_text":"Está seguro de eliminar este registro?",
     "delete_interacting_person_text":"Está seguro de eliminar esta persona?<br> Todas las respuestas asociadas a esta persona en otras secciones serán borradas!",
-    "delete_item_text":"Está seguro de eliminar este {item}?<br> Todas las respuestas asociadas a este {item} en otras secciones serán borradas!"
+    "delete_item_text":"Está seguro de eliminar este {item}?<br> Todas las respuestas asociadas a este {item} en otras secciones serán borradas!",
+    "delete_tool_text":"Está seguro de eliminar este {item}?<br> Todas las respuestas asociadas a este {item} serán borradas!"
   },
 
   "rules":{

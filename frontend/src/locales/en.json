@@ -17,7 +17,8 @@
 
     "period":"Period",
     "add":"Add",
-    "cancel":"Cancel"
+    "cancel":"Cancel",
+    "select":"Select"
 
   },
 
@@ -37,7 +38,8 @@
       "actions":"Actions"
     },
     "item_name":"{item} name",
-    "tools":"Tools"
+    "tools":"Tools",
+     "usage_options":"Usage options"
   },
 
   "culture":{

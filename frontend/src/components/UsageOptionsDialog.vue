@@ -11,7 +11,7 @@
               
               <v-card class="mx-auto">
                 <v-card-title>
-                  <span class="headline">Opciones de Uso</span>
+                  <span class="headline">{{ $t('active_source.usage_options') }}</span>
                 </v-card-title>
                 <v-card-text>
                   <v-container grid-list-md>
@@ -31,8 +31,8 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                     
-                    <v-btn color="blue"   dark  @click="close">Cancelar</v-btn>
-                    <v-btn color="success"   @click.native="saveSelectedOptions" >Seleccionar</v-btn>
+                    <v-btn color="blue"   dark  @click="close">{{ $t('globals.cancel') }}</v-btn>
+                    <v-btn color="success"   @click.native="saveSelectedOptions" >{{ $t('globals.select') }}</v-btn>
                     
                 </v-card-actions>
               </v-card>
