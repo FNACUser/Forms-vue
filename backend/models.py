@@ -34,15 +34,15 @@ class User(db.Model, UserMixin):
     posts = db.relationship('Post', backref='author', lazy=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     confirmed_at = db.Column(db.DateTime)
-    
+
     id_organization_area = db.Column(db.Integer,
                                      db.ForeignKey(
                                          'IRA_Organization_areas.id_organization_area'),
                                      nullable=True)
 
-    
-    roles = db.relationship('Role',secondary=roles_users,backref=db.backref('users', lazy='dynamic'))
-    
+    roles = db.relationship('Role', secondary=roles_users,
+                            backref=db.backref('users', lazy='dynamic'))
+
     adjacency_forms = db.relationship(
         'IRA_Adjacency_input_form', backref=db.backref('users', lazy=True))
 
@@ -51,9 +51,14 @@ class User(db.Model, UserMixin):
 
     nodes = db.relationship(
         'IRA_Nodes', backref=db.backref('users', lazy=True))
-    
-    school_roles = db.relationship("DW_UsersSchoolRolesPivot", back_populates="user")
-    grades_sections_subjects=db.relationship("DW_UsersGradesSectionsSubjectsPivot", back_populates="user")
+
+    # narratives = db.relationship(
+    #     'IRA_Narratives', backref=db.backref('users', lazy=True))
+
+    school_roles = db.relationship(
+        "DW_UsersSchoolRolesPivot", back_populates="user")
+    grades_sections_subjects = db.relationship(
+        "DW_UsersGradesSectionsSubjectsPivot", back_populates="user")
 
     # interacting_persons = db.relationship('IRA_Employees_interactions', backref=db.backref('users', lazy=True))
 
@@ -273,6 +278,22 @@ class IRA_Networks_modes_themes(db.Model):
             '{self.code}')"
 
 
+class IRA_Narratives(db.Model):
+    __tablename__ = 'IRA_Narratives'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    narrative = db.Column(db.Text, nullable=False)
+    id_employee = db.Column(db.Integer,
+                            db.ForeignKey('users.id'),
+                            nullable=True)
+    id_cycle = db.Column(db.Integer,
+                         db.ForeignKey('IRA_Cycles.id_cycle'),
+                         nullable=False)
+
+    def __repr__(self):
+        return f"IRA_Narratives('{self.id}', ' {self.title}','{self.id_employee}','{self.id_cycle}')"
+
+
 class IRA_Nodes(db.Model):
     __tablename__ = 'IRA_Nodes'
     id_node = db.Column(db.Integer, primary_key=True)
@@ -376,8 +397,8 @@ class IRA_Questions_possible_answers(db.Model):
     Question_possible_answers_es = db.Column(db.Text, nullable=False)
     Question_possible_answers_en = db.Column(db.Text, nullable=False)
     multiple = db.Column(db.Boolean, default=False)
-    use_external_source=db.Column(db.Boolean, default=False)
-    source_name=db.Column(db.String(200), nullable=True)
+    use_external_source = db.Column(db.Boolean, default=False)
+    source_name = db.Column(db.String(200), nullable=True)
 
     questions = db.relationship('IRA_Questions',
                                 backref=db.backref('question_possible_answers',
@@ -420,7 +441,7 @@ class CVF_Culture_input_form(db.Model):
     id_cycle = db.Column(db.Integer,
                          db.ForeignKey('IRA_Cycles.id_cycle'),
                          nullable=False)
-    
+
     Is_concluded = db.Column(db.Boolean, nullable=False)
 
     id_culture_mode = \
@@ -431,9 +452,9 @@ class CVF_Culture_input_form(db.Model):
     db.UniqueConstraint('id_employee', 'id_cycle', 'id_culture_mode',
                         name='uix_1')
 
-    themes_responses = db.relationship('CVF_Themes_responses',\
-        backref=db.backref('culture_input_form',\
-            lazy=True))
+    themes_responses = db.relationship('CVF_Themes_responses',
+                                       backref=db.backref('culture_input_form',
+                                                          lazy=True))
 
     def __repr__(self):
         return f"CVF_Culture_input_form('{self.id}'," \
@@ -539,9 +560,10 @@ class CVF_Questions_responses(db.Model):
                   db.ForeignKey('CVF_Themes_responses.id'),
                   nullable=False)
 
-    id_culture_mode_theme_question = db.Column(db.Integer,\
-        db.ForeignKey('CVF_Culture_modes_themes_questions.id'),\
-            nullable=False)
+    id_culture_mode_theme_question = db.Column(db.Integer,
+                                               db.ForeignKey(
+                                                   'CVF_Culture_modes_themes_questions.id'),
+                                               nullable=False)
 
     def __repr__(self):
         return f"CVF_Questions_responses('{self.id}'," \
@@ -578,12 +600,11 @@ class CVF_Themes_responses(db.Model):
                f"'{self.id_culture_input_form}','{self.id_culture_mode_theme}'," \
                f"'{self.Is_concluded}','{self.Total_actual}'," \
                f"'{self.Total_preferred}')"
-               
-               
-               
+
+
 ####################################################################################################
 #                              School DataWise Models
-#################################################################################################### 
+####################################################################################################
 
 # grades_vs_subjects = db.Table('DW_grades_vs_subjects',\
 #     db.Column('grade_id', db.Integer,db.ForeignKey('DW_Grades.id')),\
@@ -591,61 +612,65 @@ class CVF_Themes_responses(db.Model):
 
 class DW_Roles(db.Model):
     __tablename__ = 'DW_Roles'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
-    
-    users = db.relationship("DW_UsersSchoolRolesPivot", back_populates="school_role")
+
+    users = db.relationship("DW_UsersSchoolRolesPivot",
+                            back_populates="school_role")
     tools = db.relationship("DW_ToolsRolesPivot", back_populates="role")
 
     def __repr__(self):
         return f"DW_Roles('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
-               
+
+
 class DW_ServiceUnits(db.Model):
     __tablename__ = 'DW_ServiceUnits'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(20), nullable=True)
-    
+
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
-    
+
     # users_schoolroles_pivot = db.relationship('DW_UsersSchoolRolesPivot',backref=db.backref('service_unit',lazy=True))
 
     def __repr__(self):
         return f"DW_ServiceUnits('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
-        
+
+
 class DW_Schools(db.Model):
     __tablename__ = 'DW_Schools'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(20), nullable=True)
-    
+
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
-    
-    
-    grades = db.relationship('DW_Grades',backref=db.backref('school',lazy=True))
+
+    grades = db.relationship(
+        'DW_Grades', backref=db.backref('school', lazy=True))
     # users_schoolroles_pivot = db.relationship('DW_UsersSchoolRolesPivot',backref=db.backref('school',lazy=True))
-    
 
     def __repr__(self):
         return f"DW_Schools('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
-               
+
+
 class DW_Areas(db.Model):
     __tablename__ = 'DW_Areas'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(20), nullable=True)
-    
+
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
-    
-    subjects = db.relationship('DW_Subjects',backref=db.backref('area',lazy=True))
+
+    subjects = db.relationship(
+        'DW_Subjects', backref=db.backref('area', lazy=True))
     tools = db.relationship("DW_ToolsAreasPivot", back_populates="area")
     # users_schoolroles_pivot = db.relationship('DW_UsersSchoolRolesPivot',backref=db.backref('area',lazy=True))
 
@@ -653,129 +678,141 @@ class DW_Areas(db.Model):
         return f"DW_Areas('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
 
+
 class DW_Topics(db.Model):
     __tablename__ = 'DW_Topics'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
-    
-    tools = db.relationship('DW_Tools',backref=db.backref('topic',lazy=True))
+
+    tools = db.relationship('DW_Tools', backref=db.backref('topic', lazy=True))
 
     def __repr__(self):
         return f"DW_Topics('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
-               
-               
 
-               
+
 class DW_Grades(db.Model):
     __tablename__ = 'DW_Grades'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
-    
-    school_id = db.Column(db.Integer,db.ForeignKey('DW_Schools.id'),nullable=False)
-    
-    # sections = db.relationship('DW_Sections',backref=db.backref('grade',lazy=True)) 
+
+    school_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Schools.id'), nullable=False)
+
+    # sections = db.relationship('DW_Sections',backref=db.backref('grade',lazy=True))
     # subjects = db.relationship('DW_Subjects',
     #                                  secondary=grades_vs_subjects,
     #                                  backref=db.backref('grades',
     #                                                     lazy='dynamic'))
-    
-    subjects=db.relationship("DW_GradesSubjectsPivot", back_populates="grade")
-    sections = db.relationship("DW_GradesSectionsPivot", back_populates="grade")
+
+    subjects = db.relationship(
+        "DW_GradesSubjectsPivot", back_populates="grade")
+    sections = db.relationship(
+        "DW_GradesSectionsPivot", back_populates="grade")
     tools = db.relationship("DW_ToolsGradesPivot", back_populates="grade")
-    
-    users_sections_subjects=db.relationship("DW_UsersGradesSectionsSubjectsPivot", back_populates="grade")
+
+    users_sections_subjects = db.relationship(
+        "DW_UsersGradesSectionsSubjectsPivot", back_populates="grade")
     # users_schoolroles_pivot = db.relationship('DW_UsersSchoolRolesPivot',backref=db.backref('grade',lazy=True))
-    
 
     def __repr__(self):
         return f"DW_Grades('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
-               
+
+
 class DW_Sections(db.Model):
     __tablename__ = 'DW_Sections'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     # code = db.Column(db.String(20), nullable=True)
-    
+
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
     # grade_id = db.Column(db.Integer,db.ForeignKey('DW_Grades.id'),nullable=False)
     # users_schoolroles_pivot = db.relationship('DW_UsersSchoolRolesPivot',backref=db.backref('section',lazy=True))
-    grades = db.relationship("DW_GradesSectionsPivot", back_populates="section")
-    users_grades_subjects=db.relationship("DW_UsersGradesSectionsSubjectsPivot", back_populates="section")
+    grades = db.relationship("DW_GradesSectionsPivot",
+                             back_populates="section")
+    users_grades_subjects = db.relationship(
+        "DW_UsersGradesSectionsSubjectsPivot", back_populates="section")
 
     def __repr__(self):
         return f"DW_Sections('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
-               
+
+
 class DW_Subjects(db.Model):
     __tablename__ = 'DW_Subjects'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(20), nullable=True)
-    
+
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
-    area_id = db.Column(db.Integer,db.ForeignKey('DW_Areas.id'),nullable=False)
-    
+    area_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Areas.id'), nullable=False)
+
     # users_schoolroles_pivot = db.relationship('DW_UsersSchoolRolesPivot',backref=db.backref('subject',lazy=True))
-    
-    grades = db.relationship("DW_GradesSubjectsPivot", back_populates="subject")
-    users_grades_sections=db.relationship("DW_UsersGradesSectionsSubjectsPivot", back_populates="subject")
-    
-    
+
+    grades = db.relationship("DW_GradesSubjectsPivot",
+                             back_populates="subject")
+    users_grades_sections = db.relationship(
+        "DW_UsersGradesSectionsSubjectsPivot", back_populates="subject")
 
     def __repr__(self):
         return f"DW_Subjects('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
-               
-               
-tools_vs_options = db.Table('DW_tools_vs_options',\
-    db.Column('tool_id', db.Integer,db.ForeignKey('DW_Tools.id')),\
-    db.Column('option_id', db.Integer,db.ForeignKey('DW_Options.id')))
+
+
+tools_vs_options = db.Table('DW_tools_vs_options',
+                            db.Column('tool_id', db.Integer,
+                                      db.ForeignKey('DW_Tools.id')),
+                            db.Column('option_id', db.Integer, db.ForeignKey('DW_Options.id')))
+
+
 class DW_Tools(db.Model):
     __tablename__ = 'DW_Tools'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(20), nullable=True)
-    
+
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
     description_es = db.Column(db.String(400), nullable=True)
     description_en = db.Column(db.String(400), nullable=True)
-    
-    topic_id = db.Column(db.Integer,db.ForeignKey('DW_Topics.id'),nullable=False)
-    
+
+    topic_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Topics.id'), nullable=False)
+
     grades = db.relationship("DW_ToolsGradesPivot", back_populates="tool")
     roles = db.relationship("DW_ToolsRolesPivot", back_populates="tool")
     areas = db.relationship("DW_ToolsAreasPivot", back_populates="tool")
-    
+
     # options = db.relationship("DW_ToolsOptionsPivot", back_populates="tool")
-    options = db.relationship('DW_Options',secondary=tools_vs_options,backref=db.backref('tools',lazy='dynamic'))
-    
+    options = db.relationship(
+        'DW_Options', secondary=tools_vs_options, backref=db.backref('tools', lazy='dynamic'))
 
     def __repr__(self):
         return f"DW_Tools('{self.id}'," \
                f"'{self.name_es}','{self.name_en}')"
-               
+
+
 class DW_Options(db.Model):
     __tablename__ = 'DW_Options'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     name_es = db.Column(db.String(200), nullable=False)
     name_en = db.Column(db.String(200), nullable=False)
-    
+
     # tools = db.relationship("DW_ToolsOptionsPivot", back_populates="option")
-    
+
     def toJson(self):
         return json.dumps({'id': self.id,
                            'name_es': self.name_es,
-                           'name_en': self.name_en, 
+                           'name_en': self.name_en,
                            }).decode('utf-8')
 
     def __repr__(self):
@@ -783,97 +820,111 @@ class DW_Options(db.Model):
                f"'{self.name_es}','{self.name_en}')"
 
 
-
-
 class DW_UsersSchoolRolesPivot(db.Model):
     __tablename__ = 'DW_users_schoolroles'
-    
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    role_id = db.Column(db.Integer, db.ForeignKey('DW_Roles.id'), primary_key=True)
-    
-    areas = db.Column(db.String(100),nullable=True)
-    schools = db.Column(db.String(100),nullable=True)
-        
+
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id'), primary_key=True)
+    role_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Roles.id'), primary_key=True)
+
+    areas = db.Column(db.String(100), nullable=True)
+    schools = db.Column(db.String(100), nullable=True)
+
     user = db.relationship("User", back_populates="school_roles")
     school_role = db.relationship("DW_Roles", back_populates="users")
-    
-    
+
+
 class DW_UsersGradesSectionsSubjectsPivot(db.Model):
     __tablename__ = 'DW_users_grades_sections_subjects'
-    
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    grade_id = db.Column(db.Integer,db.ForeignKey('DW_Grades.id'),primary_key=True)
-    section_id = db.Column(db.Integer,db.ForeignKey('DW_Sections.id'),primary_key=True)
-    subject_id = db.Column(db.Integer,db.ForeignKey('DW_Subjects.id'),primary_key=True)
-        
+
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id'), primary_key=True)
+    grade_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Grades.id'), primary_key=True)
+    section_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Sections.id'), primary_key=True)
+    subject_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Subjects.id'), primary_key=True)
+
     user = db.relationship("User", back_populates="grades_sections_subjects")
-    grade = db.relationship("DW_Grades", back_populates="users_sections_subjects")
-    section = db.relationship("DW_Sections", back_populates="users_grades_subjects")
-    subject = db.relationship("DW_Subjects", back_populates="users_grades_sections")
+    grade = db.relationship(
+        "DW_Grades", back_populates="users_sections_subjects")
+    section = db.relationship(
+        "DW_Sections", back_populates="users_grades_subjects")
+    subject = db.relationship(
+        "DW_Subjects", back_populates="users_grades_sections")
 
 
 class DW_ToolsGradesPivot(db.Model):
     __tablename__ = 'DW_tools_grades'
-    
-    tool_id = db.Column(db.Integer, db.ForeignKey('DW_Tools.id'), primary_key=True)
-    grade_id = db.Column(db.Integer, db.ForeignKey('DW_Grades.id'), primary_key=True)
-        
+
+    tool_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Tools.id'), primary_key=True)
+    grade_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Grades.id'), primary_key=True)
+
     tool = db.relationship("DW_Tools", back_populates="grades")
     grade = db.relationship("DW_Grades", back_populates="tools")
-    
+
+
 class DW_ToolsAreasPivot(db.Model):
     __tablename__ = 'DW_tools_areas'
-    
-    tool_id = db.Column(db.Integer, db.ForeignKey('DW_Tools.id'), primary_key=True)
-    area_id = db.Column(db.Integer, db.ForeignKey('DW_Areas.id'), primary_key=True)
-         
+
+    tool_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Tools.id'), primary_key=True)
+    area_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Areas.id'), primary_key=True)
+
     tool = db.relationship("DW_Tools", back_populates="areas")
     area = db.relationship("DW_Areas", back_populates="tools")
-    
+
 
 class DW_ToolsRolesPivot(db.Model):
     __tablename__ = 'DW_tools_roles'
-    
-    tool_id = db.Column(db.Integer, db.ForeignKey('DW_Tools.id'), primary_key=True)
-    role_id = db.Column(db.Integer, db.ForeignKey('DW_Roles.id'), primary_key=True)
-          
+
+    tool_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Tools.id'), primary_key=True)
+    role_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Roles.id'), primary_key=True)
+
     tool = db.relationship("DW_Tools", back_populates="roles")
     role = db.relationship("DW_Roles", back_populates="tools")
 
-    
-    
+
 class DW_GradesSectionsPivot(db.Model):
     __tablename__ = 'DW_grades_sections'
 
-    grade_id = db.Column(db.Integer, db.ForeignKey('DW_Grades.id'), primary_key=True)
-    section_id = db.Column(db.Integer,db.ForeignKey('DW_Sections.id'),primary_key=True)
+    grade_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Grades.id'), primary_key=True)
+    section_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Sections.id'), primary_key=True)
     code = db.Column(db.String(20), nullable=True)
-        
+
     grade = db.relationship("DW_Grades", back_populates="sections")
     section = db.relationship("DW_Sections", back_populates="grades")
-    
+
 
 class DW_GradesSubjectsPivot(db.Model):
     __tablename__ = 'DW_grades_subjects'
 
-    grade_id = db.Column(db.Integer, db.ForeignKey('DW_Grades.id'), primary_key=True)
-    subject_id = db.Column(db.Integer,db.ForeignKey('DW_Subjects.id'),primary_key=True)
-            
+    grade_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Grades.id'), primary_key=True)
+    subject_id = db.Column(db.Integer, db.ForeignKey(
+        'DW_Subjects.id'), primary_key=True)
+
     grade = db.relationship("DW_Grades", back_populates="subjects")
     subject = db.relationship("DW_Subjects", back_populates="grades")
-    
+
 
 # class DW_ToolsOptionsPivot(db.Model):
 #     __tablename__ = 'DW_tools_options'
 
 #     tool_id = db.Column(db.Integer, db.ForeignKey('DW_Tools.id'), primary_key=True)
 #     option_id = db.Column(db.Integer,db.ForeignKey('DW_Options.id'),primary_key=True)
-            
+
 #     tool = db.relationship("DW_Tools", back_populates="options")
 #     option = db.relationship("DW_Options", back_populates="tools")
-
-
-
 
 
 ####################################################################################################
@@ -910,6 +961,16 @@ class ResponseSchema(ma.SQLAlchemyAutoSchema):
         model = IRA_Responses
 
 
+class NarrativeSchema(ma.SQLAlchemyAutoSchema):
+
+    class Meta:
+        model = IRA_Narratives
+
+
+narrative_schema = NarrativeSchema()
+narratives_schema = NarrativeSchema(many=True)
+
+
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
@@ -919,6 +980,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     organization_area = ma.Nested(AreaSchema)
     # posts = ma.List(ma.Nested(PostSchema))
     roles = ma.List(ma.Nested(RoleSchema))
+    # narratives = ma.List(ma.Nested(NarrativeSchema))
     # adjacency_forms = ma.List(ma.Nested(AdjacencyFormSchema))
     # culture_input_forms = ma.List(ma.Nested(CultureFormSchema))
 
@@ -1114,7 +1176,6 @@ class CultureModeThemeSchema(ma.SQLAlchemyAutoSchema):
         # fields = ("id", "Culture_mode_theme_es", "Culture_mode_theme_en","Questions_prefix_es","Questions_prefix_en", "id_culture_mode")
         # fields = ("id", "Culture_mode_theme_es", "Culture_mode_theme_en","Questions_prefix_es","Questions_prefix_en", "id_culture_mode","culture_mode")
 
-
    # culture_mode = ma.Nested(CultureModeSchema)
 culture_mode_theme_schema = CultureModeThemeSchema(many=True)
 
@@ -1170,16 +1231,15 @@ class DW_OptionsSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = DW_Options
         fields = ("id", "name_es", "name_en")
-        
 
 
 class DW_ToolsSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = DW_Tools
-        fields = ("id", "name_es", "name_en","topic_id","code", "options")
-    
-    options = ma.List(ma.Nested(DW_OptionsSchema))
-    
-dw_tools_schema = DW_ToolsSchema(many=True)
+        fields = ("id", "name_es", "name_en", "topic_id", "code", "options")
 
+    options = ma.List(ma.Nested(DW_OptionsSchema))
+
+
+dw_tools_schema = DW_ToolsSchema(many=True)

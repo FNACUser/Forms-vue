@@ -39,7 +39,10 @@
     },
     "item_name":"{item} name",
     "tools":"Tools",
-     "usage_options":"Usage options"
+    "usage_options":"Usage options",
+    "narrative_title":"Narrative's title",
+    "narrative_description":"Narrative's text"
+
   },
 
   "culture":{

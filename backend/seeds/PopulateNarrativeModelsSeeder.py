@@ -5,8 +5,8 @@ from flask_seeder import Seeder
 
 from common.Utilities import getDataPath
 from models import (db,
-                    IRA_Networks, IRA_Nodes_segments_categories, IRA_Networks_modes,
-                    IRA_Questions, IRA_Questions_possible_answers, IRA_Cycles, User)
+                    IRA_Networks, IRA_Nodes_segments_categories,
+                    IRA_Networks_modes, IRA_Cycles, User)
 
 
 # All seeders inherit from Seeder
@@ -21,15 +21,15 @@ class PopulateNarrativeModelsSeeder(Seeder):
       ##
       # CARGA nuevos valores dentro de los modelos IRA para representar este nuevo tipo de formulario.
       ##
-        new_ira_netowrk = IRA_Networks(
+        new_ira_network = IRA_Networks(
             code="narrative",
             name_es="Narrativa",
             name_en="Narrative"
         )
-        db.session.add(new_ira_netowrk)
+        db.session.add(new_ira_network)
         db.session.commit()
 
-        print(f'Se crea un nuevo tipo de IRA Network...{new_ira_netowrk}')
+        print(f'Se crea un nuevo tipo de IRA Network...{new_ira_network}')
 
         new_ira_node_segment_category = IRA_Nodes_segments_categories(
 
@@ -44,7 +44,7 @@ class PopulateNarrativeModelsSeeder(Seeder):
 
         new_ira_network_mode = IRA_Networks_modes(
 
-            network=new_ira_netowrk,
+            network=new_ira_network,
             node_segment_category=new_ira_node_segment_category
 
         )
@@ -64,27 +64,27 @@ class PopulateNarrativeModelsSeeder(Seeder):
 
         print(f'Se crea asociación  nuevo IRA NetworkMode con el Current Cycle...')
 
-        new_question1 = IRA_Questions(
+        # new_question1 = IRA_Questions(
 
-            Question_es='Título',
-            Question_en='Titulo',
-            question_possible_answers=None
-        )
-        new_question2 = IRA_Questions(
+        #     Question_es='Título',
+        #     Question_en='Titulo',
+        #     question_possible_answers=None
+        # )
+        # new_question2 = IRA_Questions(
 
-            Question_es='Narrativa',
-            Question_en='Narrative',
-            question_possible_answers=None
-        )
+        #     Question_es='Narrativa',
+        #     Question_en='Narrative',
+        #     question_possible_answers=None
+        # )
 
-        db.session.add(new_question1)
-        db.session.add(new_question2)
+        # db.session.add(new_question1)
+        # db.session.add(new_question2)
 
-        db.session.commit()
+        # db.session.commit()
 
-        print(f'Se crean nuevas IRA_Questions...')
+        # print(f'Se crean nuevas IRA_Questions...')
 
-        new_ira_network_mode.questions.append(new_question1)
-        new_ira_network_mode.questions.append(new_question2)
+        # new_ira_network_mode.questions.append(new_question1)
+        # new_ira_network_mode.questions.append(new_question2)
 
-        print(f'Se crean las relaciones entre el nuevo Network Mode y las  nuevas Questions...')
+        # print(f'Se crean las relaciones entre el nuevo Network Mode y las  nuevas Questions...')

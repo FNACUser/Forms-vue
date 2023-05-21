@@ -122,12 +122,24 @@
 
       </v-col>
 
-      <v-col v-if="selected_network && !['actor', 'explora'].includes(selected_network.code)"
+      <v-col v-if="selected_network && ['educ_model', 'resource'].includes(selected_network.code)"
         class="d-flex justify-end mr-11">
-        <add-node :label="selected_network[`name_${$i18n.locale}`]"
-          :network_mode_id="current_network_mode.id_network_mode" @newnode="refreshNodes">
+        <add-node 
+          :label="selected_network[`name_${$i18n.locale}`]"
+          :network_mode_id="current_network_mode.id_network_mode" 
+          @newnode="refreshNodes">
         </add-node>
       </v-col>
+
+
+      <v-col v-if="selected_network && ['narrative'].includes(selected_network.code)"
+          class="d-flex justify-end mr-11">
+          <add-narrative
+            :label="selected_network[`name_${$i18n.locale}`]"
+            :network_mode_id="current_network_mode.id_network_mode" 
+            @new_narrative="refreshNarratives">
+          </add-narrative>
+        </v-col>
 
 
     </v-row>
@@ -355,30 +367,26 @@
       <v-col cols="12" v-if="selected_network && selected_network.code === 'narrative'">
 
           <v-data-table 
-            :headers="tableNarrativeHeader" 
-            :items="selected_narratives" 
+            :headers="defaultNarrativesHeader" 
+            :items="narratives" 
             :items-per-page="-1" 
             class="elevation-1"
-            v-if="selected_narratives.length > 0" 
-            fixed-header
+            v-if="narratives.length > 0" 
+           
             hide-default-footer
             disable-pagination
-            height="500"
+           
             dense
           
           >
             <template v-slot:item="{ item }">
               <tr>
-                <td class="text-xs-left" style="width:15%">{{ item[`name_${$i18n.locale}`] }}</td>
-                
-                  <td style="width:7%">
-
-                    
-
-                  </td>
-               
-        
-
+                <td class="text-xs-left" style="width:25%">
+                    {{ item['title'] }}
+                </td>
+                <td style="width:50%">
+                    {{ item['narrative'] }}
+                </td>
                 <td align="right">
 
                   <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
@@ -417,7 +425,6 @@
       :questionID="questionID"
       :defaultOptions="selected_options"
       :showDialog="openUsageOptionsDialog"
-
       @close="closeUsageOptionsDialog" 
       @usageOptionsSelected="saveAnswersArray($event.selected_options, $event.toolID, $event.questionID)"
 
@@ -432,6 +439,7 @@ import { mapStores, mapState } from 'pinia';
 import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 import Gauge from '@/components/Gauge.vue';
 import AddNode from '@/components/AddNode.vue';
+import AddNarrative from '@/components/AddNarrative.vue';
 import UsageOptionsDialog from '@/components/UsageOptionsDialog.vue';
 
 
@@ -441,6 +449,7 @@ export default {
     ConfirmationDialog,
     Gauge,
     AddNode,
+    AddNarrative,
     UsageOptionsDialog
   },
 
@@ -449,7 +458,7 @@ export default {
 
       selected_actors: [],
       selected_tools: [],
-      selected_narratives:[],
+      narratives:[],
       user_tools: [],
       selected_options:[],
       selected_network: null,
@@ -515,8 +524,27 @@ export default {
           value: 'username',
           class: "white--text"
         },
+        {
+          text: 'Acciones',
+          class: "white--text",
+          align: 'end',
+          sortable: false
+        },
+      ],
 
-
+      defaultNarrativesHeader: [
+        {
+          text: 'Título',
+          align: 'start',
+          value: 'title',
+          class: "white--text"
+        },
+        {
+          text: 'Narrativa',
+          align: 'start',
+          value: 'narrative',
+          class: "white--text"
+        },
         {
           text: 'Acciones',
           class: "white--text",
@@ -533,9 +561,7 @@ export default {
 
   mounted() {
 
-    //  console.log('entra amounted de ActiveSource');
     this.initialize();
-
   },
 
   watch: {
@@ -544,7 +570,6 @@ export default {
 
       if (new_val == null) {
 
-        //  console.log('watch en ActiveSource -> cycle is null');
         this.resetSelectedVariables();
       }
       else {
@@ -817,6 +842,13 @@ export default {
 
       this.nodes = new_nodes;
       this.updateNetworkModeGauge(this.current_network_mode)
+
+    },
+
+     refreshNarratives(new_narrative) {
+
+      this.narratives.push(new_narrative);
+      // this.updateNetworkModeGauge(this.current_network_mode)
 
     },
 
@@ -1382,15 +1414,34 @@ export default {
       this.user_tools = tools.data;
     },
 
+    async getUserNarratives() {
+
+      const narratives = await this.$axios.get(process.env.VUE_APP_BACKEND_URL + '/user/' + this.mainStore.logged_user.id + '/cycle/' + this.mainStore.selected_cycle + '/narratives');
+      this.narratives = narratives.data;
+    },
+
+
 
     async getData() {
 
-      await this.getQuestions();
-      await this.getNodes(this.current_network_mode.id_network_mode);
+      if (this.selected_network && this.selected_network.code !== 'narrative') {
+        await this.getQuestions();
+      } 
+
+      if (this.selected_network && ['resource', 'educ_model'].includes(this.selected_network.code)) {
+
+         await this.getNodes(this.current_network_mode.id_network_mode);
+        
+      }
+     
       if (this.selected_network && this.selected_network.code === 'explora' && this.user_tools.length==0) {
           await this.getUserTools();
           this.selected_tools= this.getSavedSelectedTools();
-        }
+      }
+      if (this.selected_network && this.selected_network.code === 'narrative' ) {
+        await this.getUserNarratives();
+        
+      }
 
     },
 
@@ -1403,53 +1454,59 @@ export default {
       if (this.mainStore.network_modes.length) {
 
         this.forms = [];
-        //  console.log(this.adjacency_input_forms);
+        // console.log(this.mainStore.network_modes);
 
         this.mainStore.network_modes.forEach(async network_mode => {
 
           let form = {};
 
-          form['network_mode'] = network_mode;
+          // console.log(network_mode);
 
-          form['id'] = network_mode.id_network_mode;
-          form['name_es'] = this.getFormSectionName(network_mode, 'es');
-          form['name_en'] = this.getFormSectionName(network_mode, 'en');
+          if (network_mode.network.code !== "narrative") {
 
-          const questions = await this.getNetworkModeQuestions(network_mode.id_network_mode);
 
-          form['total_questions'] = questions.length;
+            form['network_mode'] = network_mode;
 
-          if (['resource','educ_model' ].includes(network_mode.network.code)) {
-            // const nodes= await this.getNodes(network_mode.id_network_mode);
-            // form['total_items'] = nodes.length;    
-            await this.getNodes(network_mode.id_network_mode);
-            form['total_items'] = this.filteredNodes.length;
+            form['id'] = network_mode.id_network_mode;
+            form['name_es'] = this.getFormSectionName(network_mode, 'es');
+            form['name_en'] = this.getFormSectionName(network_mode, 'en');
+
+            const questions = await this.getNetworkModeQuestions(network_mode.id_network_mode);
+
+            form['total_questions'] = questions.length;
+
+            if (['resource', 'educ_model'].includes(network_mode.network.code)) {
+              // const nodes= await this.getNodes(network_mode.id_network_mode);
+              // form['total_items'] = nodes.length;    
+              await this.getNodes(network_mode.id_network_mode);
+              form['total_items'] = this.filteredNodes.length;
+            }
+            else if (network_mode.network.code == 'actor') {
+              form['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1;
+            }
+            else if (network_mode.network.code == 'explora') {
+              const saved_tools_ids = this.getSavedToolsIds();
+              form['total_items'] = saved_tools_ids.length > 0 ? saved_tools_ids.length : 1;
+            }
+
+            const prefix = network_mode.id_network_mode + '_';
+
+            const init_num_answers = Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
+
+            form['answers'] = init_num_answers;
+
+            //console.log(this.adjacency_input_forms);
+
+            //this.adjacency_input_forms.forEach(item => console.log(item.id_network_mode));
+            const adj_input_form = this.adjacency_input_forms.filter(item => item.id_network_mode == network_mode.id_network_mode)[0];
+
+
+            // console.log(adj_input_form);
+            form['id_adjacency_input_form'] = adj_input_form ? adj_input_form.id_adjacency_input_form : `${this.mainStore.selected_cycle}-${this.mainStore.logged_user.id}-${network_mode.id_network_mode}`;
+            form['is_concluded'] = adj_input_form ? adj_input_form.Is_concluded : false;
+
+            this.forms.push(form);
           }
-          else if (network_mode.network.code == 'actor'){
-            form['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1;
-          }
-          else if (network_mode.network.code == 'explora'){
-            const saved_tools_ids = this.getSavedToolsIds();
-            form['total_items'] = saved_tools_ids.length > 0 ? saved_tools_ids.length : 1;
-          }
-         
-          const prefix = network_mode.id_network_mode + '_';
-         
-          const init_num_answers = Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
-          
-          form['answers'] = init_num_answers;
-
-          //console.log(this.adjacency_input_forms);
-
-          //this.adjacency_input_forms.forEach(item => console.log(item.id_network_mode));
-          const adj_input_form = this.adjacency_input_forms.filter(item => item.id_network_mode == network_mode.id_network_mode)[0];
-
-
-          // console.log(adj_input_form);
-          form['id_adjacency_input_form'] = adj_input_form ? adj_input_form.id_adjacency_input_form : `${this.mainStore.selected_cycle}-${this.mainStore.logged_user.id}-${network_mode.id_network_mode}`;
-          form['is_concluded'] = adj_input_form ? adj_input_form.Is_concluded : false;
-
-          this.forms.push(form);
 
         });
 

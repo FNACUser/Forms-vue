@@ -40,7 +40,9 @@
     },
     "item_name":"Nombre del {item}",
     "tools":"Herramientas",
-    "usage_options":"Opciones de uso"
+    "usage_options":"Opciones de uso",
+    "narrative_title":"Título de la Narrativa",
+    "narrative_description":"Texto de la Narrativa"
 
   },
 

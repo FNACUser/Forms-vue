@@ -59,7 +59,8 @@ app = Flask(__name__)
 
 setLogger(app)
 app.config.from_object(Config)
-cors = CORS(app, resources={r"/api/*": {"origins": [app.config['CORS_ORIGINS']]}})
+cors = CORS(app, resources={
+            r"/api/*": {"origins": [app.config['CORS_ORIGINS']]}})
 # app.config['CORS_HEADERS'] = 'Content-Type'
 
 db.init_app(app)
@@ -232,16 +233,16 @@ def login():
         return make_response('login.missing_credentials', 401)
 
     user = User.query.filter_by(email=auth['email']).first()
-    
+
     if not user:
        # app.logger.info("user_not_registered")
         return make_response('login.user_not_registered', 401)
 
     # if check_password_hash(user.password, auth['password']):
     if verify_password(auth['password'], user.password):
-        
+
         roles = roles_schema.dump(user.roles)
-        
+
        # app.logger.info(f'password si coincide!! Roles=> {roles}')
         try:
 
@@ -352,7 +353,8 @@ def cycles(current_user):
 @token_required
 def network(current_user, lang):
     attribute_name = 'name_'+lang
-    resp = IRA_Networks.query.order_by(getattr(IRA_Networks, attribute_name)).all()
+    resp = IRA_Networks.query.order_by(
+        getattr(IRA_Networks, attribute_name)).all()
     return jsonify(networks_schema.dump(resp))
 
 
@@ -369,7 +371,8 @@ def cycle_network_modes(current_user, cycle_id):
 @token_required
 def adjacency_input_forms(current_user, user_id, cycle_id):
 
-    input_forms = IRA_Adjacency_input_form.query.filter_by(id_cycle=cycle_id, id_employee=user_id).all()
+    input_forms = IRA_Adjacency_input_form.query.filter_by(
+        id_cycle=cycle_id, id_employee=user_id).all()
     return jsonify(adjacency_input_forms_schema.dump(input_forms))
 
 
@@ -385,7 +388,8 @@ def areas(current_user):
 @token_required
 def nodes_segments_categories(current_user):
 
-    resp = IRA_Nodes_segments_categories.query.order_by(IRA_Nodes_segments_categories.Node_segment_category).all()
+    resp = IRA_Nodes_segments_categories.query.order_by(
+        IRA_Nodes_segments_categories.Node_segment_category).all()
     return jsonify(node_segment_category_schema.dump(resp))
 
 
@@ -452,6 +456,27 @@ def nodes(current_user):
     return jsonify(nodes_schema.dump(resp))
 
 
+@app.route('/api/v1/user/narrative/add', methods=['POST'])
+@token_required
+def add_narrative(current_user):
+
+    data = request.json
+    new_narrative = None
+    if (data['user_email'] == current_user.email):
+
+        new_narrative = IRA_Narratives(
+            title=data['title'],
+            narrative=data['narrative'],
+            id_cycle=data["cycle_id"],
+            id_employee=current_user.id)
+
+        db.session.add(new_narrative)
+        db.session.flush()
+        db.session.commit()
+
+    return jsonify({'response': narrative_schema.dump(new_narrative), 'message': "api_responses.data_saved"})
+
+
 @app.route('/api/v1/node/add', methods=['POST'])
 @token_required
 def add_node(current_user):
@@ -476,14 +501,6 @@ def add_node(current_user):
 
     network_mode = IRA_Networks_modes.query.get(data["network_mode_id"])
     nodes = network_mode.nodes
-
-    # print(current_user.id)
-    # filtered_nodes = []
-
-    # if nodes:
-    #     filtered_nodes = [e for e in nodes if e.id_employee == None or e.id_employee == current_user.id]
-
-    # print(filtered_nodes)
 
     return jsonify({'response': nodes_schema.dump(nodes), 'message': "api_responses.data_saved"})
 
@@ -540,7 +557,6 @@ def delete_selected_tool(current_user):
     print(data)
     if (data['user_email'] == current_user.email):
 
-
         adjacency_input_forms_ids = IRA_Adjacency_input_form.query\
             .with_entities(IRA_Adjacency_input_form.id_adjacency_input_form)\
             .filter_by(id_cycle=data['cycle_id'], id_employee=current_user.id, id_network_mode=data['network_mode_id'])\
@@ -563,12 +579,12 @@ def delete_selected_tool(current_user):
                             response.Response = json.dumps(current_response)
 
         db.session.commit()
-        existing_responses = IRA_Responses.query.filter_by(id_adjacency_input_form=code).all()
+        existing_responses = IRA_Responses.query.filter_by(
+            id_adjacency_input_form=code).all()
 
         return jsonify({'response': responses_schema.dump(existing_responses), 'message': "api_responses.item_deleted"})
 
     return jsonify("api_responses.item_not_deleted"), 500
-
 
 
 @app.route('/api/v1/networks_modes', methods=['GET'])
@@ -615,6 +631,20 @@ def get_user_responses(current_user, user_id, cycle_id):
             IRA_Responses.id_adjacency_input_form.in_(adjacency_codes)).all()
 
     return jsonify(responses_schema.dump(existing_responses))
+
+
+@app.route('/api/v1/user/<int:user_id>/cycle/<int:cycle_id>/narratives', methods=['GET'])
+@token_required
+def get_user_narratives(current_user, user_id, cycle_id):
+
+    user_narratives = []
+
+    # if(data['user_email']==current_user.email):
+
+    user_narratives = IRA_Narratives.query.filter_by(
+        id_cycle=cycle_id, id_employee=user_id).all()
+
+    return jsonify(narratives_schema.dump(user_narratives))
 
 
 @app.route('/api/v1/open_close_adjacency_input_form', methods=['POST'])
@@ -983,14 +1013,12 @@ def get_culture_user_mode_themes_totals(current_user, user_id, cycle_id, mode_id
 @app.route('/api/v1/datawise/user_tools', methods=['GET'])
 @token_required
 def get_user_tools(current_user):
-    
+
     # school_roles = list(map(lambda x: x.school_role.name_en, current_user.school_roles))
 
     resp = DW_Tools.query.all()
     # print(resp)
     return jsonify(dw_tools_schema.dump(resp))
-
-
 
 
 if __name__ == '__main__':

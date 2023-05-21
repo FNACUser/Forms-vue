@@ -5,15 +5,13 @@ from flask_seeder import Seeder
 
 from common.Utilities import getDataPath
 from models import (db, User, DW_Areas, DW_Grades, DW_Roles, DW_Schools, DW_Sections,
-                    DW_ServiceUnits, DW_Subjects, DW_Tools, DW_Topics,DW_UsersGradesSectionsSubjectsPivot,
-                    DW_GradesSectionsPivot, DW_GradesSubjectsPivot,  DW_UsersSchoolRolesPivot, 
-                    DW_ToolsGradesPivot, DW_ToolsRolesPivot,DW_ToolsAreasPivot,
-                    DW_Options, 
-                    # DW_ToolsOptionsPivot, 
-                    IRA_Networks, IRA_Nodes_segments_categories, IRA_Networks_modes, 
-                    IRA_Questions, IRA_Questions_possible_answers,IRA_Cycles
-                    
-                    ,User)
+                    DW_ServiceUnits, DW_Subjects, DW_Tools, DW_Topics, DW_UsersGradesSectionsSubjectsPivot,
+                    DW_GradesSectionsPivot, DW_GradesSubjectsPivot,  DW_UsersSchoolRolesPivot,
+                    DW_ToolsGradesPivot, DW_ToolsRolesPivot, DW_ToolsAreasPivot,
+                    DW_Options,
+                    # DW_ToolsOptionsPivot,
+                    IRA_Networks, IRA_Nodes_segments_categories, IRA_Networks_modes,
+                    IRA_Questions, IRA_Questions_possible_answers, IRA_Cycles)
 
 
 # All seeders inherit from Seeder
@@ -29,22 +27,26 @@ class PopulateDataWiseModelsSeeder(Seeder):
         excel_data = pathDB / 'DataWise_data.xlsx'
 
         dw_roles_XL = pd.read_excel(excel_data, sheet_name='Roles')
-        dw_roles_XL.to_sql(name='DW_Roles', con=db.engine,if_exists='append', index=False)
+        dw_roles_XL.to_sql(name='DW_Roles', con=db.engine,
+                           if_exists='append', index=False)
         print('Cargó DW_Roles...')
 
         dw_unidadesservicio_XL = pd.read_excel(
             excel_data, sheet_name='UnidadesServicio')
-        dw_unidadesservicio_XL.to_sql(name='DW_ServiceUnits', con=db.engine, if_exists='append', index=False)
+        dw_unidadesservicio_XL.to_sql(
+            name='DW_ServiceUnits', con=db.engine, if_exists='append', index=False)
         print('Cargó DW_Service_Units...')
 
         dw_escuelas_XL = pd.read_excel(excel_data, sheet_name='Escuelas')
-        dw_escuelas_XL.to_sql(name='DW_Schools', con=db.engine,if_exists='append', index=False)
+        dw_escuelas_XL.to_sql(name='DW_Schools', con=db.engine,
+                              if_exists='append', index=False)
         print('Cargó DW_Schools...')
 
         dw_grades_XL = pd.read_excel(excel_data, sheet_name='Grades')
         for index, row in dw_grades_XL.iterrows():
             # print(row)
-            school = DW_Schools.query.filter_by(code=row['school_code']).first()
+            school = DW_Schools.query.filter_by(
+                code=row['school_code']).first()
             if (school):
                 new_grade = DW_Grades(
                     name_es=row['name_es'],
@@ -57,15 +59,18 @@ class PopulateDataWiseModelsSeeder(Seeder):
         print('Cargó DW_Grades...')
 
         dw_areas_XL = pd.read_excel(excel_data, sheet_name='Areas')
-        dw_areas_XL.to_sql(name='DW_Areas', con=db.engine,if_exists='append', index=False)
+        dw_areas_XL.to_sql(name='DW_Areas', con=db.engine,
+                           if_exists='append', index=False)
         print('Cargó DW_Areas...')
 
         dw_temas_XL = pd.read_excel(excel_data, sheet_name='Temas')
-        dw_temas_XL.to_sql(name='DW_Topics', con=db.engine,if_exists='append', index=False)
+        dw_temas_XL.to_sql(name='DW_Topics', con=db.engine,
+                           if_exists='append', index=False)
         print('Cargó DW_Topics...')
 
         dw_secciones_XL = pd.read_excel(excel_data, sheet_name='Secciones')
-        dw_secciones_XL.to_sql(name='DW_Sections', con=db.engine, if_exists='append', index=False)
+        dw_secciones_XL.to_sql(
+            name='DW_Sections', con=db.engine, if_exists='append', index=False)
         print('Cargó DW_Sections...')
 
         dw_subjects_XL = pd.read_excel(excel_data, sheet_name='Materias')
@@ -85,11 +90,13 @@ class PopulateDataWiseModelsSeeder(Seeder):
         print('Cargó DW_Subjects...')
 
         # Asociación Grades-Sections
-        dw_association_XL = pd.read_excel(excel_data, sheet_name='Grades_Sections')
+        dw_association_XL = pd.read_excel(
+            excel_data, sheet_name='Grades_Sections')
         for index, row in dw_association_XL.iterrows():
             # print(row)
             grade = DW_Grades.query.filter_by(name_es=row['grado']).first()
-            section = DW_Sections.query.filter_by(name_es=row['seccion']).first()
+            section = DW_Sections.query.filter_by(
+                name_es=row['seccion']).first()
             if (grade and section):
                 new_association = DW_GradesSectionsPivot(
                     grade=grade,
@@ -104,11 +111,13 @@ class PopulateDataWiseModelsSeeder(Seeder):
         print('Cargó Asociación DW_Grades-Sections PIVOT...')
 
         # Asociación Subjects-Grades
-        dw_association_XL = pd.read_excel(excel_data, sheet_name='Subjects_Grades')
+        dw_association_XL = pd.read_excel(
+            excel_data, sheet_name='Subjects_Grades')
         for index, row in dw_association_XL.iterrows():
             # print(row)
             grade = DW_Grades.query.filter_by(name_es=row['grade']).first()
-            subject = DW_Subjects.query.filter_by(name_es=row['subject']).first()
+            subject = DW_Subjects.query.filter_by(
+                name_es=row['subject']).first()
             if (grade and subject):
                 new_association = DW_GradesSubjectsPivot(
                     grade=grade,
@@ -120,82 +129,86 @@ class PopulateDataWiseModelsSeeder(Seeder):
 
             db.session.commit()
         print('Cargó Asociación DW_Grades-Subjects PIVOT...')
-        
-        
-         # Asociación Staff-Roles-Areas-Schools PIVOT
-         
-        
-        area_director=DW_Roles.query.filter_by(name_es='Jefe de Area').first()
-        coordinator=DW_Roles.query.filter_by(name_es='Coordinador').first()
-        learning_center=DW_Roles.query.filter_by(name_es='Learning Center').first()
-        human_development=DW_Roles.query.filter_by(name_es='Desarrollo Humano').first()
-        
-        
-        dw_association_XL = pd.read_excel(excel_data, sheet_name='Staff-Roles-Areas-Schools')
+
+        # Asociación Staff-Roles-Areas-Schools PIVOT
+
+        area_director = DW_Roles.query.filter_by(
+            name_es='Jefe de Area').first()
+        coordinator = DW_Roles.query.filter_by(name_es='Coordinador').first()
+        learning_center = DW_Roles.query.filter_by(
+            name_es='Learning Center').first()
+        human_development = DW_Roles.query.filter_by(
+            name_es='Desarrollo Humano').first()
+
+        dw_association_XL = pd.read_excel(
+            excel_data, sheet_name='Staff-Roles-Areas-Schools')
         for index, row in dw_association_XL.iterrows():
             # print(row)
-            user=User.query.get(row['StaffID'])
-            if(user):
+            user = User.query.get(row['StaffID'])
+            if (user):
 
-                if(row['Jefe de Area'] is not None and pd.notnull(row['Jefe de Area'])):
+                if (row['Jefe de Area'] is not None and pd.notnull(row['Jefe de Area'])):
                     new_association = DW_UsersSchoolRolesPivot(
                         user=user,
                         school_role=area_director,
                         areas=row['Jefe de Area']
                     )
                     db.session.add(new_association)
-                if(row['Coordinador'] is not None and pd.notnull(row['Coordinador'])):
+                if (row['Coordinador'] is not None and pd.notnull(row['Coordinador'])):
                     new_association = DW_UsersSchoolRolesPivot(
                         user=user,
                         school_role=coordinator,
                         schools=row['Coordinador']
                     )
                     db.session.add(new_association)
-                if(row['Learning Center'] is not None and pd.notnull(row['Learning Center'])):
-                    
+                if (row['Learning Center'] is not None and pd.notnull(row['Learning Center'])):
+
                     new_association = DW_UsersSchoolRolesPivot(
                         user=user,
                         school_role=learning_center,
                         schools=row['Learning Center']
                     )
                     db.session.add(new_association)
-                if(row['Desarrollo Humano'] is not None and pd.notnull(row['Desarrollo Humano'])):
+                if (row['Desarrollo Humano'] is not None and pd.notnull(row['Desarrollo Humano'])):
                     new_association = DW_UsersSchoolRolesPivot(
                         user=user,
                         school_role=human_development,
                         schools=row['Desarrollo Humano']
                     )
                     db.session.add(new_association)
-        
+
         db.session.commit()
-        
+
         print('Cargó Asociación DW_Staff-Roles-Areas-Schools PIVOT ...')
-        
-          
+
         # Asociación Users-Grades-Sections-Subjects PIVOT
         teacher_role = DW_Roles.query.filter_by(name_en='Teacher').first()
-        dw_association_XL = pd.read_excel(excel_data, sheet_name='Profesor-Grado-Seccion-Materia')
+        dw_association_XL = pd.read_excel(
+            excel_data, sheet_name='Profesor-Grado-Seccion-Materia')
         for index, row in dw_association_XL.iterrows():
             # print(row)
-            user=User.query.get(row['StaffID'])
-            if(user):
+            user = User.query.get(row['StaffID'])
+            if (user):
 
-                grades_sections=row['Grado-Seccion'].strip().split()
-                subject_code=row['Materia']
-                 
-                #print(f"'{grade_name}'-'{section_name}'-'{subject_code}'")
-                
-                subject=DW_Subjects.query.filter_by(code=subject_code).first()
-                
-                if(grades_sections is not None and  subject is not None):
-                    
+                grades_sections = row['Grado-Seccion'].strip().split()
+                subject_code = row['Materia']
+
+                # print(f"'{grade_name}'-'{section_name}'-'{subject_code}'")
+
+                subject = DW_Subjects.query.filter_by(
+                    code=subject_code).first()
+
+                if (grades_sections is not None and subject is not None):
+
                     for grade_section in grades_sections:
-                        grade_name=grade_section[:2]
-                        section_name=grade_section[-1]
-                        grade=DW_Grades.query.filter_by(name_es=grade_name).first()
-                        section=DW_Sections.query.filter_by(name_es=section_name).first()
-                        
-                        if(grade is not None and section is not None):
+                        grade_name = grade_section[:2]
+                        section_name = grade_section[-1]
+                        grade = DW_Grades.query.filter_by(
+                            name_es=grade_name).first()
+                        section = DW_Sections.query.filter_by(
+                            name_es=section_name).first()
+
+                        if (grade is not None and section is not None):
                             new_association = DW_UsersGradesSectionsSubjectsPivot(
                                 user=user,
                                 grade=grade,
@@ -203,11 +216,12 @@ class PopulateDataWiseModelsSeeder(Seeder):
                                 subject=subject
                             )
                             db.session.add(new_association)
-                            
-                            lista_roles=list(map(lambda x: x.school_role.name_en, user.school_roles))
-                            
-                            if("Teacher" not in lista_roles):
-                                
+
+                            lista_roles = list(
+                                map(lambda x: x.school_role.name_en, user.school_roles))
+
+                            if ("Teacher" not in lista_roles):
+
                                 new_user_role = DW_UsersSchoolRolesPivot(
                                     user=user,
                                     school_role=teacher_role,
@@ -216,151 +230,147 @@ class PopulateDataWiseModelsSeeder(Seeder):
                                 )
                                 db.session.add(new_user_role)
                             else:
-                                user_teacher=[x for x in user.school_roles if  x.school_role.name_en=='Teacher'][0]
-                                schools_list=user_teacher.schools.split(',')
-                                areas_list=user_teacher.areas.split(',')
-                                
-                                if(grade.school.code not in schools_list):
-                                    user_teacher.schools=user_teacher.schools+","+grade.school.code
-                                if(subject.area.code not in areas_list):
-                                    user_teacher.areas=user_teacher.areas+","+subject.area.code   
-                                
-                            
-                        
-                            
+                                user_teacher = [
+                                    x for x in user.school_roles if x.school_role.name_en == 'Teacher'][0]
+                                schools_list = user_teacher.schools.split(',')
+                                areas_list = user_teacher.areas.split(',')
+
+                                if (grade.school.code not in schools_list):
+                                    user_teacher.schools = user_teacher.schools+","+grade.school.code
+                                if (subject.area.code not in areas_list):
+                                    user_teacher.areas = user_teacher.areas+","+subject.area.code
+
         print('Cargó Asociación DW_Users-Grades-Sections-Subjects PIVOT...')
-                
-        
+
         # Asociaciones Tools-Grades Tools-Areas y Tools-Roles
         dw_XL = pd.read_excel(excel_data, sheet_name='Herramientas')
-       #se selecciona 1 Tema/Topic por defecto ya que no hay clasificacion aún por este criterio
-        topic=DW_Topics.query.get(1) 
-        #se convierten las columnas a string forzosamente
-        dw_XL['Areas']=dw_XL['Areas'].astype(str)
-        dw_XL['Roles']=dw_XL['Roles'].astype(str)
-        dw_XL['Grados']=dw_XL['Grados'].astype(str)
-        
+       # se selecciona 1 Tema/Topic por defecto ya que no hay clasificacion aún por este criterio
+        topic = DW_Topics.query.get(1)
+        # se convierten las columnas a string forzosamente
+        dw_XL['Areas'] = dw_XL['Areas'].astype(str)
+        dw_XL['Roles'] = dw_XL['Roles'].astype(str)
+        dw_XL['Grados'] = dw_XL['Grados'].astype(str)
+
         for index, row in dw_XL.iterrows():
             # print(row)
             new_tool = DW_Tools(
-                    name_es=row['name_es'].strip(),
-                    name_en=row['name_en'].strip(),
-                    # code=row['name_en'],
-                    topic=topic
+                name_es=row['name_es'].strip(),
+                name_en=row['name_en'].strip(),
+                # code=row['name_en'],
+                topic=topic
             )
             db.session.add(new_tool)
             db.session.commit()
             print(f"Creó  DW_Tools= '{row['name_es']}'")
-            
-            if(row['Grados'] is not None and pd.notnull(row['Grados']) and pd.notna(row['Grados']) and row['Grados']!='nan'):
-                if(row['Grados']=='All'):
-                    
+
+            if (row['Grados'] is not None and pd.notnull(row['Grados']) and pd.notna(row['Grados']) and row['Grados'] != 'nan'):
+                if (row['Grados'] == 'All'):
+
                     grades = DW_Grades.query.with_entities(DW_Grades.id).all()
                     grades_ids = [idx for idx, in grades]
                     for grade_id in grades_ids:
-                            new_association = DW_ToolsGradesPivot(
-                                grade_id=grade_id,
-                                tool=new_tool
-                            )
-                        # print('crea asociación subject-grade')
-                            db.session.add(new_association)
-                    print('Cargó Asociación DW_ToolsGrades PIVOT- ALL case')
-                    
-                else:
-                    grade_names=row['Grados'].strip().split(',')
-                    for grade_name in grade_names:
-                        grade=DW_Grades.query.filter_by(name_es=grade_name.strip()).first() 
                         new_association = DW_ToolsGradesPivot(
-                                grade=grade,
-                                tool=new_tool
-                            )
+                            grade_id=grade_id,
+                            tool=new_tool
+                        )
+                        # print('crea asociación subject-grade')
+                        db.session.add(new_association)
+                    print('Cargó Asociación DW_ToolsGrades PIVOT- ALL case')
+
+                else:
+                    grade_names = row['Grados'].strip().split(',')
+                    for grade_name in grade_names:
+                        grade = DW_Grades.query.filter_by(
+                            name_es=grade_name.strip()).first()
+                        new_association = DW_ToolsGradesPivot(
+                            grade=grade,
+                            tool=new_tool
+                        )
                         db.session.add(new_association)
                     print('Cargó Asociación DW_ToolsGrades PIVOT- LIST case')
-                
-                  
-            
-            if(row['Areas'] is not None and pd.notnull(row['Areas']) and pd.notna(row['Areas']) and row['Areas']!='nan'):
-               
-                if(row['Areas'].strip()=='All'):
-                    
+
+            if (row['Areas'] is not None and pd.notnull(row['Areas']) and pd.notna(row['Areas']) and row['Areas'] != 'nan'):
+
+                if (row['Areas'].strip() == 'All'):
+
                     areas = DW_Areas.query.with_entities(DW_Areas.id).all()
                     areas_ids = [idx for idx, in areas]
                     for area_id in areas_ids:
-                            new_association = DW_ToolsAreasPivot(
-                                area_id=area_id,
-                                tool=new_tool
-                            )
-                        # print('crea asociación subject-grade')
-                            db.session.add(new_association)
-                    print('Cargó Asociación DW_ToolsAreas PIVOT- ALL case')
-                    
-                else:
-                    area_codes=row['Areas'].strip().split(',')
-                    
-                    for area_code in area_codes:
-                        area=DW_Areas.query.filter_by(code=area_code.strip()).first() 
                         new_association = DW_ToolsAreasPivot(
-                                area=area,
-                                tool=new_tool
-                            )
+                            area_id=area_id,
+                            tool=new_tool
+                        )
+                        # print('crea asociación subject-grade')
+                        db.session.add(new_association)
+                    print('Cargó Asociación DW_ToolsAreas PIVOT- ALL case')
+
+                else:
+                    area_codes = row['Areas'].strip().split(',')
+
+                    for area_code in area_codes:
+                        area = DW_Areas.query.filter_by(
+                            code=area_code.strip()).first()
+                        new_association = DW_ToolsAreasPivot(
+                            area=area,
+                            tool=new_tool
+                        )
                         db.session.add(new_association)
                     print('Cargó Asociación DW_ToolsAreas PIVOT- LIST case')
-                   
-                
-                
-            if(row['Roles'] is not None and pd.notnull(row['Roles']) and pd.notna(row['Roles']) and row['Roles']!='nan'):
-               
-                if(row['Roles'].strip()=='All'):
-                    
+
+            if (row['Roles'] is not None and pd.notnull(row['Roles']) and pd.notna(row['Roles']) and row['Roles'] != 'nan'):
+
+                if (row['Roles'].strip() == 'All'):
+
                     roles = DW_Roles.query.with_entities(DW_Roles.id).all()
                     roles_ids = [idx for idx, in roles]
                     for role_id in roles_ids:
+                        new_association = DW_ToolsRolesPivot(
+                            role_id=role_id,
+                            tool=new_tool
+                        )
+                        # print('crea asociación subject-grade')
+                        db.session.add(new_association)
+                    print('Cargó Asociación DW_ToolsRoles PIVOT- ALL case')
+
+                else:
+                    roles = row['Roles'].strip().split(',')
+                    print(f'Roles to associate = {roles}')
+
+                    for role_name in roles:
+                        role = DW_Roles.query.filter_by(
+                            name_es=role_name.strip()).first()
+                        if (role):
                             new_association = DW_ToolsRolesPivot(
-                                role_id=role_id,
+                                role=role,
                                 tool=new_tool
                             )
-                        # print('crea asociación subject-grade')
-                            db.session.add(new_association)
-                    print('Cargó Asociación DW_ToolsRoles PIVOT- ALL case')
-                    
-                else:
-                    roles=row['Roles'].strip().split(',')
-                    print(f'Roles to associate = {roles}')
-                    
-                    for role_name in roles:
-                        role=DW_Roles.query.filter_by(name_es=role_name.strip()).first() 
-                        if(role):
-                            new_association = DW_ToolsRolesPivot(
-                                    role=role,
-                                    tool=new_tool
-                                )
                             db.session.add(new_association)
                         else:
                             print(f'Rol ={role} no existe!')
                     print('Cargó Asociación DW_ToolsRoles PIVOT- LIST case')
-        
-        
-        
+
         db.session.commit()
-        
+
         print('Cargó Tools-Grades Tools-Areas y Tools-Roles...')
-        
+
         dw_areas_XL = pd.read_excel(excel_data, sheet_name='Opciones')
-        dw_areas_XL.to_sql(name='DW_Options', con=db.engine,if_exists='append', index=False)
+        dw_areas_XL.to_sql(name='DW_Options', con=db.engine,
+                           if_exists='append', index=False)
         print('Cargó DW_Options...')
-        
-        
-        
+
         # Asociacion Herramientas-Opciones
         dw_XL = pd.read_excel(excel_data, sheet_name='Herramientas-Opciones')
-        usos=['Uso1','Uso2','Uso3','Uso4','Uso5','Uso6','Uso7','Uso8','Uso9']
+        usos = ['Uso1', 'Uso2', 'Uso3', 'Uso4',
+                'Uso5', 'Uso6', 'Uso7', 'Uso8', 'Uso9']
         for index, row in dw_XL.iterrows():
-            tool=DW_Tools.query.filter_by(name_en=row['Tool'].strip()).first()
-            if(tool):
+            tool = DW_Tools.query.filter_by(
+                name_en=row['Tool'].strip()).first()
+            if (tool):
                 for uso in usos:
-                    if(row[uso] is not None and pd.notnull(row[uso]) and pd.notna(row[uso]) and row[uso]!='nan'):
-                        option=DW_Options.query.filter_by(name_es=row[uso].strip()).first()
-                        if(option):
+                    if (row[uso] is not None and pd.notnull(row[uso]) and pd.notna(row[uso]) and row[uso] != 'nan'):
+                        option = DW_Options.query.filter_by(
+                            name_es=row[uso].strip()).first()
+                        if (option):
                             # new_association = DW_ToolsOptionsPivot(
                             #             option=option,
                             #             tool=tool
@@ -368,122 +378,120 @@ class PopulateDataWiseModelsSeeder(Seeder):
                             # db.session.add(new_association)
                             # db.session.commit()
                             tool.options.append(option)
-                            print(f'se creó asociación {row["Tool"]}-{row[uso]}')
+                            print(
+                                f'se creó asociación {row["Tool"]}-{row[uso]}')
                         else:
                             print(f'No existe opcion={row[uso]}')
             else:
-                print(f'No existe tool={row["Tool"]}')            
-                    
+                print(f'No existe tool={row["Tool"]}')
+
         # print('Cargó DW_ToolsOptions Pivot...')
         print('Cargó DW_tools_vs_options Pivot...')
-        
+
       ##
-      ## CARGA nuevos valores dentro de los modelos IRA para representar este nuevo tipo de formulario.
-      ##  
+      # CARGA nuevos valores dentro de los modelos IRA para representar este nuevo tipo de formulario.
+      ##
         new_ira_netowrk = IRA_Networks(
-                                        code="explora",
-                                        name_es="DataWise",
-                                        name_en="DataWise"
-                                    )
+            code="explora",
+            name_es="DataWise",
+            name_en="DataWise"
+        )
         db.session.add(new_ira_netowrk)
         db.session.commit()
-        
+
         print(f'Se crea un nuevo tipo de IRA Network...{new_ira_netowrk}')
-        
-        
+
         new_ira_node_segment_category = IRA_Nodes_segments_categories(
-                                       
-                                        Node_segment_category="DataWise"
-                                        
-                                    )
-        db.session.add( new_ira_node_segment_category)
+
+            Node_segment_category="DataWise"
+
+        )
+        db.session.add(new_ira_node_segment_category)
         db.session.commit()
-        
-        print(f'Se crea un nuevo tipo de IRA Node Segment Category...{ new_ira_node_segment_category}')
-        
+
+        print(
+            f'Se crea un nuevo tipo de IRA Node Segment Category...{ new_ira_node_segment_category}')
+
         new_ira_network_mode = IRA_Networks_modes(
-                                       
-                                        network=new_ira_netowrk,
-                                        node_segment_category= new_ira_node_segment_category
-                                        
-                                    )
+
+            network=new_ira_netowrk,
+            node_segment_category=new_ira_node_segment_category
+
+        )
         db.session.add(new_ira_network_mode)
         db.session.commit()
-        
-        print(f'Se crea un nuevo tipo de IRA Network Mode...{new_ira_network_mode}')
-        
-        
+
+        print(
+            f'Se crea un nuevo tipo de IRA Network Mode...{new_ira_network_mode}')
+
         # Se lee el Ciclo actual IRA_Cycles
-        
+
         current_cycle = IRA_Cycles.query.get(1)
-        
-        #Se asocia el nuevo IRA Network MOde con el ciclo
-        
+
+        # Se asocia el nuevo IRA Network MOde con el ciclo
+
         current_cycle.networks_modes.append(new_ira_network_mode)
-        
+
         print(f'Se crea asociación  nuevo IRA NetworkMode con el Current Cycle...')
-        
-        
-        new_possible_answers1= IRA_Questions_possible_answers(
-            
+
+        new_possible_answers1 = IRA_Questions_possible_answers(
+
             Question_possible_answers_es='[{"texto":"No", "valor":0 },{"texto":"Si", "valor":1 }]',
             Question_possible_answers_en='[{"texto":"No", "valor":0 },{"texto":"Yes", "valor":1 }]',
             multiple=0
         )
-        
-        new_possible_answers2= IRA_Questions_possible_answers(
-            
+
+        new_possible_answers2 = IRA_Questions_possible_answers(
+
             Question_possible_answers_es='[{"texto":"Nunca", "valor":0 },{"texto":"Diariamente", "valor":1 }, {"texto":"Semanalmente", "valor":2},  {"texto":"Mensualmente", "valor":3},{"texto":"Otro", "valor":4}]',
             Question_possible_answers_en='[{"texto":"Never", "valor":0 },{"texto":"Daily", "valor":1 }, {"texto":"Weekly", "valor":2},  {"texto":"Monthly", "valor":3},{"texto":"Other", "valor":4}]',
             multiple=0
         )
-        new_possible_answers3= IRA_Questions_possible_answers(
-            
+        new_possible_answers3 = IRA_Questions_possible_answers(
+
             Question_possible_answers_es='',
             Question_possible_answers_en='',
             multiple=1,
             use_external_source=1,
             source_name='DW_Options'
         )
-        
+
         db.session.add(new_possible_answers1)
         db.session.add(new_possible_answers2)
         db.session.add(new_possible_answers3)
         db.session.commit()
-        
+
         print(f'Se crean nuevas IRA Possible answers...')
-        
-        
+
         new_question1 = IRA_Questions(
-                                       
-                                        Question_es='¿Tiene acceso?',
-                                        Question_en= 'Do you have access?',
-                                        question_possible_answers=new_possible_answers1
-                                    )
+
+            Question_es='¿Tiene acceso?',
+            Question_en='Do you have access?',
+            question_possible_answers=new_possible_answers1
+        )
         new_question2 = IRA_Questions(
-                                       
-                                        Question_es='¿Lo usa?',
-                                        Question_en= 'Do you use it?',
-                                        question_possible_answers=new_possible_answers2
-                                    )
-        
+
+            Question_es='¿Lo usa?',
+            Question_en='Do you use it?',
+            question_possible_answers=new_possible_answers2
+        )
+
         new_question3 = IRA_Questions(
-                                       
-                                        Question_es='Opciones de Uso',
-                                        Question_en= 'Usage Options',
-                                        question_possible_answers=new_possible_answers3
-                                    )
-        
+
+            Question_es='Opciones de Uso',
+            Question_en='Usage Options',
+            question_possible_answers=new_possible_answers3
+        )
+
         db.session.add(new_question1)
         db.session.add(new_question2)
         db.session.add(new_question3)
         db.session.commit()
-        
+
         print(f'Se crean nuevas IRA_Questions...')
-        
-        
+
         new_ira_network_mode.questions.append(new_question1)
         new_ira_network_mode.questions.append(new_question2)
         new_ira_network_mode.questions.append(new_question3)
-        
+
         print(f'Se crean las relaciones entre el nuevo Network Mode y las  nuevas Questions...')
