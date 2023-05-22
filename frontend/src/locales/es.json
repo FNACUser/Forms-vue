@@ -17,6 +17,7 @@
 
     "period":"Periodo",
     "add":"Agregar",
+    "update":"Actualizar",
     "cancel":"Cancelar",
     "select":"Seleccionar"
     
@@ -112,7 +113,8 @@
     "delete_record_text":"Está seguro de eliminar este registro?",
     "delete_interacting_person_text":"Está seguro de eliminar esta persona?<br> Todas las respuestas asociadas a esta persona en otras secciones serán borradas!",
     "delete_item_text":"Está seguro de eliminar este {item}?<br> Todas las respuestas asociadas a este {item} en otras secciones serán borradas!",
-    "delete_tool_text":"Está seguro de eliminar este {item}?<br> Todas las respuestas asociadas a este {item} serán borradas!"
+    "delete_tool_text":"Está seguro de eliminar este {item}?<br> Todas las respuestas asociadas a este {item} serán borradas!",
+    "delete_narrative_text":"Está seguro de eliminar esta {item}?<br> Todas las respuestas asociadas a esta {item} serán borradas!"
   },
 
   "rules":{

@@ -34,25 +34,7 @@
                         :label="$t('active_source.item_name',{item:`${this.label}`})"
                         required
                     ></v-text-field>
-
-                    <!-- <v-text-field
-                        v-model="name_en"
-                        :counter="maxChars"
-                        :rules="nameRules"
-                        :label="$t('globals.name_in_english')"
-                        required
-                    ></v-text-field> -->
-
-                    <!-- <v-select
-                        v-model="selected_item"
-                        :items="items"
-                        :rules="[v => !!v || 'Item is required']"
-                        label="Item"
-                        required
-                    ></v-select> -->
-
-                
-                    
+        
                 </v-form>
 
         </v-card-text>
@@ -101,7 +83,6 @@ export default {
         dialog: false,
         valid:false,
         name:'',
-        // name_en:'',
         items:[],
         selected_item:null,
         nameRules: [
@@ -110,8 +91,6 @@ export default {
         ]
       }
     },
-
-   
 
     computed:{
 
@@ -148,19 +127,12 @@ export default {
                 .then(async response => {
                     //console.log(response.data.response);
 
-                    const nodes= response.data.response;
-                    
+                    const nodes= response.data.response;                 
                     this.$alertify.success(this.$t(response.data.message));
                     this.reset();
                     this.resetValidation();
-
                     this.$emit('newnode',nodes);
-
-                    
-                    // this.populateAnswers(response.data.responses);
-                    // this.updateNetworkModeGauge(this.current_network_mode);
-
-            
+                  
                   })
                 .catch(error => {
                     this.$alertify.error(this.$t(error.message));
@@ -175,7 +147,6 @@ export default {
 
         
       },
-
 
       cancel(){
         this.reset();

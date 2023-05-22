@@ -122,7 +122,8 @@
 
       </v-col>
 
-      <v-col v-if="selected_network && ['educ_model', 'resource'].includes(selected_network.code)"
+      <v-col 
+        v-if="selected_network && ['educ_model', 'resource'].includes(selected_network.code) && currentForm && !currentForm.is_concluded"
         class="d-flex justify-end mr-11">
         <add-node 
           :label="selected_network[`name_${$i18n.locale}`]"
@@ -132,14 +133,20 @@
       </v-col>
 
 
-      <v-col v-if="selected_network && ['narrative'].includes(selected_network.code)"
+      <v-col  
+          v-if="selected_network && selected_network.code=== 'narrative' && currentForm && !currentForm.is_concluded"
           class="d-flex justify-end mr-11">
           <add-narrative
+            :showNarrativeDialog.sync="showNarrativeDialog"
             :label="selected_network[`name_${$i18n.locale}`]"
             :network_mode_id="current_network_mode.id_network_mode" 
-            @new_narrative="refreshNarratives">
+            :mode="narrativeDialogMode"
+            :item="narrativeItem"
+            @new_narrative="updateNarratives"
+            @close="closeNarrativeDialog"
+            >
           </add-narrative>
-        </v-col>
+      </v-col>
 
 
     </v-row>
@@ -371,13 +378,10 @@
             :items="narratives" 
             :items-per-page="-1" 
             class="elevation-1"
-            v-if="narratives.length > 0" 
-           
+            v-if="narratives.length > 0"   
             hide-default-footer
             disable-pagination
-           
             dense
-          
           >
             <template v-slot:item="{ item }">
               <tr>
@@ -391,8 +395,13 @@
 
                   <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
                     <template #activator="{ on }">
-                      <v-icon v-on="on" small  color="green">
-                        mdi-pen
+                      <v-icon v-on="on" 
+                        small  
+                        color="green"
+                        @click="editNarrative(item)"
+                        
+                        >
+                        mdi-pencil
                       </v-icon>
                     </template>
                     <span>{{ $t('menus.select_usage_options') }} </span>
@@ -401,7 +410,7 @@
                   <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
                     <template #activator="{ on }">
                       <v-icon v-on="on" small
-                        @click="delRecord(item.id, 'menus.delete_record_title', 'alerts.delete_tool_text', selected_network[`name_${$i18n.locale}`], 'Explora')"
+                        @click="delRecord(item.id, 'menus.delete_record_title', 'alerts.delete_narrative_text', selected_network[`name_${$i18n.locale}`], 'Narrative')"
                         color="orange">
                         mdi-delete
                       </v-icon>
@@ -476,6 +485,9 @@ export default {
       toolOptions: [],
       toolID:null,
       questionID: null,
+      showNarrativeDialog: false,
+      narrativeDialogMode: 'create',
+      narrativeItem:null,
       
       selRules: [
 
@@ -837,6 +849,15 @@ export default {
 
     },
 
+    closeNarrativeDialog() {
+
+      // console.log(' entro a closeNarrativeDialog');
+      this.showNarrativeDialog = false;
+      this.narrativeDialogMode = 'create';
+      this.narrativeItem = null;
+      
+    },
+
 
     refreshNodes(new_nodes) {
 
@@ -845,7 +866,7 @@ export default {
 
     },
 
-     refreshNarratives(new_narrative) {
+     updateNarratives(new_narrative) {
 
       this.narratives.push(new_narrative);
       // this.updateNetworkModeGauge(this.current_network_mode)
@@ -857,6 +878,7 @@ export default {
 
 
       this.selected_network = form.network_mode.network;
+
       if (this.selected_network.code == 'actor') {
 
         this.selected_network_mode_theme = form.network_mode.network_mode_theme.id_network_mode_theme;
@@ -1128,9 +1150,60 @@ export default {
 
         }
 
+        else if (type == 'Narrative') {
+
+          await this.deleteNarrative(itemID, true);
+
+        }
+
       }
     },
 
+
+    editNarrative(item) {
+      // console.log(item);
+      this.narrativeDialogMode = 'edit';
+      this.narrativeItem = item;
+      this.showNarrativeDialog = true;
+
+    
+    },
+
+  
+    async deleteNarrative(itemID, spliceArray) {
+
+      let item_index = null;
+      if (spliceArray) {
+        item_index = this.narratives.findIndex(object => {
+          return object.id == itemID
+        });
+      }
+
+      const data = {
+        "user_email": this.mainStore.logged_user.email,
+        "item_id": itemID,
+        "cycle_id": this.mainStore.selected_cycle,
+        "network_mode_id": this.current_network_mode.id_network_mode
+      };
+
+      // console.log(data);
+
+      await this.$axios.delete(process.env.VUE_APP_BACKEND_URL + '/user/narrative/delete', { data: data })
+        .then(async response => {
+          console.log(response.data);
+          this.$alertify.success(this.$t(response.data, { item: this.selected_network[`name_${this.$i18n.locale}`] }));
+          if (spliceArray) this.narratives.splice(item_index, 1);
+         
+          // this.updateNetworkModeGauge(this.current_network_mode);
+
+        })
+        .catch(error => {
+
+          console.error('There was an error!', error.message);
+        });
+
+
+    },
 
     async deleteSelectedTool(itemID,spliceArray) {
 
@@ -1383,23 +1456,32 @@ export default {
     },
 
 
-    async getQuestions() {
+    getCurrentNetworkMode(){
 
-      this.questions = [];
-      this.current_network_mode = [];
+      let current_network_mode = [];
 
       if (this.selected_network && this.filteredNetwokModeThemes) {
-        
+
         if (this.selected_network_mode_theme) {
-         
-          this.current_network_mode = this.mainStore.network_modes.filter(item => item.id_network === this.selected_network.id && item.id_network_mode_theme === this.selected_network_mode_theme)[0];
+
+          current_network_mode = this.mainStore.network_modes.filter(item => item.id_network === this.selected_network.id && item.id_network_mode_theme === this.selected_network_mode_theme)[0];
         }
       }
       else if (this.selected_network && this.filteredNetwokModeThemes === null) {
-        
-        this.current_network_mode = this.mainStore.network_modes.filter(item => item.id_network == this.selected_network.id)[0];
+
+        current_network_mode = this.mainStore.network_modes.filter(item => item.id_network == this.selected_network.id)[0];
 
       }
+
+      return current_network_mode;
+
+    },
+
+
+    async getQuestions() {
+
+      this.questions = [];
+      this.current_network_mode = this.getCurrentNetworkMode();
 
       if (this.current_network_mode) {
       
@@ -1407,6 +1489,8 @@ export default {
       }
 
     },
+
+
 
     async getUserTools() {
 
@@ -1438,7 +1522,8 @@ export default {
           await this.getUserTools();
           this.selected_tools= this.getSavedSelectedTools();
       }
-      if (this.selected_network && this.selected_network.code === 'narrative' ) {
+      if (this.selected_network && this.selected_network.code === 'narrative') {
+        this.current_network_mode = this.getCurrentNetworkMode();
         await this.getUserNarratives();
         
       }
@@ -1462,7 +1547,7 @@ export default {
 
           // console.log(network_mode);
 
-          if (network_mode.network.code !== "narrative") {
+          // if (network_mode.network.code !== "narrative") {
 
 
             form['network_mode'] = network_mode;
@@ -1506,7 +1591,7 @@ export default {
             form['is_concluded'] = adj_input_form ? adj_input_form.Is_concluded : false;
 
             this.forms.push(form);
-          }
+          // }
 
         });
 

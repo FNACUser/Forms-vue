@@ -477,6 +477,22 @@ def add_narrative(current_user):
     return jsonify({'response': narrative_schema.dump(new_narrative), 'message': "api_responses.data_saved"})
 
 
+@app.route('/api/v1/user/narrative/delete', methods=['DELETE'])
+@token_required
+def delete_narrative(current_user):
+
+    data = request.json
+    if (data['user_email'] == current_user.email):
+
+        narrative = IRA_Narratives.query.filter_by(
+            id_cycle=data['cycle_id'], id_employee=current_user.id).first()
+        db.session.delete(narrative)
+        db.session.commit()
+        return jsonify("api_responses.item_deleted")
+
+    return jsonify("api_responses.item_not_deleted"), 500
+
+
 @app.route('/api/v1/node/add', methods=['POST'])
 @token_required
 def add_node(current_user):

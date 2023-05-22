@@ -17,6 +17,7 @@
 
     "period":"Period",
     "add":"Add",
+    "update":"Update",
     "cancel":"Cancel",
     "select":"Select"
 
@@ -111,8 +112,9 @@
     "sum_limit": "Sum should be 100!",
     "delete_record_text":"Are you sure you want to delete this record?",
     "delete_interacting_person_text":"Are you sure you want to delete this person?<br> All answers associated to this person in other sections will be deleted!",
-    "delete_item_text":"Are you sure you want to delete this {item}?<br> All answers associated to this {item} in other sections will be deleted!"
-
+    "delete_item_text":"Are you sure you want to delete this {item}?<br> All answers associated to this {item} in other sections will be deleted!",
+    "delete_tool_text":"Are you sure you want to delete this {item}?<br> All answers associated to this {item} will be deleted!",
+    "delete_narrative_text":"Are you sure you want to delete this {item}?<br> All answers associated to this {item} will be deleted!"
   },
 
   "rules":{

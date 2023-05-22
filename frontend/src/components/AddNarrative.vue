@@ -3,8 +3,10 @@
     <v-dialog
       v-model="dialog"
       width="500"
+      @click:outside="close"
     >
       <template v-slot:activator="{ on, attrs }">
+
         <v-btn
             color="primary"
             class="mb-2"
@@ -12,13 +14,13 @@
             v-bind="attrs"
             v-on="on"
         >
-        {{ $t('globals.add') }} {{ label }}
+        {{  mode === 'create' ? $t('globals.add') : $t('globals.update') }} {{ label }}
         </v-btn>
       </template>
 
       <v-card>
         <v-card-title class="text-h5 grey lighten-2">
-            {{ $t('globals.add') }} {{ label }}
+            {{  mode === 'create' ? $t('globals.add') : $t('globals.update') }} {{ label }}
         </v-card-title>
 
         <v-card-text>
@@ -26,24 +28,21 @@
                     ref="form"
                     v-model="valid"
                     lazy-validation
-                >
-                    <v-text-field
-                        v-model="title"
-                        :counter="maxChars"
-                        :label="$t('active_source.narrative_title')"
-                       
-                        :rules="nameRules"
-                    ></v-text-field>
+            >
+              <v-text-field
+                  v-model="title"
+                  :label="$t('active_source.narrative_title')"  
+                  :rules="nameRules"
+              ></v-text-field>
 
-                    <v-textarea
-                        v-model="narrative"
-                        :label="$t('active_source.narrative_description')"
-                        
-                        :rules="nameRules"
-                       
-                    ></v-textarea>
+              <v-textarea
+                  v-model="narrative"
+                  :label="$t('active_source.narrative_description')"
+                  :rules="nameRules"
+                  
+              ></v-textarea>
 
-                </v-form>
+            </v-form>
 
         </v-card-text>
 
@@ -51,21 +50,22 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="primary"
-            text
-            @click="saveNarrative"
-          >
-          {{ $t('globals.add') }}
-          </v-btn>
+         
 
           <v-btn
             color="default"
             text
             @click="cancel"
           >
-          {{ $t('globals.cancel') }}
+            {{ $t('globals.cancel') }}
           </v-btn>
+           <v-btn
+              color="primary"
+              text
+              @click="saveNarrative"
+            >
+            {{ mode==='create' ? $t('globals.add') : $t('globals.update') }}
+            </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -81,17 +81,20 @@ import { mapStores, mapState} from 'pinia';
 
 export default {
 
-    props:[
-        'label',
-        'network_mode_id'    
-    ],  
+  props: {
+    showNarrativeDialog: { default: false },
+    mode:String,
+    label:String,
+    network_mode_id: Number,
+    item:Object   
+  },  
     data () {
       return {
         maxChars:55,
-        dialog: false,
         valid:false,
         title: '',
-        narrative:'',
+        narrative: '',
+        dialog:false,
        
         nameRules: [
             v => !!v || this.$t('rules.field_required'),
@@ -99,18 +102,50 @@ export default {
           ],
         
       }
+  },
+
+  watch: {
+    showNarrativeDialog: {
+
+      handler: function (val) {
+
+        // console.log(val);
+
+        this.dialog = val
+
+      },
+      // deep: true,
+       immediate:true
+
     },
 
-   
+    mode: {
 
-    computed:{
+      handler: function (val) {
+
+        // 
+        if (val === 'edit') {
+          console.log(val);
+          this.title = this.item.title,
+          this.narrative = this.item.narrative
+        }
+
+      },
+      // deep: true,
+      immediate: true
+
+    },
+  },
+  computed: {
+      
 
         ...mapState(useMainStore, ["logged_user", "selected_cycle"]),
         ...mapStores(useMainStore)
 
     },
 
-    methods: {
+  methods: {
+      
       validate () {
         return this.$refs.form.validate()
       },
@@ -141,10 +176,11 @@ export default {
                     const narrative= response.data.response;
                     
                     this.$alertify.success(this.$t(response.data.message));
-                    this.reset();
-                    this.resetValidation();
+                    // this.reset();
+                    // this.resetValidation();
 
-                    this.$emit('new_narrative', narrative);
+                  this.$emit('new_narrative', narrative);
+                  this.close();
 
             
                   })
@@ -152,21 +188,29 @@ export default {
                     this.$alertify.error(this.$t(error.message));
                     console.error('There was an error!', error.message);
                     console.error( error);
-                    this.reset();
-                    this.resetValidation();
+                    // this.reset();
+                    // this.resetValidation();
               });
 
-              this.dialog = false;
+              // this.dialog = false;
         }
+
+        
+      },
+
+      close() {
+
+      this.reset();
+      this.resetValidation();
+      this.$emit('close');
+      this.dialog = false;
 
         
       },
 
 
       cancel(){
-        this.reset();
-        this.resetValidation();
-        this.dialog = false;
+        this.close();
 
       }
     },
