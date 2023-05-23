@@ -405,7 +405,7 @@
                         mdi-pencil
                       </v-icon>
                     </template>
-                    <span>{{ $t('menus.select_usage_options') }} </span>
+                    <span>{{ $t('globals.edit') }} </span>
                   </v-tooltip>
 
                   <v-tooltip bottom v-if="currentForm && !currentForm.is_concluded">
@@ -416,7 +416,7 @@
                         mdi-delete
                       </v-icon>
                     </template>
-                    <span>{{ $t('menus.delete') }}</span>
+                    <span>{{ $t('globals.delete') }}</span>
                   </v-tooltip>
                 </td>
               </tr>

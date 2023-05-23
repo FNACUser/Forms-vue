@@ -18,6 +18,8 @@
     "period":"Period",
     "add":"Add",
     "update":"Update",
+    "edit":"Edit",
+    "delete":"Delete",
     "cancel":"Cancel",
     "select":"Select"
 

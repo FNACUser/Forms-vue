@@ -14,7 +14,7 @@
             v-bind="attrs"
             v-on="on"
         >
-        {{  dialog_label }}
+        {{  add_button_label }}
         </v-btn>
       </template>
 
@@ -64,7 +64,7 @@
               text
               @click="saveNarrative"
             >
-            {{ action_text }}
+            {{ button_action_text }}
             </v-btn>
         </v-card-actions>
       </v-card>
@@ -140,15 +140,26 @@ export default {
         
     ...mapStores(useMainStore),
 
-    action_text() {
+    label_text() {
 
-      return this.mode === 'create' ? this.$t('globals.add') : this.$t('globals.update');
+      return this.mode === 'create' ? this.$t('globals.add') : this.$t('globals.edit');
       
     },
 
+    button_action_text() {
+
+      return this.mode === 'create' ? this.$t('globals.add') : this.$t('globals.update');
+
+      },
+
     dialog_label() {
 
-      return this.action_text + ' ' + this.label;
+      return this.label_text + ' ' + this.label;
+    },
+
+    add_button_label() {
+
+      return  this.$t('globals.add') + ' ' + this.label;
     }
 
   
