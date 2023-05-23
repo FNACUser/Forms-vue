@@ -1641,6 +1641,7 @@ export default {
         await this.mainStore.getNetworkModes(this.mainStore.selected_cycle);
         await this.getUserResponses();
         await this.createFormsDetails();
+        await this.getUserNarratives();
 
       }
 
