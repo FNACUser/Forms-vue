@@ -1653,7 +1653,8 @@ export default {
 </script>
 
 <style>
-  .v-data-table-header {
+  .v-data-table-header,
+  .theme--light.v-data-table.v-data-table--fixed-header thead th  {
     background: #2196f3 !important;
   }
 
