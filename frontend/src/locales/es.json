@@ -103,6 +103,8 @@
     "form_opened":"Formulario habilitado nuevamente!",
     "no_results": "No se hallaron resultados!",
     "data_saved":"Los datos han sido guardados!",
+    "data_updated":"Los datos fueron actualizados!",
+    "data_not_updated":"Los datos pudieron ser actualizados!",
     "no_adjacency_input_form_found":"No existe este formulario!"
   },
 

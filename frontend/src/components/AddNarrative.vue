@@ -14,13 +14,13 @@
             v-bind="attrs"
             v-on="on"
         >
-        {{  mode === 'create' ? $t('globals.add') : $t('globals.update') }} {{ label }}
+        {{  dialog_label }}
         </v-btn>
       </template>
 
       <v-card>
         <v-card-title class="text-h5 grey lighten-2">
-            {{  mode === 'create' ? $t('globals.add') : $t('globals.update') }} {{ label }}
+            {{  dialog_label }}
         </v-card-title>
 
         <v-card-text>
@@ -64,7 +64,7 @@
               text
               @click="saveNarrative"
             >
-            {{ mode==='create' ? $t('globals.add') : $t('globals.update') }}
+            {{ action_text }}
             </v-btn>
         </v-card-actions>
       </v-card>
@@ -109,8 +109,6 @@ export default {
 
       handler: function (val) {
 
-        // console.log(val);
-
         this.dialog = val
 
       },
@@ -123,9 +121,8 @@ export default {
 
       handler: function (val) {
 
-        // 
         if (val === 'edit') {
-          console.log(val);
+          // console.log(val);
           this.title = this.item.title,
           this.narrative = this.item.narrative
         }
@@ -139,26 +136,55 @@ export default {
   computed: {
       
 
-        ...mapState(useMainStore, ["logged_user", "selected_cycle"]),
-        ...mapStores(useMainStore)
+    ...mapState(useMainStore, ["logged_user", "selected_cycle"]),
+        
+    ...mapStores(useMainStore),
 
+    action_text() {
+
+      return this.mode === 'create' ? this.$t('globals.add') : this.$t('globals.update');
+      
     },
+
+    dialog_label() {
+
+      return this.action_text + ' ' + this.label;
+    }
+
+  
+  },
 
   methods: {
       
-      validate () {
+    validate() {
+        
         return this.$refs.form.validate()
       },
-      reset () {
+    reset() {
+        
         this.$refs.form.reset()
       },
-      resetValidation () {
+    resetValidation() {
+        
         this.$refs.form.resetValidation()
       },
 
-      saveNarrative(){
 
-       
+    saveNarrative() {
+
+      if (this.mode === 'create') {
+        this.createNarrative();
+    
+      }
+      else {
+        this.updateNarrative();
+      }
+   
+    },
+    
+
+    createNarrative() {
+        
         if (this.validate()){
 
             const data = {
@@ -169,16 +195,11 @@ export default {
                 "network_mode_id":this.network_mode_id                                 
               };
 
-               this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/user/narrative/add', data)
+              this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/user/narrative/add', data)
                 .then(async response => {
-                    //console.log(response.data.response);
-
-                    const narrative= response.data.response;
-                    
-                    this.$alertify.success(this.$t(response.data.message));
-                    // this.reset();
-                    // this.resetValidation();
-
+            
+                  const narrative= response.data.response; 
+                  this.$alertify.success(this.$t(response.data.message));
                   this.$emit('new_narrative', narrative);
                   this.close();
 
@@ -188,26 +209,53 @@ export default {
                     this.$alertify.error(this.$t(error.message));
                     console.error('There was an error!', error.message);
                     console.error( error);
-                    // this.reset();
-                    // this.resetValidation();
+                    this.close();
               });
 
-              // this.dialog = false;
-        }
+              
+        }  
+    },
+      
 
-        
+      updateNarrative() {
+
+        if (this.validate()) {
+
+          const data = {
+            "narrative_id":this.item.id,
+            "title": this.title,
+            "narrative": this.narrative,
+            "cycle_id": this.mainStore.selected_cycle,
+            "user_email": this.logged_user.email,
+            "network_mode_id": this.network_mode_id
+          };
+
+          this.$axios.post(process.env.VUE_APP_BACKEND_URL + '/user/narrative/update', data)
+            .then(async response => {
+
+              // const narrative = response.data.response;
+              
+              this.$alertify.success(this.$t(response.data));
+              this.$emit('narrative_updated',data);
+              this.close();
+            })
+            .catch(error => {
+              this.$alertify.error(this.$t(error.message));
+              console.error('There was an error!', error.message);
+              console.error(error);
+              this.close();
+            });
+        }
       },
+
 
       close() {
 
-      this.reset();
-      this.resetValidation();
-      this.$emit('close');
-      this.dialog = false;
-
-        
+        this.reset();
+        this.resetValidation();
+        this.$emit('close');
+        this.dialog = false;
       },
-
 
       cancel(){
         this.close();

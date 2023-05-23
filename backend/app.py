@@ -464,6 +464,16 @@ def add_narrative(current_user):
     new_narrative = None
     if (data['user_email'] == current_user.email):
 
+        adjacency_input_form_code = str(
+            data['cycle_id']) + '-' + str(current_user.id) + '-' + str(data['network_mode_id'])
+
+        adjacency_input_form = IRA_Adjacency_input_form.query.get(
+            adjacency_input_form_code)
+        if (adjacency_input_form is None):
+
+            db.session.add(IRA_Adjacency_input_form(id_adjacency_input_form=adjacency_input_form_code,
+                                                    id_employee=current_user.id, id_cycle=data['cycle_id'], id_network_mode=data['network_mode_id'], Is_concluded=0))
+
         new_narrative = IRA_Narratives(
             title=data['title'],
             narrative=data['narrative'],
@@ -471,10 +481,27 @@ def add_narrative(current_user):
             id_employee=current_user.id)
 
         db.session.add(new_narrative)
-        db.session.flush()
+        # db.session.flush()
         db.session.commit()
 
     return jsonify({'response': narrative_schema.dump(new_narrative), 'message': "api_responses.data_saved"})
+
+
+@app.route('/api/v1/user/narrative/update', methods=['POST'])
+@token_required
+def update_narrative(current_user):
+
+    data = request.json
+    narrative = None
+    if (data['user_email'] == current_user.email):
+
+        narrative = IRA_Narratives.query.get(data['narrative_id'])
+        narrative.title = data['title'],
+        narrative.narrative = data['narrative'],
+        db.session.commit()
+        return jsonify("api_responses.data_updated")
+
+    return jsonify("api_responses.data_not_updated"), 500
 
 
 @app.route('/api/v1/user/narrative/delete', methods=['DELETE'])

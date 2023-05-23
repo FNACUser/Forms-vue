@@ -102,6 +102,8 @@
     "form_opened":"Form enabled again!",
     "no_results": "No results found!",
     "data_saved":"Data has been saved!",
+    "data_updated":"Data was successfully updated!",
+    "data_not_updated":"Data was not updated!",
     "no_adjacency_input_form_found":"Form not found!"
   
   },

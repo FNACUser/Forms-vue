@@ -137,13 +137,14 @@
           v-if="selected_network && selected_network.code=== 'narrative' && currentForm && !currentForm.is_concluded"
           class="d-flex justify-end mr-11">
           <add-narrative
-            :showNarrativeDialog.sync="showNarrativeDialog"
-            :label="selected_network[`name_${$i18n.locale}`]"
-            :network_mode_id="current_network_mode.id_network_mode" 
-            :mode="narrativeDialogMode"
-            :item="narrativeItem"
-            @new_narrative="updateNarratives"
-            @close="closeNarrativeDialog"
+              :showNarrativeDialog.sync="showNarrativeDialog"
+              :label="selected_network[`name_${$i18n.locale}`]"
+              :network_mode_id="current_network_mode.id_network_mode" 
+              :mode="narrativeDialogMode"
+              :item="narrativeItem"
+              @new_narrative="addNarrative"
+              @narrative_updated="updateNarrative"
+              @close="closeNarrativeDialog"
             >
           </add-narrative>
       </v-col>
@@ -866,11 +867,20 @@ export default {
 
     },
 
-     updateNarratives(new_narrative) {
+    addNarrative(new_narrative) {
 
       this.narratives.push(new_narrative);
       // this.updateNetworkModeGauge(this.current_network_mode)
 
+    },
+
+    updateNarrative(inputObj) {
+
+      const index = this.narratives.findIndex(item => item.id == inputObj.narrative_id);
+
+      this.narratives[index]['title'] = inputObj.title;
+      this.narratives[index]['narrative'] = inputObj.narrative;
+      
     },
 
 
@@ -947,9 +957,6 @@ export default {
           console.error(error);
         });
 
-
-
-
     },
 
 
@@ -974,6 +981,10 @@ export default {
       }
       else if (network_mode.network.code == 'explora') {
         this.forms[index]['total_items'] = this.selected_tools.length > 0 ? this.selected_tools.length : 1;
+
+      }
+      else if (network_mode.network.code == 'narrative') {
+        this.forms[index]['total_items'] = this.narratives.length > 0 ? this.narratives.length : 1;
 
       }
 
@@ -1015,9 +1026,7 @@ export default {
       headers[1].text = this.$t('active_source.actor_table.area');
       headers[headers.length - 1].text = this.$t('active_source.actor_table.actions');
 
-
       return headers;
-
 
     },
 
@@ -1086,7 +1095,7 @@ export default {
         "user": JSON.stringify(this.mainStore.logged_user)
       };
 
-
+      // console.log(data)
       await this.$axios.post(process.env.VUE_APP_BACKEND_URL + '/open_close_adjacency_input_form', data)
         .then(response => {
           this.$alertify.success(this.$t(response.data));
@@ -1190,7 +1199,7 @@ export default {
 
       await this.$axios.delete(process.env.VUE_APP_BACKEND_URL + '/user/narrative/delete', { data: data })
         .then(async response => {
-          console.log(response.data);
+          // console.log(response.data);
           this.$alertify.success(this.$t(response.data, { item: this.selected_network[`name_${this.$i18n.locale}`] }));
           if (spliceArray) this.narratives.splice(item_index, 1);
          
@@ -1558,7 +1567,7 @@ export default {
 
             const questions = await this.getNetworkModeQuestions(network_mode.id_network_mode);
 
-            form['total_questions'] = questions.length;
+            
 
             if (['resource', 'educ_model'].includes(network_mode.network.code)) {
               // const nodes= await this.getNodes(network_mode.id_network_mode);
@@ -1573,12 +1582,28 @@ export default {
               const saved_tools_ids = this.getSavedToolsIds();
               form['total_items'] = saved_tools_ids.length > 0 ? saved_tools_ids.length : 1;
             }
+            else if (network_mode.network.code == 'narrative') {
+              
+              form['total_items'] = this.narratives.length > 0 ? this.narratives.length : 1;
+          }
 
-            const prefix = network_mode.id_network_mode + '_';
+
+          if (network_mode.network.code !== 'narrative') {
+
+             const prefix = network_mode.id_network_mode + '_';
 
             const init_num_answers = Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
 
             form['answers'] = init_num_answers;
+            form['total_questions'] = questions.length;
+
+            
+          }
+          else {
+            form['total_questions'] = 1;
+            form['answers'] =  form['total_items'];
+          }
+           
 
             //console.log(this.adjacency_input_forms);
 
