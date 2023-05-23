@@ -870,7 +870,7 @@ export default {
     addNarrative(new_narrative) {
 
       this.narratives.push(new_narrative);
-      // this.updateNetworkModeGauge(this.current_network_mode)
+      this.updateNetworkModeGauge(this.current_network_mode)
 
     },
 
@@ -964,11 +964,18 @@ export default {
 
       const index = this.forms.findIndex(item => item.id == network_mode.id_network_mode);
 
-      const prefix = network_mode.id_network_mode + '_';
 
-      const num_answers = Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
+      if(['actor','resource', 'educ_model','explora'].includes(network_mode.network.code )){
+        const prefix = network_mode.id_network_mode + '_';
+        const num_answers = Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
+        this.forms[index]['answers'] = num_answers;
 
-      this.forms[index]['answers'] = num_answers;
+      }
+      else if (network_mode.network.code == 'narrative') {
+        // console.log(this.narratives.length);
+        this.forms[index]['answers'] = this.narratives.length;
+
+      }
 
       if (network_mode.network.code == 'actor') {
         this.forms[index]['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1;
@@ -1203,7 +1210,7 @@ export default {
           this.$alertify.success(this.$t(response.data, { item: this.selected_network[`name_${this.$i18n.locale}`] }));
           if (spliceArray) this.narratives.splice(item_index, 1);
          
-          // this.updateNetworkModeGauge(this.current_network_mode);
+          this.updateNetworkModeGauge(this.current_network_mode);
 
         })
         .catch(error => {
@@ -1601,7 +1608,7 @@ export default {
           }
           else {
             form['total_questions'] = 1;
-            form['answers'] =  form['total_items'];
+            form['answers'] =  this.narratives.length;
           }
            
 
