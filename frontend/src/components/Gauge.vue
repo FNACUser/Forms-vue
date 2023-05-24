@@ -11,7 +11,7 @@
             
         >
 
-          {{ value }} %
+          {{ value }} {{ suffix_symbol }}
         
         </v-progress-circular>
         <div>
@@ -43,7 +43,8 @@ export default {
           'in_color',
           'in_value',
           'label',
-          'actionItem'
+          'actionItem',
+          'mode'
     ],  
 
 
@@ -71,50 +72,59 @@ export default {
 
     computed:{
 
+      suffix_symbol(){
+ 
+        return (this.mode==='percent' ? '%' : '');
+
+      },
+
       color(){
 
-        let final_color=colors.red.base;
-        switch (true) {
-              case this.value <= 10:
-                final_color=colors.red.base;
-                break;
-              case this.value <= 20:
-                final_color=colors.deepOrange.darken1;
-                break;
-              case this.value <= 30:
-                final_color=colors.orange.accent4;
-                break;
-              case this.value <= 40:
-                final_color=colors.amber.base;
-                break;
-              case this.value <= 50:
-                final_color=colors.yellow.darken1;
-                break;
-              case this.value <= 60:
-                final_color=colors.lime.base;
-                break;
-              case this.value <= 70:
-                final_color=colors.lime.darken2;
-                break;
-              case this.value <= 80:
-                final_color=colors.lime.darken4;
-                break;
-              case this.value <= 90:
-                final_color=colors.lightGreen.darken1;
-                break;
-              case this.value < 100:
-                final_color=colors.green.darken2;
-                break;
-              case this.value == 100:
-                final_color=colors.indigo.darken4;
-                break;
-              default:
-                final_color=colors.red.base;
-            }
+          let final_color=colors.red.base;
+          if(this.mode=='percent'){
 
-            // console.log(final_color);
+              switch (true) {
+                  case this.value <= 10:
+                    final_color=colors.red.base;
+                    break;
+                  case this.value <= 20:
+                    final_color=colors.deepOrange.darken1;
+                    break;
+                  case this.value <= 30:
+                    final_color=colors.orange.accent4;
+                    break;
+                  case this.value <= 40:
+                    final_color=colors.amber.base;
+                    break;
+                  case this.value <= 50:
+                    final_color=colors.yellow.darken1;
+                    break;
+                  case this.value <= 60:
+                    final_color=colors.lime.base;
+                    break;
+                  case this.value <= 70:
+                    final_color=colors.lime.darken2;
+                    break;
+                  case this.value <= 80:
+                    final_color=colors.lime.darken4;
+                    break;
+                  case this.value <= 90:
+                    final_color=colors.lightGreen.darken1;
+                    break;
+                  case this.value < 100:
+                    final_color=colors.green.darken2;
+                    break;
+                  case this.value == 100:
+                    final_color=colors.indigo.darken4;
+                    break;
+                  default:
+                    final_color=colors.red.base;
+                }
 
-            return  final_color;
+
+          }
+
+         return  final_color;
       }
 
 

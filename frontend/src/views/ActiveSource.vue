@@ -106,11 +106,12 @@
     <v-row v-if="mainStore.network_modes.length">
       <v-col cols="2" v-for="(form, index) in forms" :key="index">
         <gauge :label="form[`name_${$i18n.locale}`]"
-          :in_value="Math.round(form['answers'] * 100 / (form['total_questions'] * form['total_items']))"
+          :in_value="form['gauge_value']"
           :in_size="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 100 : 60)"
           :in_width="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 15 : 7)"
-          @click.native="setSelectedNetworkAndTheme(form)" />
-
+          :mode="form.network_mode.network.code!=='narrative' ? 'percent':'number'"
+          @click.native="setSelectedNetworkAndTheme(form)" 
+        />
       </v-col>
     </v-row>
     <v-row v-if="current_network_mode">
@@ -908,7 +909,9 @@ export default {
 
     getFormSectionName(netw_mode, lang) {
 
-      return netw_mode && netw_mode.network ? (netw_mode.network_mode_theme ? netw_mode.network[`name_${lang}`] + '-' + netw_mode.network_mode_theme[`Network_mode_theme_${lang}`] : netw_mode.network[`name_${lang}`]) : '';
+      return netw_mode && netw_mode.network ? 
+        (netw_mode.network_mode_theme ? netw_mode.network[`name_${lang}`] + '-' + netw_mode.network_mode_theme[`Network_mode_theme_${lang}`] 
+        : netw_mode.network[`name_${lang}`]) : '';
 
     },
 
@@ -992,6 +995,17 @@ export default {
       }
       else if (network_mode.network.code == 'narrative') {
         this.forms[index]['total_items'] = this.narratives.length > 0 ? this.narratives.length : 1;
+
+      }
+
+      if(['actor','resource', 'educ_model','explora'].includes(network_mode.network.code )){
+        
+        this.forms[index]['gauge_value'] = Math.round(this.forms[index]['answers'] * 100 / (this.forms[index]['total_questions'] *this.forms[index]['total_items']));
+
+      }
+      else if (network_mode.network.code == 'narrative') {
+       
+        this.forms[index]['gauge_value'] = this.narratives.length;
 
       }
 
@@ -1563,9 +1577,6 @@ export default {
 
           // console.log(network_mode);
 
-          // if (network_mode.network.code !== "narrative") {
-
-
             form['network_mode'] = network_mode;
 
             form['id'] = network_mode.id_network_mode;
@@ -1573,8 +1584,6 @@ export default {
             form['name_en'] = this.getFormSectionName(network_mode, 'en');
 
             const questions = await this.getNetworkModeQuestions(network_mode.id_network_mode);
-
-            
 
             if (['resource', 'educ_model'].includes(network_mode.network.code)) {
               // const nodes= await this.getNodes(network_mode.id_network_mode);
@@ -1603,12 +1612,14 @@ export default {
 
             form['answers'] = init_num_answers;
             form['total_questions'] = questions.length;
+            form['gauge_value'] = Math.round(form['answers'] * 100 / (form['total_questions'] *form['total_items']));
 
             
           }
           else {
             form['total_questions'] = 1;
             form['answers'] =  this.narratives.length;
+            form['gauge_value'] = form['answers'];
           }
            
 
