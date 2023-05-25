@@ -41,14 +41,14 @@
         </v-select>
       </v-col>
 
-      <v-col class="d-flex justify-space-around mb-6 align-end" cols="6"
+      <v-col class="d-flex justify-space-around mb-6 align-end" cols="3"
         v-if="selected_network && selected_network.code === 'explora'">
         <v-autocomplete 
             v-model="selected_tools" 
             :items="user_tools" 
             :item-text="`name_${$i18n.locale}`" 
             item-value="id"
-            :label="$t('active_source.tools')" 
+            :label="$t('active_source.sources')" 
             multiple  
             return-object
             dense 
@@ -172,21 +172,20 @@
         <div >
           <v-card>
             <v-app-bar flat color="blue">
-              <v-card-title class="white--text">
-                ¿Qué cambios o novedades introduciría Usted en Finac? de manera que:
-              </v-card-title>
+              <v-card-sub-title class="white--text">
+                <b>{{ $t('narrative_text.title') }}</b>
+              </v-card-sub-title>
             </v-app-bar>
             <v-card-text>
               <ul>
                 
-                <li>se les facilitara el trabajo a los desarrolladores </li>
-                <li> el aprendizaje fuera más rápido</li>
-                <li> se les facilitara el trabajo a quienes hacen servicio al cliente</li>
-                <li> se logre mayor agilidad en el desarrollo y pruebas</li>
-                <li> los clientes tuvieran que acudir menos frecuentemente al servicio al cliente</li>
+                <li> {{ $t('narrative_text.option1') }}</li>
+                <li> {{ $t('narrative_text.option2') }}</li>
+                <li> {{ $t('narrative_text.option3') }}</li>
+                <li> {{ $t('narrative_text.option4') }}</li>
+                <li> {{ $t('narrative_text.option5') }}</li>
             
               </ul>
-
 
             </v-card-text>
           </v-card>
@@ -412,7 +411,7 @@
       <v-col cols="8" v-if="selected_network && selected_network.code === 'narrative'">
 
           <v-data-table 
-            :headers="defaultNarrativesHeader" 
+            :headers="tableNarrativesHeader" 
             :items="narratives" 
             :items-per-page="-1" 
             class="elevation-1"
@@ -784,6 +783,12 @@ export default {
 
     },
 
+    tableNarrativesHeader() {
+
+      return this.makeNarrativesTableHeader(this.defaultNarrativesHeader);
+
+    },
+
 
   },
 
@@ -1135,6 +1140,19 @@ export default {
 
 
     },
+
+    makeNarrativesTableHeader(defaultHeader) {
+
+        let headers = Object.assign([], defaultHeader);
+
+        headers[0].text = this.$t('globals.title');
+        headers[1].text = this.$t('active_source.narrative');
+        headers[2].text = this.$t('active_source.actor_table.actions');
+
+        return headers;
+
+
+  },
 
     sortSelectedColleagues() {
       this.selected_actors.sort((a, b) =>
@@ -1709,6 +1727,7 @@ export default {
   .v-data-table {
     overflow-x: auto;
   }
+  
 
   /* .flex-table {
     display: flex;

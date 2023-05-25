@@ -29,7 +29,7 @@
                 >
                     <v-text-field
                         v-model="name"
-                        :counter="maxChars"
+                        
                         :rules="nameRules"
                         :label="$t('active_source.item_name',{item:`${this.label}`})"
                         required
@@ -44,19 +44,19 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            color="primary"
-            text
-            @click="saveNode"
-          >
-          {{ $t('globals.add') }}
-          </v-btn>
-
-          <v-btn
             color="default"
             text
             @click="cancel"
           >
           {{ $t('globals.cancel') }}
+          </v-btn>
+
+          <v-btn
+            color="primary"
+            text
+            @click="saveNode"
+          >
+          {{ $t('globals.add') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -79,7 +79,7 @@ export default {
     ],  
     data () {
       return {
-        maxChars:55,
+        maxChars:100,
         dialog: false,
         valid:false,
         name:'',

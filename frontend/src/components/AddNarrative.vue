@@ -90,7 +90,7 @@ export default {
   },  
     data () {
       return {
-        maxChars:55,
+        // maxChars:55,
         valid:false,
         title: '',
         narrative: '',

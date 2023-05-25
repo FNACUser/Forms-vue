@@ -21,7 +21,8 @@
     "edit":"Editar",
     "delete":"Borrar",
     "cancel":"Cancelar",
-    "select":"Seleccionar"
+    "select":"Seleccionar",
+    "title":"Título"
     
 
   },
@@ -43,6 +44,8 @@
     },
     "item_name":"Nombre del {item}",
     "tools":"Herramientas",
+    "sources":"Fuentes",
+    "narrative":"Narrativa",
     "usage_options":"Opciones de uso",
     "narrative_title":"Título de la Narrativa",
     "narrative_description":"Texto de la Narrativa"
@@ -64,6 +67,15 @@
     "info_tool":"Herramienta"
 
 
+  },
+
+  "narrative_text":{
+    "title":"¿Qué cambios o novedades introduciría usted en Finac? de manera que:",
+    "option1":"se les facilitara el trabajo a los desarrolladores",
+    "option2":"el aprendizaje fuera más rápido",
+    "option3":"se les facilitara el trabajo a quienes hacen servicio al cliente",
+    "option4":"se logre mayor agilidad en el desarrollo y pruebas",
+    "option5":"los clientes tuvieran que acudir menos frecuentemente al servicio al cliente"
   },
 
   "login":{
