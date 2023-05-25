@@ -132,54 +132,54 @@ class PopulateDataWiseModelsSeeder(Seeder):
 
         # Asociación Staff-Roles-Areas-Schools PIVOT
 
-        area_director = DW_Roles.query.filter_by(
-            name_es='Jefe de Area').first()
-        coordinator = DW_Roles.query.filter_by(name_es='Coordinador').first()
-        learning_center = DW_Roles.query.filter_by(
-            name_es='Learning Center').first()
-        human_development = DW_Roles.query.filter_by(
-            name_es='Desarrollo Humano').first()
+        # area_director = DW_Roles.query.filter_by(
+        #     name_es='Jefe de Area').first()
+        # coordinator = DW_Roles.query.filter_by(name_es='Coordinador').first()
+        # learning_center = DW_Roles.query.filter_by(
+        #     name_es='Learning Center').first()
+        # human_development = DW_Roles.query.filter_by(
+        #     name_es='Desarrollo Humano').first()
 
-        dw_association_XL = pd.read_excel(
-            excel_data, sheet_name='Staff-Roles-Areas-Schools')
-        for index, row in dw_association_XL.iterrows():
-            # print(row)
-            user = User.query.get(row['StaffID'])
-            if (user):
+        # dw_association_XL = pd.read_excel(
+        #     excel_data, sheet_name='Staff-Roles-Areas-Schools')
+        # for index, row in dw_association_XL.iterrows():
+           
+        #     user = User.query.get(row['StaffID'])
+        #     if (user):
 
-                if (row['Jefe de Area'] is not None and pd.notnull(row['Jefe de Area'])):
-                    new_association = DW_UsersSchoolRolesPivot(
-                        user=user,
-                        school_role=area_director,
-                        areas=row['Jefe de Area']
-                    )
-                    db.session.add(new_association)
-                if (row['Coordinador'] is not None and pd.notnull(row['Coordinador'])):
-                    new_association = DW_UsersSchoolRolesPivot(
-                        user=user,
-                        school_role=coordinator,
-                        schools=row['Coordinador']
-                    )
-                    db.session.add(new_association)
-                if (row['Learning Center'] is not None and pd.notnull(row['Learning Center'])):
+        #         if (row['Jefe de Area'] is not None and pd.notnull(row['Jefe de Area'])):
+        #             new_association = DW_UsersSchoolRolesPivot(
+        #                 user=user,
+        #                 school_role=area_director,
+        #                 areas=row['Jefe de Area']
+        #             )
+        #             db.session.add(new_association)
+        #         if (row['Coordinador'] is not None and pd.notnull(row['Coordinador'])):
+        #             new_association = DW_UsersSchoolRolesPivot(
+        #                 user=user,
+        #                 school_role=coordinator,
+        #                 schools=row['Coordinador']
+        #             )
+        #             db.session.add(new_association)
+        #         if (row['Learning Center'] is not None and pd.notnull(row['Learning Center'])):
 
-                    new_association = DW_UsersSchoolRolesPivot(
-                        user=user,
-                        school_role=learning_center,
-                        schools=row['Learning Center']
-                    )
-                    db.session.add(new_association)
-                if (row['Desarrollo Humano'] is not None and pd.notnull(row['Desarrollo Humano'])):
-                    new_association = DW_UsersSchoolRolesPivot(
-                        user=user,
-                        school_role=human_development,
-                        schools=row['Desarrollo Humano']
-                    )
-                    db.session.add(new_association)
+        #             new_association = DW_UsersSchoolRolesPivot(
+        #                 user=user,
+        #                 school_role=learning_center,
+        #                 schools=row['Learning Center']
+        #             )
+        #             db.session.add(new_association)
+        #         if (row['Desarrollo Humano'] is not None and pd.notnull(row['Desarrollo Humano'])):
+        #             new_association = DW_UsersSchoolRolesPivot(
+        #                 user=user,
+        #                 school_role=human_development,
+        #                 schools=row['Desarrollo Humano']
+        #             )
+        #             db.session.add(new_association)
 
-        db.session.commit()
+        # db.session.commit()
 
-        print('Cargó Asociación DW_Staff-Roles-Areas-Schools PIVOT ...')
+        # print('Cargó Asociación DW_Staff-Roles-Areas-Schools PIVOT ...')
 
         # Asociación Users-Grades-Sections-Subjects PIVOT
         teacher_role = DW_Roles.query.filter_by(name_en='Teacher').first()
@@ -361,7 +361,7 @@ class PopulateDataWiseModelsSeeder(Seeder):
         # Asociacion Herramientas-Opciones
         dw_XL = pd.read_excel(excel_data, sheet_name='Herramientas-Opciones')
         usos = ['Uso1', 'Uso2', 'Uso3', 'Uso4',
-                'Uso5', 'Uso6', 'Uso7', 'Uso8', 'Uso9']
+                'Uso5', 'Uso6', 'Uso7', 'Uso8']
         for index, row in dw_XL.iterrows():
             tool = DW_Tools.query.filter_by(
                 name_en=row['Tool'].strip()).first()
@@ -393,8 +393,8 @@ class PopulateDataWiseModelsSeeder(Seeder):
       ##
         new_ira_netowrk = IRA_Networks(
             code="explora",
-            name_es="DataWise",
-            name_en="DataWise"
+            name_es="Fuentes conocimiento",
+            name_en="Knowledge Sources"
         )
         db.session.add(new_ira_netowrk)
         db.session.commit()

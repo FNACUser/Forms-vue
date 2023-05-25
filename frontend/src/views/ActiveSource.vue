@@ -124,7 +124,7 @@
       </v-col>
 
       <v-col 
-        v-if="selected_network && ['educ_model', 'resource'].includes(selected_network.code) && currentForm && !currentForm.is_concluded"
+        v-if="selected_network && ['knowledge', 'resource','task'].includes(selected_network.code) && currentForm && !currentForm.is_concluded"
         class="d-flex justify-end mr-11">
         <add-node 
           :label="selected_network[`name_${$i18n.locale}`]"
@@ -154,7 +154,7 @@
     </v-row>
 
     <v-row dense justify="space-around">
-      <v-col cols="3" v-if="selected_network && !['explora','narrative'].includes(selected_network.code)">
+      <v-col cols="3" v-if="selected_network && ['actor','knowledge', 'resource','task'].includes(selected_network.code)">
         <div v-for="(item, i) in questions" :key="i">
           <v-card>
             <v-app-bar flat color="blue">
@@ -168,6 +168,32 @@
         </div>
       </v-col>
 
+      <v-col cols="3" v-if="selected_network && ['narrative'].includes(selected_network.code)">
+        <div >
+          <v-card>
+            <v-app-bar flat color="blue">
+              <v-card-title class="white--text">
+                ¿Qué cambios o novedades introduciría Usted en Finac? de manera que:
+              </v-card-title>
+            </v-app-bar>
+            <v-card-text>
+              <ul>
+                
+                <li>se les facilitara el trabajo a los desarrolladores </li>
+                <li> el aprendizaje fuera más rápido</li>
+                <li> se les facilitara el trabajo a quienes hacen servicio al cliente</li>
+                <li> se logre mayor agilidad en el desarrollo y pruebas</li>
+                <li> los clientes tuvieran que acudir menos frecuentemente al servicio al cliente</li>
+            
+              </ul>
+
+
+            </v-card-text>
+          </v-card>
+          <br />
+        </div>
+      </v-col>
+
       <v-col cols="8" v-if="selected_network && selected_network.code === 'actor'">
 
         <v-data-table 
@@ -176,7 +202,12 @@
             :items-per-page="-1" 
             class="elevation-1"
             v-if="selected_actors.length > 0" 
-            dense>
+            dense
+            fixed-header
+            height="600"
+            hide-default-footer
+            disable-pagination
+            >
           <template v-slot:item="{ item }">
 
             <tr>
@@ -220,7 +251,7 @@
         </v-data-table>
       </v-col>
 
-      <v-col cols="8" v-if="selected_network && ['educ_model', 'resource'].includes(selected_network.code)">
+      <v-col cols="8" v-if="selected_network && ['knowledge', 'resource','task'].includes(selected_network.code)">
 
         <v-data-table 
             :headers="tableNodesHeader" 
@@ -228,7 +259,12 @@
             :items-per-page="-1" 
             class="elevation-1"
             v-if="nodes" 
-            dense>
+            fixed-header
+            height="600"
+            hide-default-footer
+            disable-pagination
+            dense
+            >
           <template v-slot:item="{ item }">
 
             <tr>
@@ -291,9 +327,9 @@
           class="elevation-1"
           v-if="selected_tools.length > 0" 
           fixed-header
+          height="600"
           hide-default-footer
           disable-pagination
-          height="500"
           dense
           
         >
@@ -373,7 +409,7 @@
       </v-col>
 
 
-      <v-col cols="12" v-if="selected_network && selected_network.code === 'narrative'">
+      <v-col cols="8" v-if="selected_network && selected_network.code === 'narrative'">
 
           <v-data-table 
             :headers="defaultNarrativesHeader" 
@@ -968,7 +1004,7 @@ export default {
       const index = this.forms.findIndex(item => item.id == network_mode.id_network_mode);
 
 
-      if(['actor','resource', 'educ_model','explora'].includes(network_mode.network.code )){
+      if(['actor','resource', 'knowledge','task','explora'].includes(network_mode.network.code )){
         const prefix = network_mode.id_network_mode + '_';
         const num_answers = Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
         this.forms[index]['answers'] = num_answers;
@@ -984,7 +1020,7 @@ export default {
         this.forms[index]['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1;
 
       }
-      else if (['resource', 'educ_model'].includes(network_mode.network.code)) {
+      else if (['knowledge', 'resource','task'].includes(network_mode.network.code)) {
 
         this.forms[index]['total_items'] = this.filteredNodes.length > 0 ? this.filteredNodes.length : 1;
 
@@ -998,7 +1034,7 @@ export default {
 
       }
 
-      if(['actor','resource', 'educ_model','explora'].includes(network_mode.network.code )){
+      if(['actor','knowledge', 'resource','task','explora'].includes(network_mode.network.code )){
         
         this.forms[index]['gauge_value'] = Math.round(this.forms[index]['answers'] * 100 / (this.forms[index]['total_questions'] *this.forms[index]['total_items']));
 
@@ -1542,7 +1578,7 @@ export default {
         await this.getQuestions();
       } 
 
-      if (this.selected_network && ['resource', 'educ_model'].includes(this.selected_network.code)) {
+      if (this.selected_network && ['knowledge', 'resource','task'].includes(this.selected_network.code)) {
 
          await this.getNodes(this.current_network_mode.id_network_mode);
         
@@ -1585,7 +1621,7 @@ export default {
 
             const questions = await this.getNetworkModeQuestions(network_mode.id_network_mode);
 
-            if (['resource', 'educ_model'].includes(network_mode.network.code)) {
+            if (['knowledge', 'resource','task'].includes(network_mode.network.code)) {
               // const nodes= await this.getNodes(network_mode.id_network_mode);
               // form['total_items'] = nodes.length;    
               await this.getNodes(network_mode.id_network_mode);

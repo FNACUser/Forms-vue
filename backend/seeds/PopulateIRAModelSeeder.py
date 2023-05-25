@@ -127,20 +127,26 @@ class PopulateIRAModelSeeder(Seeder):
                                              con=db.engine, if_exists='append',
                                              index=False)
 
+        # print(categorías_segmentos_nodos_df)
+        
         print('Cargó IRA_Nodes_segments_categories...')
+        
+       
 
         # .-.-.-.-.-.-.-.-. LEE CONOCIMIENTOS
-        segmentos_nodosXL = pd.read_excel(
+        segmentos_nodos_conocimientosXL = pd.read_excel(
             excel_book, sheet_name='Conocimientos')
-        segmentos_nodosXL.rename(columns={'Tipo-Conocimiento': 'Node_segment',
+        segmentos_nodos_conocimientosXL.rename(columns={'Tipo-Conocimiento': 'Node_segment',
                                           'Nombre_es': 'Node_es',
                                           'Nombre_en': 'Node_en'}, inplace=True)
-        # segmentos_nodosXL['id_node_segment_category'] = 2
-        segmentos_nodosXL['id_node_segment_category'] = categorías_segmentos_nodos_df.loc[categorías_segmentos_nodos_df["Node_segment_category"]
-                                                                                          == 'Aspectos modelo educativo', 'id_node_segment_category'].squeeze()
+        
+        segmentos_nodos_conocimientosXL['id_node_segment_category'] = categorías_segmentos_nodos_df.loc[categorías_segmentos_nodos_df["Node_segment_category"]
+                                                                                          == 'Conocimiento', 'id_node_segment_category'].squeeze()
 
-        # print('hola')
-        # print(segmentos_nodosXL['id_node_segment_category'])
+        # print('segmentos_nodosXL-conocimientos')
+        # print(segmentos_nodos_conocimientosXL)
+        
+        segmentos_nodosXL = segmentos_nodos_conocimientosXL
 
        # print(categorías_segmentos_nodos_df.query("Node_segment_category == 'Aspectos modelo educativo'")['id_node_segment_category'])
 
@@ -150,20 +156,47 @@ class PopulateIRAModelSeeder(Seeder):
         segmentos_nodos_recursosXL.rename(columns={'Tipo-Recurso': 'Node_segment',
                                                    'Recursos_es': 'Node_es',
                                                    'Recursos_en': 'Node_en'}, inplace=True)
-        # segmentos_nodos_recursosXL['id_node_segment_category'] = 3
+       
         segmentos_nodos_recursosXL['id_node_segment_category'] = categorías_segmentos_nodos_df.loc[
-            categorías_segmentos_nodos_df["Node_segment_category"] == 'Recursos', 'id_node_segment_category'].squeeze()
+            categorías_segmentos_nodos_df["Node_segment_category"] == 'Recurso', 'id_node_segment_category'].squeeze()
        # print(categorías_segmentos_nodos_df.query("Node_segment_category == 'Recursos'")['id_node_segment_category'])
+       
+        # print('segmentos_nodos_recursosXL')
+        # print(segmentos_nodos_recursosXL)
+        
+        
+        # .-.-.-.-.-.-.-.-. LEE TAREAS
+        segmentos_nodos_tareasXL = pd.read_excel(
+            excel_book, sheet_name='Tareas')
+        segmentos_nodos_tareasXL.rename(columns={'Tipo-Tareas': 'Node_segment',
+                                                   'Tareas_es': 'Node_es',
+                                                   'Tareas_en': 'Node_en'}, inplace=True)
+        
+        segmentos_nodos_tareasXL['id_node_segment_category'] = categorías_segmentos_nodos_df.loc[
+            categorías_segmentos_nodos_df["Node_segment_category"] == 'Tarea', 'id_node_segment_category'].squeeze()
+      
+       
+        # print('segmentos_nodos_tareasXL')
+        # print(segmentos_nodos_tareasXL)
 
         segmentos_nodosXL = \
             segmentos_nodosXL.append(
                 segmentos_nodos_recursosXL, ignore_index=True)
+        segmentos_nodosXL = \
+            segmentos_nodosXL.append(
+                segmentos_nodos_tareasXL, ignore_index=True)
+            
+        # print('segmentos_nodosXL')
+        # print(segmentos_nodosXL)
 
         # index
         segmentos_nodosXL.drop(columns=['id'], inplace=True)
         segmentos_nodosXL.reset_index(level=0, inplace=True)
         segmentos_nodosXL.rename(columns={'index': 'id_node'}, inplace=True)
         segmentos_nodosXL['id_node'] = segmentos_nodosXL['id_node'] + 1
+        
+        # print('segmentos_nodosXL re-Indexed')
+        # print(segmentos_nodosXL)
 
         segmentos_nodosXL = \
             segmentos_nodosXL.merge(categorías_segmentos_nodos_df,
@@ -171,10 +204,12 @@ class PopulateIRAModelSeeder(Seeder):
                                     right_on='id_node_segment_category', how='left')
         segmentos_nodosXL['node_segment_and_category'] = \
             segmentos_nodosXL.Node_segment + '-' + segmentos_nodosXL.Node_segment_category
+            
+            
+        # print('segmentos_nodosXL despues de merge con categorías_segmentos_nodos_df')
+        # print(segmentos_nodosXL)
 
-        # set(segmentos_nodosXL['id_node'])
-        # set(segmentos_nodosXL['id_node_segment_category'])
-        # segmentos_df
+       
 
         segmentos_df = \
             segmentos_nodosXL.groupby(['Node_segment',
@@ -193,10 +228,7 @@ class PopulateIRAModelSeeder(Seeder):
                                                     right_on='node_segment_and_category',
                                                     how='left')
 
-        # set(segmentos_nodosXL['id_node'])
-        # set(segmentos_nodosXL['id_node_segment_category'])
-        # set(segmentos_nodosXL['id_node_segment'])
-
+    
         # quitar columns innecesarias
         segmentos_df.drop(columns=['node_segment_and_category'], inplace=True)
 
@@ -384,10 +416,14 @@ class PopulateIRAModelSeeder(Seeder):
        # print(netw_modes_df)
 
         nodes_vs_networks_modes_df = FD_nodes_vs_networks_modes(
-            "Aspectos modelo educativo", netw_modes_df)
+            "Conocimiento", netw_modes_df)
 
         nodes_vs_networks_modes_df = \
-            nodes_vs_networks_modes_df.append(FD_nodes_vs_networks_modes("Recursos", netw_modes_df),
+            nodes_vs_networks_modes_df.append(FD_nodes_vs_networks_modes("Recurso", netw_modes_df),
+                                              ignore_index=True)
+            
+        nodes_vs_networks_modes_df = \
+            nodes_vs_networks_modes_df.append(FD_nodes_vs_networks_modes("Tarea", netw_modes_df),
                                               ignore_index=True)
 
         nodes_vs_networks_modes_df.to_sql(name='nodes_vs_networks_modes',

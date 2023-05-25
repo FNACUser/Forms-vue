@@ -31,13 +31,13 @@ class UsersRolesSeeder(Seeder):
                                            password=hash_password(random_pwd))
         db.session.add(user1)
 
-        user2 = user_datastore.create_user(username='Luis Gabriel', email='luis.caro@finac.com',
-                                           password=hash_password(random_pwd))
+        # user2 = user_datastore.create_user(username='Luis Gabriel', email='luis.caro@finac.com',
+        #                                    password=hash_password(random_pwd))
 
-        db.session.add(user2)
+        # db.session.add(user2)
 
         user_datastore.add_role_to_user(user1, admin)
-        user_datastore.add_role_to_user(user2, admin)
+        # user_datastore.add_role_to_user(user2, admin)
         # user_datastore.add_role_to_user(user1,encuestado)
 
         db.session.commit()
