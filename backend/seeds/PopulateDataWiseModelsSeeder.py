@@ -3,14 +3,14 @@ import pandas as pd
 from flask_security.utils import hash_password
 from flask_seeder import Seeder
 
-from common.Utilities import getDataPath
+from common.Utilities import getDataPath, isNotEmpty
 from models import (db, User, DW_Areas, DW_Grades, DW_Roles, DW_Schools, DW_Sections,
                     DW_ServiceUnits, DW_Subjects, DW_Tools, DW_Topics, DW_UsersGradesSectionsSubjectsPivot,
                     DW_GradesSectionsPivot, DW_GradesSubjectsPivot,  DW_UsersSchoolRolesPivot,
                     DW_ToolsGradesPivot, DW_ToolsRolesPivot, DW_ToolsAreasPivot,
                     DW_Options,
                     # DW_ToolsOptionsPivot,
-                    IRA_Networks, IRA_Nodes_segments_categories, IRA_Networks_modes,
+                    IRA_Networks, IRA_Nodes_segments, IRA_Networks_modes,
                     IRA_Questions, IRA_Questions_possible_answers, IRA_Cycles)
 
 
@@ -263,7 +263,7 @@ class PopulateDataWiseModelsSeeder(Seeder):
             db.session.commit()
             print(f"Creó  DW_Tools= '{row['name_es']}'")
 
-            if (row['Grados'] is not None and pd.notnull(row['Grados']) and pd.notna(row['Grados']) and row['Grados'] != 'nan'):
+            if isNotEmpty(row['Grados']):
                 if (row['Grados'] == 'All'):
 
                     grades = DW_Grades.query.with_entities(DW_Grades.id).all()
@@ -289,7 +289,7 @@ class PopulateDataWiseModelsSeeder(Seeder):
                         db.session.add(new_association)
                     print('Cargó Asociación DW_ToolsGrades PIVOT- LIST case')
 
-            if (row['Areas'] is not None and pd.notnull(row['Areas']) and pd.notna(row['Areas']) and row['Areas'] != 'nan'):
+            if isNotEmpty(row['Areas']):
 
                 if (row['Areas'].strip() == 'All'):
 
@@ -317,7 +317,7 @@ class PopulateDataWiseModelsSeeder(Seeder):
                         db.session.add(new_association)
                     print('Cargó Asociación DW_ToolsAreas PIVOT- LIST case')
 
-            if (row['Roles'] is not None and pd.notnull(row['Roles']) and pd.notna(row['Roles']) and row['Roles'] != 'nan'):
+            if isNotEmpty(row['Roles']):
 
                 if (row['Roles'].strip() == 'All'):
 
@@ -367,7 +367,7 @@ class PopulateDataWiseModelsSeeder(Seeder):
                 name_en=row['Tool'].strip()).first()
             if (tool):
                 for uso in usos:
-                    if (row[uso] is not None and pd.notnull(row[uso]) and pd.notna(row[uso]) and row[uso] != 'nan'):
+                    if isNotEmpty(row[uso]):
                         option = DW_Options.query.filter_by(
                             name_es=row[uso].strip()).first()
                         if (option):
@@ -388,110 +388,4 @@ class PopulateDataWiseModelsSeeder(Seeder):
         # print('Cargó DW_ToolsOptions Pivot...')
         print('Cargó DW_tools_vs_options Pivot...')
 
-      ##
-      # CARGA nuevos valores dentro de los modelos IRA para representar este nuevo tipo de formulario.
-      ##
-        new_ira_netowrk = IRA_Networks(
-            code="explora",
-            name_es="Fuentes conocimiento",
-            name_en="Knowledge Sources"
-        )
-        db.session.add(new_ira_netowrk)
-        db.session.commit()
-
-        print(f'Se crea un nuevo tipo de IRA Network...{new_ira_netowrk}')
-
-        new_ira_node_segment_category = IRA_Nodes_segments_categories(
-
-            Node_segment_category="DataWise"
-
-        )
-        db.session.add(new_ira_node_segment_category)
-        db.session.commit()
-
-        print(
-            f'Se crea un nuevo tipo de IRA Node Segment Category...{ new_ira_node_segment_category}')
-
-        new_ira_network_mode = IRA_Networks_modes(
-
-            network=new_ira_netowrk,
-            node_segment_category=new_ira_node_segment_category
-
-        )
-        db.session.add(new_ira_network_mode)
-        db.session.commit()
-
-        print(
-            f'Se crea un nuevo tipo de IRA Network Mode...{new_ira_network_mode}')
-
-        # Se lee el Ciclo actual IRA_Cycles
-
-        current_cycle = IRA_Cycles.query.get(1)
-
-        # Se asocia el nuevo IRA Network MOde con el ciclo
-
-        current_cycle.networks_modes.append(new_ira_network_mode)
-
-        print(f'Se crea asociación  nuevo IRA NetworkMode con el Current Cycle...')
-
-        new_possible_answers1 = IRA_Questions_possible_answers(
-
-            Question_possible_answers_es='[{"texto":"No", "valor":0 },{"texto":"Si", "valor":1 }]',
-            Question_possible_answers_en='[{"texto":"No", "valor":0 },{"texto":"Yes", "valor":1 }]',
-            multiple=0
-        )
-
-        new_possible_answers2 = IRA_Questions_possible_answers(
-
-            Question_possible_answers_es='[{"texto":"Nunca", "valor":0 },{"texto":"Diariamente", "valor":1 }, {"texto":"Semanalmente", "valor":2},  {"texto":"Mensualmente", "valor":3},{"texto":"Otro", "valor":4}]',
-            Question_possible_answers_en='[{"texto":"Never", "valor":0 },{"texto":"Daily", "valor":1 }, {"texto":"Weekly", "valor":2},  {"texto":"Monthly", "valor":3},{"texto":"Other", "valor":4}]',
-            multiple=0
-        )
-        new_possible_answers3 = IRA_Questions_possible_answers(
-
-            Question_possible_answers_es='',
-            Question_possible_answers_en='',
-            multiple=1,
-            use_external_source=1,
-            source_name='DW_Options'
-        )
-
-        db.session.add(new_possible_answers1)
-        db.session.add(new_possible_answers2)
-        db.session.add(new_possible_answers3)
-        db.session.commit()
-
-        print(f'Se crean nuevas IRA Possible answers...')
-
-        new_question1 = IRA_Questions(
-
-            Question_es='¿Tiene acceso?',
-            Question_en='Do you have access?',
-            question_possible_answers=new_possible_answers1
-        )
-        new_question2 = IRA_Questions(
-
-            Question_es='¿Lo usa?',
-            Question_en='Do you use it?',
-            question_possible_answers=new_possible_answers2
-        )
-
-        new_question3 = IRA_Questions(
-
-            Question_es='Opciones de Uso',
-            Question_en='Usage Options',
-            question_possible_answers=new_possible_answers3
-        )
-
-        db.session.add(new_question1)
-        db.session.add(new_question2)
-        db.session.add(new_question3)
-        db.session.commit()
-
-        print(f'Se crean nuevas IRA_Questions...')
-
-        new_ira_network_mode.questions.append(new_question1)
-        new_ira_network_mode.questions.append(new_question2)
-        new_ira_network_mode.questions.append(new_question3)
-
-        print(f'Se crean las relaciones entre el nuevo Network Mode y las  nuevas Questions...')
+      

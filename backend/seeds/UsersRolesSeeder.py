@@ -10,7 +10,7 @@ from common.Utilities import generate_random_string
 class UsersRolesSeeder(Seeder):
     def __init__(self, db=None):
         super().__init__(db=db)
-        self.priority = 2
+        self.priority = 3
 
     # run() will be called by Flask-Seeder
     def run(self):

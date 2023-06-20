@@ -9,6 +9,7 @@ from flask_bcrypt import Bcrypt
 from flask_security import Security
 from flask_security.utils import hash_password, verify_password
 from flask_mail import Mail, Message
+from flask_migrate import Migrate
 
 # from flask_security import login_user, current_user, logout_user, login_required
 # from flask import url_for, current_app
@@ -68,6 +69,7 @@ Bcrypt().init_app(app)
 Security().init_app(app, datastore=user_datastore)
 Mail().init_app(app)
 ma.init_app(app)
+migrate = Migrate(app,db)
 
 seeder = FlaskSeeder()
 seeder.init_app(app, db)
@@ -169,6 +171,11 @@ def remover_roles_usuario(email, roles):
 def drop_create_db():
     db.drop_all()
     db.create_all()
+    
+@click.command(name="drop_db")
+@with_appcontext
+def drop_db():
+    db.drop_all()
 
 
 # CLI User/Role management
@@ -179,6 +186,7 @@ app.cli.add_command(remover_roles_usuario)
 
 # DB management
 app.cli.add_command(drop_create_db)
+app.cli.add_command(drop_db)
 
 
 def token_required(f):

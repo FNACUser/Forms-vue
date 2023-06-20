@@ -217,6 +217,11 @@ def FD_nodes_vs_networks_modes(xcategory):
     return FD_IRA_Nodes_to_DF(nodes_flat, xcategory)
 
 
+def isNotEmpty(variable):
+    
+    return variable is not None and pd.notnull(variable) and pd.notna(variable) and variable != 'nan'
+
+
 
 
     

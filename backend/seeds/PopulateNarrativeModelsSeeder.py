@@ -5,7 +5,7 @@ from flask_seeder import Seeder
 
 from common.Utilities import getDataPath
 from models import (db,
-                    IRA_Networks, IRA_Nodes_segments_categories,
+                    IRA_Networks, IRA_Nodes_segments,
                     IRA_Networks_modes, IRA_Cycles, User)
 
 
@@ -13,46 +13,20 @@ from models import (db,
 class PopulateNarrativeModelsSeeder(Seeder):
     def __init__(self, db=None):
         super().__init__(db=db)
-        self.priority = 4
+        self.priority = 5
 
     # run() will be called by Flask-Seeder
     def run(self):
 
-      ##
-      # CARGA nuevos valores dentro de los modelos IRA para representar este nuevo tipo de formulario.
-      ##
-        new_ira_network = IRA_Networks(
-            code="narrative",
-            name_es="Narrativa",
-            name_en="Narrative"
-        )
-        db.session.add(new_ira_network)
-        db.session.commit()
+        
+        narrative_network = IRA_Networks.query.filter_by(
+                            code="narrative").first()
+        
+        narrative_node_segment = IRA_Nodes_segments.query.filter_by(
+                            Node_segment="Narrative").first()
 
-        print(f'Se crea un nuevo tipo de IRA Network...{new_ira_network}')
-
-        new_ira_node_segment_category = IRA_Nodes_segments_categories(
-
-            Node_segment_category="Narrative"
-
-        )
-        db.session.add(new_ira_node_segment_category)
-        db.session.commit()
-
-        print(
-            f'Se crea un nuevo tipo de IRA Node Segment Category...{ new_ira_node_segment_category}')
-
-        new_ira_network_mode = IRA_Networks_modes(
-
-            network=new_ira_network,
-            node_segment_category=new_ira_node_segment_category
-
-        )
-        db.session.add(new_ira_network_mode)
-        db.session.commit()
-
-        print(
-            f'Se crea un nuevo tipo de IRA Network Mode...{new_ira_network_mode}')
+        narrative_ira_network_mode = IRA_Networks_modes.query.filter_by(
+            id_network=narrative_network.id, id_node_segment=narrative_node_segment.id_node_segment).first()
 
         # Se lee el Ciclo actual IRA_Cycles
 
@@ -60,31 +34,7 @@ class PopulateNarrativeModelsSeeder(Seeder):
 
         # Se asocia el nuevo IRA Network MOde con el ciclo
 
-        current_cycle.networks_modes.append(new_ira_network_mode)
+        current_cycle.networks_modes.append(narrative_ira_network_mode)
 
-        print(f'Se crea asociación  nuevo IRA NetworkMode con el Current Cycle...')
+        print(f'Se  asocia  nuevo IRA Network_Mode con el Current Cycle...')
 
-        # new_question1 = IRA_Questions(
-
-        #     Question_es='Título',
-        #     Question_en='Titulo',
-        #     question_possible_answers=None
-        # )
-        # new_question2 = IRA_Questions(
-
-        #     Question_es='Narrativa',
-        #     Question_en='Narrative',
-        #     question_possible_answers=None
-        # )
-
-        # db.session.add(new_question1)
-        # db.session.add(new_question2)
-
-        # db.session.commit()
-
-        # print(f'Se crean nuevas IRA_Questions...')
-
-        # new_ira_network_mode.questions.append(new_question1)
-        # new_ira_network_mode.questions.append(new_question2)
-
-        # print(f'Se crean las relaciones entre el nuevo Network Mode y las  nuevas Questions...')

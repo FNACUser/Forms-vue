@@ -226,6 +226,7 @@ class IRA_Networks(db.Model):
     code = db.Column(db.String(100), nullable=False)
     name_es = db.Column(db.String(100), nullable=False)
     name_en = db.Column(db.String(100), nullable=False)
+    form_type = db.Column(db.String(50), nullable=False)
 
     networks_modes = db.relationship('IRA_Networks_modes',
                                      backref=db.backref('network', lazy=True))
@@ -241,10 +242,16 @@ class IRA_Networks_modes(db.Model):
                            db.ForeignKey(
                                'IRA_Networks.id'),
                            nullable=False)
-    id_node_segment_category = \
+    # id_node_segment_category = \
+    #     db.Column(db.Integer,
+    #               db.ForeignKey(
+    #                   'IRA_Nodes_segments_categories.id_node_segment_category'),
+    #               nullable=True)
+    
+    id_node_segment = \
         db.Column(db.Integer,
                   db.ForeignKey(
-                      'IRA_Nodes_segments_categories.id_node_segment_category'),
+                      'IRA_Nodes_segments.id_node_segment'),
                   nullable=True)
 
     id_network_mode_theme = \
@@ -327,6 +334,9 @@ class IRA_Nodes_segments(db.Model):
 
     nodes = db.relationship(
         'IRA_Nodes', backref=db.backref('node_segment', lazy=True))
+    
+    networks_modes = db.relationship('IRA_Networks_modes',
+                                     backref=db.backref('node_segment', lazy=True))
 
     def __repr__(self):
         return f"IRA_Nodes_segments('{self.id_node_segment}', \
@@ -341,8 +351,8 @@ class IRA_Nodes_segments_categories(db.Model):
     nodes_segments = db.relationship('IRA_Nodes_segments',
                                      backref=db.backref('node_segment_category', lazy=True))
 
-    networks_modes = db.relationship('IRA_Networks_modes',
-                                     backref=db.backref('node_segment_category', lazy=True))
+    # networks_modes = db.relationship('IRA_Networks_modes',
+    #                                  backref=db.backref('node_segment_category', lazy=True))
 
     def __repr__(self):
         return f"IRA_Nodes_segments_categories('{self.id_node_segment_category}', \

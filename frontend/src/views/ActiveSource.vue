@@ -42,13 +42,13 @@
       </v-col>
 
       <v-col class="d-flex justify-space-around mb-6 align-end" cols="3"
-        v-if="selected_network && selected_network.code === 'explora'">
+        v-if="selected_network && selected_network.form_type === 'explora'">
         <v-autocomplete 
             v-model="selected_tools" 
             :items="user_tools" 
             :item-text="`name_${$i18n.locale}`" 
             item-value="id"
-            :label="$t('active_source.sources')" 
+            :label="$t('active_source.select_resources_you_know')" 
             multiple  
             return-object
             dense 
@@ -70,7 +70,7 @@
       </v-col>
 
       <v-col cols="2" class="d-flex justify-space-around mb-6 align-end"
-          v-if="selected_network && selected_network.code === 'actor'">
+          v-if="selected_network && selected_network.form_type === 'unimodal'">
           <v-autocomplete 
               v-model="selected_area" 
               :items="mainStore.areas" 
@@ -84,7 +84,7 @@
       </v-col>
 
       <v-col class="d-flex justify-space-around mb-6 align-end" cols="3"
-          v-if="selected_network && selected_network.code === 'actor'">
+          v-if="selected_network && selected_network.form_type === 'unimodal'">
           <v-autocomplete 
               v-model="selected_actors" 
               :items="filteredEmployees" 
@@ -109,7 +109,7 @@
           :in_value="form['gauge_value']"
           :in_size="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 100 : 60)"
           :in_width="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 15 : 7)"
-          :mode="form.network_mode.network.code!=='narrative' ? 'percent':'number'"
+          :mode="form.network_mode.network.form_type!=='narrativa' ? 'percent':'number'"
           @click.native="setSelectedNetworkAndTheme(form)" 
         />
       </v-col>
@@ -124,7 +124,7 @@
       </v-col>
 
       <v-col 
-        v-if="selected_network && ['knowledge', 'resource','task'].includes(selected_network.code) && currentForm && !currentForm.is_concluded"
+        v-if="selected_network && ['bimodal'].includes(selected_network.form_type) && currentForm && !currentForm.is_concluded"
         class="d-flex justify-end mr-11">
         <add-node 
           :label="selected_network[`name_${$i18n.locale}`]"
@@ -135,7 +135,7 @@
 
 
       <v-col  
-          v-if="selected_network && selected_network.code=== 'narrative' && currentForm && !currentForm.is_concluded"
+          v-if="selected_network && selected_network.form_type=== 'narrativa' && currentForm && !currentForm.is_concluded"
           class="d-flex justify-end mr-11">
           <add-narrative
               :showNarrativeDialog.sync="showNarrativeDialog"
@@ -154,7 +154,7 @@
     </v-row>
 
     <v-row dense justify="space-around">
-      <v-col cols="3" v-if="selected_network && ['actor','knowledge', 'resource','task'].includes(selected_network.code)">
+      <v-col cols="3" v-if="selected_network && ['unimodal','bimodal'].includes(selected_network.form_type)">
         <div v-for="(item, i) in questions" :key="i">
           <v-card>
             <v-app-bar flat color="blue">
@@ -168,7 +168,7 @@
         </div>
       </v-col>
 
-      <v-col cols="3" v-if="selected_network && ['narrative'].includes(selected_network.code)">
+      <v-col cols="3" v-if="selected_network && ['narrativa'].includes(selected_network.form_type)">
         <div >
           <v-card>
             <v-app-bar flat color="blue">
@@ -193,7 +193,7 @@
         </div>
       </v-col>
 
-      <v-col cols="8" v-if="selected_network && selected_network.code === 'actor'">
+      <v-col cols="8" v-if="selected_network && selected_network.form_type === 'unimodal'">
 
         <v-data-table 
             :headers="tableActorsHeader" 
@@ -250,7 +250,7 @@
         </v-data-table>
       </v-col>
 
-      <v-col cols="8" v-if="selected_network && ['knowledge', 'resource','task'].includes(selected_network.code)">
+      <v-col cols="8" v-if="selected_network && ['bimodal'].includes(selected_network.form_type)">
 
         <v-data-table 
             :headers="tableNodesHeader" 
@@ -317,7 +317,7 @@
         </v-data-table>
       </v-col>
 
-      <v-col cols="12" v-if="selected_network && selected_network.code === 'explora'">
+      <v-col cols="12" v-if="selected_network && selected_network.form_type === 'explora'">
 
         <v-data-table 
           :headers="tableToolsHeader" 
@@ -408,7 +408,7 @@
       </v-col>
 
 
-      <v-col cols="8" v-if="selected_network && selected_network.code === 'narrative'">
+      <v-col cols="8" v-if="selected_network && selected_network.form_type === 'narrativa'">
 
           <v-data-table 
             :headers="tableNarrativesHeader" 
@@ -708,7 +708,7 @@ export default {
         return this.mainStore.employees.filter(item => item.id_organization_area === this.selected_area);
 
       }
-      else return null;
+      else return this.mainStore.employees;
 
     },
 
@@ -719,7 +719,7 @@ export default {
     filteredQuestions() {
 
 
-      if (this.selected_network && this.selected_network.code == 'explora' && this.questions.length > 0) {
+      if (this.selected_network && this.selected_network.form_type == 'explora' && this.questions.length > 0) {
 
         return this.questions.filter(item => !item.question_possible_answers.use_external_source);
 
@@ -731,10 +731,10 @@ export default {
 
     externalSourceQuestion(){
 
-      if (this.selected_network && this.selected_network.code == 'explora' && this.questions.length > 0) {
+      if (this.selected_network && this.selected_network.form_type == 'explora' && this.questions.length > 0) {
 
         const question_external_source= this.questions.find(item => item.question_possible_answers.use_external_source);
-        
+  
         return question_external_source;
 
       }
@@ -853,7 +853,7 @@ export default {
       
       if( Object.keys(this.answers).length>0){
 
-        const network_mode=this.mainStore.network_modes.filter(item => item.network.code === 'explora')[0];
+        const network_mode=this.mainStore.network_modes.filter(item => item.network.form_type === 'explora')[0];
 
         return  [...new Set(Object.keys(this.answers).filter(item => item.split('_')[0]==network_mode.id_network_mode).map(item => parseInt(item.split('_')[2])))];
 
@@ -931,7 +931,7 @@ export default {
 
       this.selected_network = form.network_mode.network;
 
-      if (this.selected_network.code == 'actor') {
+      if (this.selected_network.form_type == 'unimodal') {
 
         this.selected_network_mode_theme = form.network_mode.network_mode_theme.id_network_mode_theme;
 
@@ -1009,42 +1009,42 @@ export default {
       const index = this.forms.findIndex(item => item.id == network_mode.id_network_mode);
 
 
-      if(['actor','resource', 'knowledge','task','explora'].includes(network_mode.network.code )){
+      if(['unimodal', 'bimodal','explora'].includes(network_mode.network.form_type )){
         const prefix = network_mode.id_network_mode + '_';
         const num_answers = Object.keys(this.answers).filter(item => item.startsWith(prefix)).length;
         this.forms[index]['answers'] = num_answers;
 
       }
-      else if (network_mode.network.code == 'narrative') {
+      else if (network_mode.network.form_type == 'narrativa') {
         // console.log(this.narratives.length);
         this.forms[index]['answers'] = this.narratives.length;
 
       }
 
-      if (network_mode.network.code == 'actor') {
+      if (network_mode.network.form_type == 'unimodal') {
         this.forms[index]['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1;
 
       }
-      else if (['knowledge', 'resource','task'].includes(network_mode.network.code)) {
+      else if (['bimodal'].includes(network_mode.network.form_type)) {
 
         this.forms[index]['total_items'] = this.filteredNodes.length > 0 ? this.filteredNodes.length : 1;
 
       }
-      else if (network_mode.network.code == 'explora') {
+      else if (network_mode.network.form_type == 'explora') {
         this.forms[index]['total_items'] = this.selected_tools.length > 0 ? this.selected_tools.length : 1;
 
       }
-      else if (network_mode.network.code == 'narrative') {
+      else if (network_mode.network.form_type == 'narrativa') {
         this.forms[index]['total_items'] = this.narratives.length > 0 ? this.narratives.length : 1;
 
       }
 
-      if(['actor','knowledge', 'resource','task','explora'].includes(network_mode.network.code )){
+      if(['unimodal', 'bimodal','explora'].includes(network_mode.network.form_type )){
         
         this.forms[index]['gauge_value'] = Math.round(this.forms[index]['answers'] * 100 / (this.forms[index]['total_questions'] *this.forms[index]['total_items']));
 
       }
-      else if (network_mode.network.code == 'narrative') {
+      else if (network_mode.network.form_type == 'narrativa') {
        
         this.forms[index]['gauge_value'] = this.narratives.length;
 
@@ -1058,7 +1058,7 @@ export default {
 
       this.mainStore.network_modes.forEach(network_mode => {
 
-        if (network_mode.network.code == 'actor') {
+        if (network_mode.network.form_type == 'unimodal') {
           this.updateNetworkModeGauge(network_mode);
         }
 
@@ -1592,21 +1592,21 @@ export default {
 
     async getData() {
 
-      if (this.selected_network && this.selected_network.code !== 'narrative') {
+      if (this.selected_network && this.selected_network.form_type !== 'narrativa') {
         await this.getQuestions();
       } 
 
-      if (this.selected_network && ['knowledge', 'resource','task'].includes(this.selected_network.code)) {
+      if (this.selected_network && ['bimodal'].includes(this.selected_network.form_type)) {
 
          await this.getNodes(this.current_network_mode.id_network_mode);
         
       }
      
-      if (this.selected_network && this.selected_network.code === 'explora' && this.user_tools.length==0) {
+      if (this.selected_network && this.selected_network.form_type === 'explora' && this.user_tools.length==0) {
           await this.getUserTools();
           this.selected_tools= this.getSavedSelectedTools();
       }
-      if (this.selected_network && this.selected_network.code === 'narrative') {
+      if (this.selected_network && this.selected_network.form_type === 'narrativa') {
         this.current_network_mode = this.getCurrentNetworkMode();
         await this.getUserNarratives();
         
@@ -1639,26 +1639,26 @@ export default {
 
             const questions = await this.getNetworkModeQuestions(network_mode.id_network_mode);
 
-            if (['knowledge', 'resource','task'].includes(network_mode.network.code)) {
+            if (['bimodal'].includes(network_mode.network.form_type)) {
               // const nodes= await this.getNodes(network_mode.id_network_mode);
               // form['total_items'] = nodes.length;    
               await this.getNodes(network_mode.id_network_mode);
               form['total_items'] = this.filteredNodes.length;
             }
-            else if (network_mode.network.code == 'actor') {
+            else if (network_mode.network.form_type == 'unimodal') {
               form['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1;
             }
-            else if (network_mode.network.code == 'explora') {
+            else if (network_mode.network.form_type == 'explora') {
               const saved_tools_ids = this.getSavedToolsIds();
               form['total_items'] = saved_tools_ids.length > 0 ? saved_tools_ids.length : 1;
             }
-            else if (network_mode.network.code == 'narrative') {
+            else if (network_mode.network.form_type == 'narrativa') {
               
               form['total_items'] = this.narratives.length > 0 ? this.narratives.length : 1;
           }
 
 
-          if (network_mode.network.code !== 'narrative') {
+          if (network_mode.network.form_type !== 'narrativa') {
 
              const prefix = network_mode.id_network_mode + '_';
 
