@@ -155,17 +155,19 @@
 
     <v-row dense justify="space-around">
       <v-col cols="3" v-if="selected_network && ['unimodal','bimodal'].includes(selected_network.form_type)">
-        <div v-for="(item, i) in questions" :key="i">
-          <v-card>
-            <v-app-bar flat color="blue">
-              <v-card-title class="white--text">
-                {{ $t('active_source.question') }} {{ i + 1 }}
-              </v-card-title>
-            </v-app-bar>
-            <v-card-text>{{ item[`Question_${$i18n.locale}`] }}</v-card-text>
-          </v-card>
-          <br />
-        </div>
+        <v-list style="max-height: 600px" class="overflow-y-auto">
+          <div v-for="(item, i) in questions" :key="i">
+            <v-card>
+              <v-app-bar flat color="blue">
+                <v-card-title class="white--text">
+                  {{ $t('active_source.question') }} {{ i + 1 }}
+                </v-card-title>
+              </v-app-bar>
+              <v-card-text>{{ item[`Question_${$i18n.locale}`] }}</v-card-text>
+            </v-card>
+            <br />
+          </div>
+        </v-list>
       </v-col>
 
       <v-col cols="3" v-if="selected_network && ['narrativa'].includes(selected_network.form_type)">
