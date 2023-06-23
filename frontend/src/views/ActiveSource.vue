@@ -99,6 +99,17 @@
               dense 
               :disabled="currentForm && currentForm.is_concluded"
               >
+              <template v-slot:selection="{ item, index }">
+                  <v-chip v-if="index === 0">
+                    <span>{{ item.username }}</span>
+                  </v-chip>
+                  <span
+                    v-if="index === 1"
+                    class="grey--text text-caption"
+                  >
+                    (+ {{selected_actors.length - 1 }}  {{$t('globals.others')}})
+                  </span>
+              </template>
           </v-autocomplete>
       </v-col>
 

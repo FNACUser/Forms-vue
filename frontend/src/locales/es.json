@@ -22,9 +22,9 @@
     "delete":"Borrar",
     "cancel":"Cancelar",
     "select":"Seleccionar",
-    "title":"Título"
+    "title":"Título",
+    "others":"más"
     
-
   },
 
   "active_source":{

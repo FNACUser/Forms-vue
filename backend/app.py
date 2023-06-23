@@ -347,6 +347,16 @@ def reset_password():
 def users(current_user):
     # def users():
     resp = User.query.order_by(User.username).all()
+    users_to_remove_str=app.config['REMOVE_USERS_FROM_LIST']
+    if( users_to_remove_str):
+        users_to_remove_list=users_to_remove_str.split(',')
+        for user_to_remove_str in users_to_remove_list:
+            user=User.query.filter_by(email=user_to_remove_str).first()
+            if(user and user in resp):
+                resp.remove(user)
+                   
+    if(current_user in resp):
+        resp.remove(current_user)
     return jsonify(users_schema.dump(resp))
 
 
