@@ -99,7 +99,7 @@ def crear_usuario(name, email, area, roles):
     try:
 
         model_area = IRA_Organization_areas.query.filter_by(
-            Organization_area=area).first()
+            Organization_area_es=area).first()
 
         if model_area:
             id_area = model_area.id_organization_area
