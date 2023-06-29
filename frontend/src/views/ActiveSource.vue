@@ -95,7 +95,6 @@
               small-chips 
               multiple 
               return-object
-              @change="addInteractingActor()" 
               dense 
               :disabled="currentForm && currentForm.is_concluded"
               >
@@ -185,9 +184,9 @@
         <div >
           <v-card>
             <v-app-bar flat color="blue">
-              <v-card-sub-title class="white--text">
+              <v-card-title class="white--text">
                 <b>{{ $t('narrative_text.title') }}</b>
-              </v-card-sub-title>
+              </v-card-title>
             </v-app-bar>
             <v-card-text>
               <ul>
@@ -476,7 +475,7 @@
 
     </v-row>
 
-    <confirmation-dialog ref="confirmDeleteActor" />
+    <confirmation-dialog ref="confirmDeleteRecord" />
 
     <UsageOptionsDialog 
       :usageOptions="toolOptions"
@@ -515,6 +514,7 @@ export default {
   data() {
     return {
 
+     
       selected_actors: [],
       selected_tools: [],
       narratives:[],
@@ -639,7 +639,37 @@ export default {
         this.initialize();
 
       }
-    }
+    },
+    selected_actors: {
+
+      handler: function (new_val, prev_val) {
+
+        if(new_val && new_val.length && prev_val && prev_val.length!=0){
+
+  
+          if((new_val.length-prev_val.length)==1){
+
+            this.addInteractingActor();
+            }
+          else if ((new_val.length-prev_val.length)==-1){
+              const actor_to_delete= prev_val.filter(p=> !new_val.find(n=> n.id===p.id))[0];
+
+              if(actor_to_delete){
+
+                this.removeActor(actor_to_delete);
+
+              }
+
+            
+          }
+
+        }
+        
+      },
+      // deep: true,
+      immediate:true
+
+      }
 
 
   },
@@ -811,7 +841,11 @@ export default {
 
    async  removeToolsIfDeselected(){
 
-      const saved_tools_ids = this.getSavedToolsIds();
+      //const saved_tools_ids = this.getSavedToolsIds();
+
+      const network_mode=this.mainStore.network_modes.filter(item => item.network.form_type === 'explora')[0];
+      const saved_tools_ids = this.getSavedIds(network_mode.id_network_mode);
+
 
       const selected_tools_ids = this.selected_tools.map(item => item.id);
     
@@ -821,7 +855,7 @@ export default {
         
         if(deselected_tool_id){
           
-          if (await this.$refs.confirmDeleteActor.open(this.$t('menus.delete_record_title'), this.$t('alerts.delete_tool_text', { item: this.selected_network[`name_${this.$i18n.locale}`] }), { color: "red lighten-3" })) {
+          if (await this.$refs.confirmDeleteRecord.open(this.$t('menus.delete_record_title'), this.$t('alerts.delete_tool_text', { item: this.selected_network[`name_${this.$i18n.locale}`] }), { color: "red lighten-3" })) {
 
             await  this.deleteSelectedTool(deselected_tool_id, false);
           }
@@ -838,6 +872,30 @@ export default {
     },
 
 
+async removeActor(actor){
+
+  // const saved_ids = this.getSavedIds(this.current_network_mode.id_network_mode);
+  // const selected_ids = this.selected_actors.map(item => item.id);
+  // const deselected_id = saved_ids.filter(f => !selected_ids.includes(f))[0];
+
+
+    if(actor){
+      
+      if (await this.$refs.confirmDeleteRecord.open(this.$t('menus.delete_record_title'), this.$t('alerts.delete_tool_text', { item: this.selected_network[`name_${this.$i18n.locale}`] }), { color: "red lighten-3" })) {
+
+        await   await this.deleteActor(actor.id);
+      }
+      else{
+
+        this.selected_actors.push(this.filteredEmployees.filter(item=> item.id==actor.id)[0]);
+        this.sortSelectedColleagues();
+      }
+    }
+
+},
+
+
+
     deleteSelectedOption(networkModeID, questionID, toolID, index){
 
         this.answers[`${networkModeID}_${questionID}_${toolID}`].splice(index,1);
@@ -849,7 +907,11 @@ export default {
     getSavedSelectedTools(){
 
       //  console.log('Entra a getAnswerKeys');
-      const tools_ids= this.getSavedToolsIds();
+      // const tools_ids= this.getSavedToolsIds();
+      const network_mode=this.mainStore.network_modes.filter(item => item.network.form_type === 'explora')[0];
+      const tools_ids= this.getSavedIds(network_mode.id_network_mode);
+
+
       if( tools_ids.length>0){
 
         let  selected_tools=[];
@@ -861,14 +923,18 @@ export default {
 
     },
 
-    getSavedToolsIds(){
+    // getSavedToolsIds(){
+
+    getSavedIds(network_mode_id){
 
       
       if( Object.keys(this.answers).length>0){
 
-        const network_mode=this.mainStore.network_modes.filter(item => item.network.form_type === 'explora')[0];
+        // const network_mode=this.mainStore.network_modes.filter(item => item.network.form_type === 'explora')[0];
 
-        return  [...new Set(Object.keys(this.answers).filter(item => item.split('_')[0]==network_mode.id_network_mode).map(item => parseInt(item.split('_')[2])))];
+        // return  [...new Set(Object.keys(this.answers).filter(item => item.split('_')[0]==network_mode.id_network_mode).map(item => parseInt(item.split('_')[2])))];
+
+        return  [...new Set(Object.keys(this.answers).filter(item => item.split('_')[0]==network_mode_id).map(item => parseInt(item.split('_')[2])))];
 
       }
       return [];
@@ -1214,6 +1280,7 @@ export default {
         .then(response => {
           this.$alertify.success(this.$t(response.data));
           this.updateAllActorNetworkModeGauges();
+          this.sortSelectedColleagues();
 
         })
         .catch(error => {
@@ -1221,7 +1288,7 @@ export default {
           console.error('There was an error!', error.message);
         });
 
-      this.sortSelectedColleagues();
+      
 
     },
 
@@ -1231,7 +1298,7 @@ export default {
     async delRecord(itemID, title, message, item_name, type) {
 
 
-      if (await this.$refs.confirmDeleteActor.open(this.$t(title), this.$t(message, { item: item_name }), { color: "red lighten-3" })) {
+      if (await this.$refs.confirmDeleteRecord.open(this.$t(title), this.$t(message, { item: item_name }), { color: "red lighten-3" })) {
 
         if (type == 'Actor') {
           await this.deleteActor(itemID);
@@ -1386,9 +1453,9 @@ export default {
 
       await this.$axios.delete(process.env.VUE_APP_BACKEND_URL + '/delete_interacting_actor', { data: data })
         .then(async response => {
-          // console.log(response.data);
+          
           this.$alertify.success(this.$t(response.data));
-          this.selected_actors.splice(item_index, 1);
+          if(item_index>=0) this.selected_actors.splice(item_index, 1);
           await this.getUserResponses();
 
           this.updateAllActorNetworkModeGauges();
@@ -1662,8 +1729,15 @@ export default {
               form['total_items'] = this.selected_actors.length > 0 ? this.selected_actors.length : 1;
             }
             else if (network_mode.network.form_type == 'explora') {
-              const saved_tools_ids = this.getSavedToolsIds();
+              const network_mode=this.mainStore.network_modes.filter(item => item.network.form_type === 'explora')[0];
+              // let saved_tools_ids =[];
+              // if(network_mode && network_mode.id_network_mode){
+              //   saved_tools_ids = this.getSavedIds(network_mode.id_network_mode);
+              // }
+
+              const saved_tools_ids = this.getSavedIds(network_mode.id_network_mode);
               form['total_items'] = saved_tools_ids.length > 0 ? saved_tools_ids.length : 1;
+              
             }
             else if (network_mode.network.form_type == 'narrativa') {
               
