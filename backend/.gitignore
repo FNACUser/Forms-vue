@@ -4,6 +4,9 @@
 /common/__pycache__
 /seeds/__pycache__
 /models/__pycache__
+/migrations/__pycache__
+/migrations/versions/__pycache__
+/share/*
 /include
 /lib
 pyvenv.cfg
