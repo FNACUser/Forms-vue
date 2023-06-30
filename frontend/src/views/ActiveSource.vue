@@ -516,6 +516,7 @@ export default {
 
      
       selected_actors: [],
+      one_actor_just_loaded:false,
       selected_tools: [],
       narratives:[],
       user_tools: [],
@@ -644,10 +645,12 @@ export default {
 
       handler: function (new_val, prev_val) {
 
-        if(new_val && new_val.length && prev_val && prev_val.length!=0){
+        // console.log(new_val);
+        // console.log(prev_val);
 
-  
-          if((new_val.length-prev_val.length)==1){
+        if(new_val  && prev_val){
+
+          if((new_val.length-prev_val.length)==1 && !this.one_actor_just_loaded){
 
             const actor_to_add= new_val.filter(n=> !prev_val.find(p=> n.id===p.id))[0];
 
@@ -657,15 +660,15 @@ export default {
               const actor_to_delete= prev_val.filter(p=> !new_val.find(n=> n.id===p.id))[0];
 
               if(actor_to_delete) this.removeActor(actor_to_delete);
-
-          
           }
+
+          if(this.one_actor_just_loaded) this.one_actor_just_loaded=false;
 
         }
         
       },
       // deep: true,
-      immediate:true
+      // immediate:true
 
       }
 
@@ -1289,6 +1292,7 @@ async removeActor(actor){
         })
         .catch(error => {
 
+          // console.error('There was an error!', error);
           console.error('There was an error!', error.message);
         });
 
@@ -1525,6 +1529,8 @@ async removeActor(actor){
         .then(response => {
           const actor_ids = response.data;
           this.selected_actors = this.mainStore.employees.filter(item => actor_ids.includes(item.id));
+          if(this.selected_actors.length==1) this.one_actor_just_loaded=true;
+
         })
         .catch(error => {
 
