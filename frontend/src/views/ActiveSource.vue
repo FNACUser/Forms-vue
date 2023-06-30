@@ -1802,8 +1802,9 @@ async removeActor(actor){
         await this.getActors();
         await this.mainStore.getNetworkModes(this.mainStore.selected_cycle);
         await this.getUserResponses();
-        await this.createFormsDetails();
         await this.getUserNarratives();
+        await this.createFormsDetails();
+        
 
       }
 

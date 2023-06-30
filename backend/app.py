@@ -615,7 +615,7 @@ def delete_node(current_user):
 def delete_selected_tool(current_user):
 
     data = request.json
-    print(data)
+    # print(data)
     if (data['user_email'] == current_user.email):
 
         adjacency_input_forms_ids = IRA_Adjacency_input_form.query\
@@ -736,9 +736,7 @@ def add_interacting_actor(current_user):
         existing_actor = IRA_Employees_interactions.query.filter_by(
             id_cycle=data['cycle_id'], id_responding_employee=current_user.id,id_interacting_employee=data['actor_id'] ).first()
         
-        
-        
-
+    
         # already_saved = list(itertools.chain(*interactions))
 
         # new_ids = list(set(data['employee_ids']).difference(already_saved))  
@@ -761,7 +759,7 @@ def add_interacting_actor(current_user):
             return jsonify("api_responses.new_interacting_actor_already_exists"),422
             
     else:
-        return jsonify("api_responses.new_interacting_actor_failed")
+        return jsonify("api_responses.user_not_authorized"),403
         
 
 
@@ -814,7 +812,8 @@ def delete_interacting_actor(current_user):
                 db.session.commit()
                 return jsonify("api_responses.interacting_actor_deleted")
 
-    return jsonify("api_responses.interacting_actor_not_deleted"), 500
+    else:
+        return jsonify("api_responses.user_not_authorized"),403
 
 
 @app.route('/api/v1/save_answer', methods=['POST'])
@@ -901,7 +900,10 @@ def save_answer(current_user):
             existing_responses = IRA_Responses.query.filter(
                 IRA_Responses.id_adjacency_input_form.in_(adjacency_codes)).all()
 
-    return jsonify({'responses': responses_schema.dump(existing_responses), 'message': "api_responses.answer_saved"})
+        return jsonify({'responses': responses_schema.dump(existing_responses), 'message': "api_responses.answer_saved"})
+    
+    else:
+        return jsonify("api_responses.user_not_authorized"),403
 
 
 def isResponseEmpty(response):
