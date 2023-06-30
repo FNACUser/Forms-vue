@@ -733,23 +733,29 @@ def add_interacting_actor(current_user):
     # print(data)
     if (data['user_email'] == current_user.email):
 
-        interactions = IRA_Employees_interactions.query.with_entities(IRA_Employees_interactions.id_interacting_employee).filter_by(
-            id_cycle=data['cycle_id'], id_responding_employee=current_user.id).all()
+        # interactions = IRA_Employees_interactions.query.with_entities(IRA_Employees_interactions.id_interacting_employee).filter_by(
+        #     id_cycle=data['cycle_id'], id_responding_employee=current_user.id).all()
 
-        already_saved = list(itertools.chain(*interactions))
+        # already_saved = list(itertools.chain(*interactions))
 
-        new_ids = list(set(data['employee_ids']).difference(already_saved))
+        # new_ids = list(set(data['employee_ids']).difference(already_saved))  
 
-      #  print(f"New Ids={new_ids}")
+        # if len(new_ids):
+        #     for new_id in new_ids:
+        #         db.session.add(IRA_Employees_interactions(
+        #             id_cycle=data['cycle_id'], id_responding_employee=current_user.id, id_interacting_employee=new_id))
 
-        if len(new_ids):
-            for new_id in new_ids:
-                db.session.add(IRA_Employees_interactions(
-                    id_cycle=data['cycle_id'], id_responding_employee=current_user.id, id_interacting_employee=new_id))
+        #     db.session.commit()
+        
+        db.session.add(IRA_Employees_interactions(
+                    id_cycle=data['cycle_id'], id_responding_employee=current_user.id, id_interacting_employee=data['actor_id']))
 
-            db.session.commit()
+        db.session.commit()
 
-    return jsonify("api_responses.new_interacting_actor_added")
+        return jsonify("api_responses.new_interacting_actor_added")
+    else:
+        return jsonify("api_responses.new_interacting_actor_failed")
+        
 
 
 @app.route('/api/v1/delete_interacting_actor', methods=['DELETE'])

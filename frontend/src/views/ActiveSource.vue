@@ -649,18 +649,16 @@ export default {
   
           if((new_val.length-prev_val.length)==1){
 
-            this.addInteractingActor();
+            const actor_to_add= new_val.filter(n=> !prev_val.find(p=> n.id===p.id))[0];
+
+              if(actor_to_add) this.addInteractingActor(actor_to_add);
             }
           else if ((new_val.length-prev_val.length)==-1){
               const actor_to_delete= prev_val.filter(p=> !new_val.find(n=> n.id===p.id))[0];
 
-              if(actor_to_delete){
+              if(actor_to_delete) this.removeActor(actor_to_delete);
 
-                this.removeActor(actor_to_delete);
-
-              }
-
-            
+          
           }
 
         }
@@ -722,17 +720,17 @@ export default {
     },
 
 
-    interactingPeopleIds() {
+    // interactingPeopleIds() {
 
 
-      if (this.selected_actors) {
+    //   if (this.selected_actors) {
 
-        return this.selected_actors.map(a => a.id);
+    //     return this.selected_actors.map(a => a.id);
 
-      }
+    //   }
 
-      return [];
-    },
+    //   return [];
+    // },
 
 
     // filteredCycles(){
@@ -1265,13 +1263,19 @@ async removeActor(actor){
 
 
 
-    async addInteractingActor() {
+    async addInteractingActor(new_actor) {
 
 
       // gets last selected person pushed into the list 
+      // const data = {
+      //   "user_email": this.mainStore.logged_user.email,
+      //   "employee_ids": this.interactingPeopleIds,
+      //   "cycle_id": this.mainStore.selected_cycle
+      // };
+
       const data = {
         "user_email": this.mainStore.logged_user.email,
-        "employee_ids": this.interactingPeopleIds,
+        "actor_id": new_actor.id,
         "cycle_id": this.mainStore.selected_cycle
       };
 

@@ -113,6 +113,7 @@
     "interacting_actor_deleted":"Actor fue eliminado, así como todas las respuestas relacionadas a este en otras secciones!!",
     "interacting_actor_not_deleted":"Actor no pudo ser eliminado!!",
     "new_interacting_actor_added":"Nuevo actor ha sido agregado!",
+    "new_interacting_actor_failed":"Nuevo actor no pudo ser agregado!",
     "answer_saved":"Su respuesta ha sido guardada!",
     "form_closed":"Formulario cerrado!",
     "form_opened":"Formulario habilitado nuevamente!",
