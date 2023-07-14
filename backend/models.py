@@ -16,7 +16,7 @@ ma = Marshmallow()
 
 roles_users = db.Table('roles_users',
                        db.Column('user_id', db.Integer,
-                                 db.ForeignKey('users.id')),
+                                 db.ForeignKey('users.id',ondelete='CASCADE')),
                        db.Column('role_id', db.Integer, db.ForeignKey('roles.id')))
 
 
@@ -31,7 +31,7 @@ class User(db.Model, UserMixin):
     active = db.Column(db.Boolean)
     image_file = db.Column(db.String(20), nullable=True, default='default.jpg')
     password = db.Column(db.String(255), nullable=False)
-    posts = db.relationship('Post', backref='author', lazy=True)
+    posts = db.relationship('Post', backref='author', lazy=True,passive_deletes=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     confirmed_at = db.Column(db.DateTime)
 
@@ -41,16 +41,16 @@ class User(db.Model, UserMixin):
                                      nullable=True)
 
     roles = db.relationship('Role', secondary=roles_users,
-                            backref=db.backref('users', lazy='dynamic'))
+                            backref=db.backref('users', lazy='dynamic',passive_deletes=True))
 
     adjacency_forms = db.relationship(
-        'IRA_Adjacency_input_form', backref=db.backref('users', lazy=True))
+        'IRA_Adjacency_input_form', backref=db.backref('users', lazy=True,passive_deletes=True))
 
     culture_input_forms = db.relationship(
-        'CVF_Culture_input_form', backref=db.backref('users', lazy=True))
+        'CVF_Culture_input_form', backref=db.backref('users', lazy=True,passive_deletes=True))
 
     nodes = db.relationship(
-        'IRA_Nodes', backref=db.backref('users', lazy=True))
+        'IRA_Nodes', backref=db.backref('users', lazy=True,passive_deletes=True))
 
     # narratives = db.relationship(
     #     'IRA_Narratives', backref=db.backref('users', lazy=True))
@@ -79,7 +79,7 @@ class User(db.Model, UserMixin):
         return User.query.get(user_id)
 
     def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+        return f"User('{self.username}', '{self.email}', '{self.documentID}')"
 
 
 class Role(db.Model, RoleMixin):
@@ -102,7 +102,7 @@ class Post(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False,
                             default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id',ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
@@ -139,7 +139,7 @@ class IRA_Adjacency_input_form(db.Model):
     __tablename__ = 'IRA_Adjacency_input_form'
     id_adjacency_input_form = db.Column(db.String(15), primary_key=True)
     id_employee = db.Column(db.Integer,
-                            db.ForeignKey('users.id'),
+                            db.ForeignKey('users.id',ondelete='CASCADE'),
                             nullable=False)
     id_cycle = db.Column(db.Integer,
                          db.ForeignKey('IRA_Cycles.id_cycle'),
@@ -207,11 +207,11 @@ class IRA_Employees_interactions(db.Model):
                          nullable=True)
     id_responding_employee = \
         db.Column(db.Integer,
-                  db.ForeignKey('users.id'),
+                  db.ForeignKey('users.id',ondelete='CASCADE'),
                   nullable=True)
     id_interacting_employee = \
         db.Column(db.Integer,
-                  db.ForeignKey('users.id'),
+                  db.ForeignKey('users.id',ondelete='CASCADE'),
                   nullable=True)
 
     def __repr__(self):
@@ -291,7 +291,7 @@ class IRA_Narratives(db.Model):
     title = db.Column(db.String(100), nullable=False)
     narrative = db.Column(db.Text, nullable=False)
     id_employee = db.Column(db.Integer,
-                            db.ForeignKey('users.id'),
+                            db.ForeignKey('users.id',ondelete='CASCADE'),
                             nullable=True)
     id_cycle = db.Column(db.Integer,
                          db.ForeignKey('IRA_Cycles.id_cycle'),
@@ -311,7 +311,7 @@ class IRA_Nodes(db.Model):
                                     'IRA_Nodes_segments.id_node_segment'),
                                 nullable=False)
     id_employee = db.Column(db.Integer,
-                            db.ForeignKey('users.id'),
+                            db.ForeignKey('users.id',ondelete='CASCADE'),
                             nullable=True)
 
     networks_modes = db.relationship('IRA_Networks_modes',
@@ -446,7 +446,7 @@ class CVF_Culture_input_form(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # id_culture_input_form = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_employee = db.Column(db.Integer,
-                            db.ForeignKey('users.id'),
+                            db.ForeignKey('users.id',ondelete='CASCADE'),
                             nullable=False)
     id_cycle = db.Column(db.Integer,
                          db.ForeignKey('IRA_Cycles.id_cycle'),
@@ -487,7 +487,7 @@ class CVF_Culture_modes(db.Model):
 
     def __repr__(self):
         return f"CVF_Culture_modes('{self.id}', \
-            '{self.Culture_mode}')"
+            '{self.Culture_mode_es}')"
 
 
 class CVF_Culture_modes_themes(db.Model):
@@ -506,13 +506,13 @@ class CVF_Culture_modes_themes(db.Model):
         db.relationship('CVF_Culture_modes_themes_questions',
                         backref=db.backref('culture_mode_theme', lazy=True))
 
-    # themes_responses = db.relationship('CVF_Themes_responses',
-    #                                    backref=db.backref('culture_mode_theme',
-    #                                                       lazy=True))
+    themes_responses = db.relationship('CVF_Themes_responses',
+                                       backref=db.backref('culture_mode_theme',
+                                                          lazy=True))
 
     def __repr__(self):
         return f"CVF_Culture_modes_themes('{self.id}', \
-            '{self.Culture_mode_theme}','{self.id_culture_mode}')"
+            '{self.Culture_mode_theme_es}','{self.id_culture_mode}')"
 
 
 class CVF_Culture_modes_themes_questions(db.Model):
@@ -538,7 +538,7 @@ class CVF_Culture_modes_themes_questions(db.Model):
     def __repr__(self):
         return f"CVF_Culture_modes_themes_questions('" \
                f"'{self.id}'," \
-               f"'{self.Culture_mode_theme_question}'," \
+               f"'{self.Culture_mode_theme_question_es}'," \
                f"'{self.id_culture_mode_theme}'," \
                f"'{self.id_culture_quadrant}')"
 
@@ -556,7 +556,7 @@ class CVF_Culture_quadrants(db.Model):
 
     def __repr__(self):
         return f"CVF_Culture_quadrants('{self.id}', \
-            '{self.Culture_quadrant}')"
+            '{self.Culture_quadrant_es}')"
 
 
 class CVF_Questions_responses(db.Model):
@@ -834,7 +834,7 @@ class DW_UsersSchoolRolesPivot(db.Model):
     __tablename__ = 'DW_users_schoolroles'
 
     user_id = db.Column(db.Integer, db.ForeignKey(
-        'users.id'), primary_key=True)
+        'users.id',ondelete='CASCADE'), primary_key=True)
     role_id = db.Column(db.Integer, db.ForeignKey(
         'DW_Roles.id'), primary_key=True)
 
@@ -849,7 +849,7 @@ class DW_UsersGradesSectionsSubjectsPivot(db.Model):
     __tablename__ = 'DW_users_grades_sections_subjects'
 
     user_id = db.Column(db.Integer, db.ForeignKey(
-        'users.id'), primary_key=True)
+        'users.id',ondelete='CASCADE'), primary_key=True)
     grade_id = db.Column(db.Integer, db.ForeignKey(
         'DW_Grades.id'), primary_key=True)
     section_id = db.Column(db.Integer, db.ForeignKey(

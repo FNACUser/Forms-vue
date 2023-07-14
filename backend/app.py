@@ -10,6 +10,7 @@ from flask_security import Security
 from flask_security.utils import hash_password, verify_password
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
+# from flask_user import roles_required
 
 # from flask_security import login_user, current_user, logout_user, login_required
 # from flask import url_for, current_app
@@ -97,7 +98,6 @@ def generate_random_string(N=7):
 @click.argument("roles", nargs=-1)
 def crear_usuario(name, email, area, roles):
     try:
-
         model_area = IRA_Organization_areas.query.filter_by(
             Organization_area_es=area).first()
 
@@ -359,6 +359,61 @@ def users(current_user):
         resp.remove(current_user)
     return jsonify(users_schema.dump(resp))
 
+
+@app.route('/api/v1/create_user', methods=['POST'])
+@token_required
+def create_user(current_user):
+
+    if(current_user and current_user.has_role('admin')):
+        try:
+            data = request.json
+            area=IRA_Organization_areas.query.filter_by(Organization_area_es=data['area']).first()
+            role=Role.query.filter_by(name=data['role']).first()
+            new_user=User(
+                username=data['username'],
+                email=data['email'],
+                documentID=data['documentID'],
+                id_redmine=data['id_redmine'],
+                password=hash_password(generate_random_string()),
+                id_organization_area=area.id_organization_area,
+                active=1,
+                
+            )
+            db.session.add(new_user)
+            new_user.roles.append(role)
+            db.session.commit()
+            return jsonify("api_responses.user_created"),200
+        except exc.IntegrityError as ei:
+            print('Duplicidad de Email, usuario ya existe!')
+            return jsonify("api_responses.duplicated_user"),409
+        except Exception as ee:
+            print('Se presentó un problema con la creación del usuario!')
+            print(ee)
+            return jsonify("api_responses.error_creating_user"),422
+    else:
+        return jsonify("api_responses.user_not_authorized"), 401
+    
+@app.route('/api/v1/delete_user', methods=['POST'])
+@token_required
+def delete_user(current_user):
+
+    if(current_user and current_user.has_role('admin')):
+        try:
+            data = request.json
+            # role=Role.query.filter_by(name=data['role']).first()
+            target_user=User.query.filter_by(email=data['email']).first()
+            roles=target_user.roles
+            print(roles)
+            target_user.roles.remove(roles[0])
+            db.session.delete(target_user)
+            db.session.commit()
+            return jsonify("api_responses.user_deleted"),200
+        except Exception as ee:
+            print('Se presentó un problema con la eliminación del usuario!')
+            print(ee)
+            return jsonify("api_responses.error_deleting_user"),422
+    else:
+        return jsonify("api_responses.user_not_authorized"), 401
 
 @app.route('/api/v1/cycles', methods=['GET'])
 @token_required
