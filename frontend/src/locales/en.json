@@ -36,6 +36,7 @@
     "question":"Question",
     "answer":"Answer",
     "section_closed":"Section closed/completed",
+    "open_section":"Open section",
     "actor_table":{
 
       "name":"Name",

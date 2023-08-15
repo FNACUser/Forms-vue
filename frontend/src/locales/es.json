@@ -36,6 +36,7 @@
     "question":"Pregunta",
     "answer":"Respuesta",
     "section_closed":"Sección cerrada/completada",
+    "open_section":"Sección abierta",
     "actor_table":{
 
       "name":"Nombre",

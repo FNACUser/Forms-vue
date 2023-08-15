@@ -115,20 +115,43 @@
     </v-row>
     <v-row v-if="mainStore.network_modes.length">
       <v-col cols="2" v-for="(form, index) in forms" :key="index">
-        <gauge :label="form[`name_${$i18n.locale}`]"
+        <!-- <gauge :label="form[`name_${$i18n.locale}`]"
           :in_value="form['gauge_value']"
           :in_size="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 100 : 60)"
           :in_width="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 15 : 7)"
           :mode="form.network_mode.network.form_type!=='narrativa' ? 'percent':'number'"
           @click.native="setSelectedNetworkAndTheme(form)" 
-        />
+        /> -->
+
+        <div v-if="form.network_mode.network.form_type=='narrativa'">
+          <gauge 
+            :label="form[`name_${$i18n.locale}`]"
+            :in_value="form['gauge_value']"
+            :in_size="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 100 : 60)"
+            :in_width="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 15 : 7)"
+            :form_status="form['is_concluded']"
+            mode="number"
+            @click.native="setSelectedNetworkAndTheme(form)" 
+          >
+          </gauge>
+        </div>
+        <div v-else>
+          <FormStatusBar
+            :label="form[`name_${$i18n.locale}`]"
+            in_size="large"
+            :in_color="form['is_concluded'] ? 'red':'green'"
+            @click.native="setSelectedNetworkAndTheme(form)" 
+          >
+          </FormStatusBar>
+        </div>
       </v-col>
     </v-row>
     <v-row v-if="current_network_mode">
       <v-col cols="3">
 
         <v-switch v-model="currentForm.is_concluded"
-          :label="`${$t('active_source.section_closed')}: ${getFormSectionName(this.current_network_mode, this.$i18n.locale)}`"
+          :color="currentForm.is_concluded ?'red':'green'"
+          :label="currentForm.is_concluded ?`${$t('active_source.section_closed')}` : `${$t('active_source.open_section')}`"
           @change="toggleOpenCloseCurrentForm" v-if="currentForm"></v-switch>
 
       </v-col>
@@ -496,6 +519,7 @@ import { useMainStore } from '@/store/main';
 import { mapStores, mapState } from 'pinia';
 import ConfirmationDialog from '@/components/partials/ConfirmationDialog.vue';
 import Gauge from '@/components/Gauge.vue';
+import FormStatusBar from '@/components/FormStatusBar';
 import AddNode from '@/components/AddNode.vue';
 import AddNarrative from '@/components/AddNarrative.vue';
 import UsageOptionsDialog from '@/components/UsageOptionsDialog.vue';
@@ -506,6 +530,7 @@ export default {
   components: {
     ConfirmationDialog,
     Gauge,
+    FormStatusBar,
     AddNode,
     AddNarrative,
     UsageOptionsDialog
