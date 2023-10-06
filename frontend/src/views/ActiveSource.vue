@@ -238,7 +238,7 @@
             v-if="selected_actors.length > 0" 
             dense
             fixed-header
-            height="600"
+           
             hide-default-footer
             disable-pagination
             >
@@ -294,7 +294,7 @@
             class="elevation-1"
             v-if="nodes" 
             fixed-header
-            height="600"
+            
             hide-default-footer
             disable-pagination
             dense
@@ -361,7 +361,7 @@
           class="elevation-1"
           v-if="selected_tools.length > 0" 
           fixed-header
-          height="600"
+          
           hide-default-footer
           disable-pagination
           dense
@@ -1852,10 +1852,25 @@ async removeActor(actor){
   }
   
 
-  /* .flex-table {
-    display: flex;
-    flex-grow: 1;
-    width: 100%;
-  } */
+  .v-data-table > .v-data-table__wrapper > table > tbody > tr > td:nth-child(1),
+  .v-data-table > .v-data-table__wrapper > table > tbody > tr > th:nth-child(1) {
+    position: sticky !important;
+    position: -webkit-sticky !important;
+    left: 0;
+    z-index: 2;
+    background: white;
+  }
+
+  .v-data-table > .v-data-table__wrapper > table > thead > tr > th:nth-child(1) {
+    z-index: 3;
+    left: 0
+  }
+
+  .v-data-table > .v-data-table__wrapper {
+    max-height: calc(100vh - 100px)
+  }
+
+
+
 </style>
 
