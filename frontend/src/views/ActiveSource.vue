@@ -229,7 +229,7 @@
       </v-col>
 
       <v-col cols="8" v-if="selected_network && selected_network.form_type === 'unimodal'">
-
+       
         <v-data-table 
             :headers="tableActorsHeader" 
             :items="selected_actors" 
@@ -587,7 +587,7 @@ export default {
           text: 'Acciones',
           class: "white--text",
           sortable: false
-        },
+        }
       ],
 
 
@@ -602,7 +602,7 @@ export default {
           text: 'Acciones',
           class: "white--text",
           sortable: false
-        },
+        }
       ],
 
       defaultToolsHeader: [
@@ -617,7 +617,7 @@ export default {
           class: "white--text",
           align: 'end',
           sortable: false
-        },
+        }
       ],
 
       defaultNarrativesHeader: [
@@ -638,14 +638,13 @@ export default {
           class: "white--text",
           align: 'end',
           sortable: false
-        },
+        }
       ]
 
     }
   },
 
 
-  
 
   mounted() {
 
@@ -812,8 +811,6 @@ export default {
     },
 
 
-
-
     filteredNetwokModeThemes() {
 
       if (this.selected_network) {
@@ -834,6 +831,7 @@ export default {
     },
 
     tableActorsHeader() {
+      // console.log(this.questions);
 
       return this.makeActorsTableHeader(this.questions, this.defaultActorsHeader, this.$t('active_source.question'));
 
@@ -1176,6 +1174,7 @@ async removeActor(actor){
     makeActorsTableHeader(val, defaultHeader, text) {
 
       let headers = Object.assign([], defaultHeader);
+      // let headers =  defaultHeader;
 
       if (val && val.length > 0) {
 
@@ -1184,7 +1183,7 @@ async removeActor(actor){
             text: `${text} ${index + 1}`,
             align: 'center',
             class: 'white--text',
-            sortable: false,
+            sortable: false
           });
         });
       }
@@ -1192,6 +1191,8 @@ async removeActor(actor){
       headers[0].text = this.$t('active_source.actor_table.name');
       headers[1].text = this.$t('active_source.actor_table.area');
       headers[headers.length - 1].text = this.$t('active_source.actor_table.actions');
+
+      // console.log(headers)
 
       return headers;
 

@@ -360,8 +360,9 @@ class PopulateDataWiseModelsSeeder(Seeder):
 
         # Asociacion Herramientas-Opciones
         dw_XL = pd.read_excel(excel_data, sheet_name='Herramientas-Opciones')
-        usos = ['Uso1', 'Uso2', 'Uso3', 'Uso4',
-                'Uso5', 'Uso6', 'Uso7', 'Uso8']
+        # usos = ['Uso1', 'Uso2', 'Uso3', 'Uso4',
+        #         'Uso5', 'Uso6', 'Uso7', 'Uso8']
+        usos = ['Uso1', 'Uso2', 'Uso3', 'Uso4','Uso5']
         for index, row in dw_XL.iterrows():
             tool = DW_Tools.query.filter_by(
                 name_en=row['Tool'].strip()).first()

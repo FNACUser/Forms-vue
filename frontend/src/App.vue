@@ -131,12 +131,12 @@
                   roles: ["Admin"]
                 },
                 
-                {
-                    icon: "mdi-account-group",
-                    text: `${this.$t('menus.culture')}`, 
-                    route: "Culture",
-                    roles: ["Admin"]
-                }
+                // {
+                //     icon: "mdi-account-group",
+                //     text: `${this.$t('menus.culture')}`, 
+                //     route: "Culture",
+                //     roles: ["Admin"]
+                // }
             ]
         };
     },

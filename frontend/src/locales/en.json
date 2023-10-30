@@ -72,12 +72,12 @@
   },
 
   "narrative_text":{
-    "title":"What changes or novelties would you introduce in Finac? so that:",
-    "option1":"developers could improve their productivity",
-    "option2":"learning process could be faster",
-    "option3":"the job will be easier for customer service staff",
-    "option4":"greater agility in development and testing",
-    "option5":"customers would have to call customer service less frequently"
+    "title":"",
+    "option1":"",
+    "option2":"",
+    "option3":"",
+    "option4":"",
+    "option5":""
   },
 
   "login":{
