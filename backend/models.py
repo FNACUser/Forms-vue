@@ -380,6 +380,14 @@ class IRA_Questions(db.Model):
     # Question_en = db.Column(db.String(250), nullable=False)
     Question_es = db.Column(db.Text, nullable=False)
     Question_en = db.Column(db.Text, nullable=False)
+    short_question_es = db.Column(db.String(200), nullable=True)
+    short_question_en = db.Column(db.String(200), nullable=True)
+    help_es = db.Column(db.Text, nullable=True)
+    help_en = db.Column(db.Text, nullable=True)
+    acronym_es = db.Column(db.String(10), nullable=True)
+    acronym_en = db.Column(db.String(10), nullable=True)
+    
+    
     id_question_possible_answers = \
         db.Column(db.Integer,
                   db.ForeignKey(
@@ -1080,7 +1088,15 @@ class QuestionsSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = IRA_Questions
-        fields = ("id_question", "Question_es", "Question_en",
+        fields = ("id_question", 
+                  "Question_es", 
+                  "Question_en",
+                  "short_question_es", 
+                  "short_question_en",
+                  "help_es", 
+                  "help_en",
+                  "acronym_es", 
+                  "acronym_en",
                   "id_question_possible_answers", "question_possible_answers")
 
     question_possible_answers = ma.Nested(QuestionsPossibleAnswersSchema)

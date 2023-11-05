@@ -248,6 +248,12 @@ class PopulateIRAModelSeeder(Seeder):
         preguntasXL.rename(columns={'id': 'id_question',
                                     'Descripcion_es': 'Question_es',
                                     'Descripcion_en': 'Question_en',
+                                    'Descripcion_corta_es': 'short_question_es',
+                                    'Descripcion_corta_en': 'short_question_en',
+                                    'Explicacion_es': 'help_es',
+                                    'Explicacion_en': 'help_en',
+                                    'Siglas_es': 'acronym_es',
+                                    'Siglas_en': 'acronym_en',
                                     'Posibles_rtas_id': 'id_question_possible_answers'},
                            inplace=True)
         # preguntasXL['Question_en'] = \
