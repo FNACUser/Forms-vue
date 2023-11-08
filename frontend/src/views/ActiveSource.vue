@@ -1623,9 +1623,10 @@ async removeActor(actor){
     populateAnswers(responses) {
 
       // console.log("entra a populateAnswers");
+      this.answers = {};
 
       if (responses.length) {
-        this.answers = {};
+        // this.answers = {};
 
         responses.forEach(response => {
 
