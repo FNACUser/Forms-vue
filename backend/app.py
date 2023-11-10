@@ -94,9 +94,11 @@ def generate_random_string(N=7):
 @with_appcontext
 @click.argument("name", nargs=1)
 @click.argument("email", nargs=1)
+@click.argument("doc_id", nargs=1)
+@click.argument("redmine_usr", nargs=1)
 @click.argument("area", nargs=1)
 @click.argument("roles", nargs=-1)
-def crear_usuario(name, email, area, roles):
+def crear_usuario(name, email, doc_id,redmine_usr, area, roles):
     try:
         model_area = IRA_Organization_areas.query.filter_by(
             Organization_area_es=area).first()
@@ -106,7 +108,7 @@ def crear_usuario(name, email, area, roles):
         else:
             id_area = None
 
-        new_user = user_datastore.create_user(username=name, email=email, id_organization_area=id_area,
+        new_user = user_datastore.create_user(username=name, email=email, documentID=doc_id, id_organization_area=id_area, id_redmine=redmine_usr,
                                               password=hash_password(generate_random_string()))
         db.session.add(new_user)
         for role in roles:
