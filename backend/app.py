@@ -107,6 +107,12 @@ def crear_usuario(name, email, doc_id,redmine_usr, area, roles):
             id_area = model_area.id_organization_area
         else:
             id_area = None
+        
+        if doc_id=='':
+            doc_id = None
+        if redmine_usr=='':
+            redmine_usr = None
+        
 
         new_user = user_datastore.create_user(username=name, email=email, documentID=doc_id, id_organization_area=id_area, id_redmine=redmine_usr,
                                               password=hash_password(generate_random_string()))
