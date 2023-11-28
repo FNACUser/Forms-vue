@@ -75,7 +75,7 @@ export default {
 
     props:[
         'label',
-        'network_mode_id'    
+        'network_mode'    
     ],  
     data () {
       return {
@@ -114,12 +114,13 @@ export default {
        
         if (this.validate()){
 
+         
           const data={
                   "name_es":this.name,
                   "name_en":this.name,
                   "user_email":this.logged_user.email,
-                  "network_mode_id":this.network_mode_id,
-                  "node_segment_id":4
+                  "network_mode_id":this.network_mode.id_network_mode,
+                  "node_segment_id":this.network_mode.id_node_segment
                                  
               };
 

@@ -1109,11 +1109,11 @@ class NetworkModeSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = IRA_Networks_modes
-        fields = ("id_network_mode", "id_network", "network", "id_node_segment_category",
-                  "node_segment_category", "id_network_mode_theme", "network_mode_theme")
+        fields = ("id_network_mode", "id_network", "network", "id_node_segment",
+                  "node_segment", "id_network_mode_theme", "network_mode_theme")
 
     network = ma.Nested(NetworkSchema)
-    node_segment_category = ma.Nested(NodeSegmentCategorySchema)
+    node_segment = ma.Nested(NodeSegmentSchema)
     network_mode_theme = ma.Nested(NetworkModeThemeSchema)
 
 

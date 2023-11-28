@@ -161,7 +161,7 @@
         class="d-flex justify-end mr-11">
         <add-node 
           :label="selected_network[`name_${$i18n.locale}`]"
-          :network_mode_id="current_network_mode.id_network_mode" 
+          :network_mode="current_network_mode" 
           @newnode="refreshNodes">
         </add-node>
       </v-col>
