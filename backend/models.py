@@ -304,8 +304,13 @@ class IRA_Narratives(db.Model):
 class IRA_Nodes(db.Model):
     __tablename__ = 'IRA_Nodes'
     id_node = db.Column(db.Integer, primary_key=True)
-    Node_es = db.Column(db.String(100), nullable=False)
-    Node_en = db.Column(db.String(100), nullable=False)
+    Node_es = db.Column(db.String(300), nullable=False)
+    Node_en = db.Column(db.String(300), nullable=False)
+    theme_es = db.Column(db.String(100), nullable=True)
+    theme_en = db.Column(db.String(100), nullable=True)
+    origin_es = db.Column(db.String(100), nullable=True)
+    origin_en = db.Column(db.String(100), nullable=True)
+    
     id_node_segment = db.Column(db.Integer,
                                 db.ForeignKey(
                                     'IRA_Nodes_segments.id_node_segment'),
@@ -320,7 +325,7 @@ class IRA_Nodes(db.Model):
                                                         lazy='dynamic'))
 
     def __repr__(self):
-        return f"IRA_Nodes('{self.id_node}', ' {self.Node_es}','{self.id_node_segment}','{self.id_employee}')"
+        return f"IRA_Nodes('{self.id_node}', '{self.Node_es}','{self.id_node_segment}','{self.id_employee}')"
 
 
 class IRA_Nodes_segments(db.Model):
@@ -1065,7 +1070,7 @@ class NodeSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = IRA_Nodes
-        fields = ("id_node", "Node_es", "Node_en",
+        fields = ("id_node", "Node_es", "Node_en","theme_es","theme_en","origin_es","origin_en",
                   "id_node_segment", "node_segment", "id_employee")
 
     node_segment = ma.Nested(NodeSegmentSchema)
