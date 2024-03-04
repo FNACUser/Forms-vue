@@ -17,11 +17,10 @@
       </template>
 
       <v-card>
-        <v-card-title class="headline">
-          <div class="headerClass">
+        <v-card-title class="headline" style="word-break: break-word">
+         
               {{ $t('globals.add') }} {{ label }}
-          </div>
-            
+       
         </v-card-title>
 
         <v-card-text>
@@ -166,10 +165,5 @@ export default {
 
 <style>
 
-.headerClass{
-    white-space: nowrap ;
-    word-break: normal;
-    overflow: hidden ;
-    text-overflow: ellipsis;
-}
+
 </style>

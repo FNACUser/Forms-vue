@@ -196,7 +196,7 @@
                   {{ $t('active_source.question') }} {{ i + 1 }}
                 </v-card-title>
               </v-app-bar>
-              <v-card-text>{{ item[`Question_${$i18n.locale}`] }}. {{item[`help_${$i18n.locale}`] }}</v-card-text>
+              <v-card-text>{{ item[`Question_${$i18n.locale}`] }}{{item[`help_${$i18n.locale}`] ?  ' '+item[`help_${$i18n.locale}`]:''}}</v-card-text>
             </v-card>
             <br />
           </div>

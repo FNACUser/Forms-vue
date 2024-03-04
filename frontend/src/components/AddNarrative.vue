@@ -19,7 +19,7 @@
       </template>
 
       <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
+        <v-card-title class="text-h5 grey lighten-2" style="word-break: break-word">
             {{  dialog_label }}
         </v-card-title>
 
