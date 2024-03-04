@@ -70,8 +70,8 @@ class PopulateIRAModelSeeder(Seeder):
             funcionariosXL['Nombre'] = funcionariosXL['Nombre'].apply(strip)
             funcionariosXL['UsuarioRedmine'] = funcionariosXL['UsuarioRedmine'].apply(
                 strip)
-            funcionariosXL['password'] = hash_password(generate_random_string())
-            # funcionariosXL['password'] = hash_password('12345')
+            # funcionariosXL['password'] = hash_password(generate_random_string())
+            funcionariosXL['password'] = hash_password('12345')
             funcionariosXL['active'] = True
             funcionariosXL['image_file'] = 'default.jpg'
 
