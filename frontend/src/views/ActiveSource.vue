@@ -1870,6 +1870,12 @@ async removeActor(actor){
     max-height: calc(100vh - 100px)
   }
 
+  .headerClass{
+    white-space: nowrap ;
+    word-break: normal;
+    overflow: hidden ;
+    text-overflow: ellipsis;
+  }
 
 
 </style>
