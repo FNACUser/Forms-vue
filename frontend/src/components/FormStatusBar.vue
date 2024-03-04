@@ -3,14 +3,21 @@
 
 
         <v-btn
+            v-if="size=='large'"
             :color="color"
-            dark
-            :size="size"
-            >
-             
-        </v-btn>
+            large
+            elevation="15"
+
+        ></v-btn>
+
+        <v-btn
+            v-else
+            :color="color"
+            small
+            outlined
+
+        ></v-btn>
     
-        
         <div>
           <v-chip
             x-small
@@ -42,9 +49,8 @@ export default {
     data () {
       return {
         interval: {},
-        value: this.in_value??0,
-        
-        size:this.in_size??'large',
+        value: this.in_value ?? 0,
+        size:this.in_size??'small',
         color:this.in_color??'green',
        
       }
@@ -66,14 +72,15 @@ export default {
     },
 
     watch: {
-      in_color(new_val){
+            in_color(new_val){
             console.log(new_val);
             this.color=new_val;
           
         },
 
       in_size(new_val){
-          if(new_val){
+        if (new_val) {
+            console.log(new_val)
               this.size=new_val;
           }
       }

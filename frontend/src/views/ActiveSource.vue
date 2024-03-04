@@ -138,7 +138,7 @@
         <div v-else>
           <FormStatusBar
             :label="form[`name_${$i18n.locale}`]"
-            in_size="large"
+            :in_size="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 'large' :'small')"
             :in_color="form['is_concluded'] ? 'red':'green'"
             @click.native="setSelectedNetworkAndTheme(form)" 
           >
@@ -241,7 +241,7 @@
            
             hide-default-footer
             disable-pagination
-            >
+        >
           <template v-slot:item="{ item }">
 
             <tr>
@@ -249,7 +249,6 @@
               <td class="text-xs-left">{{ item.organization_area[`Organization_area_${$i18n.locale}`] }}</td>
               <template>
                 <td v-for="(question, index) in questions" :key="index" class="">
-
                   <v-select 
                       :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`"
                       v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id}`]"
@@ -308,7 +307,6 @@
 
               <template>
                 <td v-for="(question, index) in questions" :key="index">
-
                   <v-select 
                     :id="`sel_${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`"
                     v-model="answers[`${current_network_mode.id_network_mode}_${question.id_question}_${item.id_node}`]"

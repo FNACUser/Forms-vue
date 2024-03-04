@@ -393,4 +393,4 @@ class PopulateDataWiseModelsSeeder(Seeder):
             print('Cargó DW_tools_vs_options Pivot...')
 
         else:
-            print(f'{excel_data} no existe!!!')
+            print(f'{excel_data} NO EXISTE!!!')
