@@ -140,7 +140,7 @@
                     text: `${this.$t('menus.culture')}`, 
                     route: "Culture",
                     roles: ["Admin"],
-                    visible:false
+                    visible:true
                 }
             ]
         };
