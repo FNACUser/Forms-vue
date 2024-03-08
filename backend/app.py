@@ -537,6 +537,14 @@ def nodes(current_user):
     return jsonify(nodes_schema.dump(resp))
 
 
+@app.route('/api/v1/all_narrative_topics', methods=['GET'])
+@token_required
+def get_all_narrative_topics(current_user):
+
+    resp = IRA_Narrative_topics.query.all()
+    return jsonify(narrative_topics_schema.dump(resp))
+
+
 @app.route('/api/v1/user/narrative/add', methods=['POST'])
 @token_required
 def add_narrative(current_user):
@@ -559,7 +567,9 @@ def add_narrative(current_user):
             title=data['title'],
             narrative=data['narrative'],
             id_cycle=data["cycle_id"],
-            id_employee=current_user.id)
+            id_employee=current_user.id,
+            id_topic=data["id_topic"]
+            )
 
         db.session.add(new_narrative)
         # db.session.flush()
@@ -577,8 +587,9 @@ def update_narrative(current_user):
     if (data['user_email'] == current_user.email):
 
         narrative = IRA_Narratives.query.get(data['narrative_id'])
-        narrative.title = data['title'],
-        narrative.narrative = data['narrative'],
+        narrative.title = data['title']
+        narrative.narrative = data['narrative']
+        narrative.id_topic=data["id_topic"]
         db.session.commit()
         return jsonify("api_responses.data_updated")
 

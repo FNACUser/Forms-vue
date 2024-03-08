@@ -284,15 +284,28 @@ class IRA_Networks_modes_themes(db.Model):
         return f"IRA_Networks_modes_themes('{self.id_network_mode_theme}', \
             '{self.code}')"
 
+class IRA_Narrative_topics(db.Model):
+    __tablename__ = 'IRA_Narrative_topics'
+    id = db.Column(db.Integer, primary_key=True)
+    topic_es = db.Column(db.Text, nullable=False)
+    topic_en = db.Column(db.Text, nullable=False)
+    def __repr__(self):
+        return f"IRA_Narrative_topics('{self.id}', ' {self.topic_es}')"
+
 
 class IRA_Narratives(db.Model):
     __tablename__ = 'IRA_Narratives'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     narrative = db.Column(db.Text, nullable=False)
+    
+    id_topic = db.Column(db.Integer,
+                            db.ForeignKey('IRA_Narrative_topics.id'),
+                            nullable=False)
+    
     id_employee = db.Column(db.Integer,
                             db.ForeignKey('users.id',ondelete='CASCADE'),
-                            nullable=True)
+                            nullable=False)
     id_cycle = db.Column(db.Integer,
                          db.ForeignKey('IRA_Cycles.id_cycle'),
                          nullable=False)
@@ -984,10 +997,19 @@ class ResponseSchema(ma.SQLAlchemyAutoSchema):
         model = IRA_Responses
 
 
+class NarrativeTopicsSchema(ma.SQLAlchemyAutoSchema):
+
+    class Meta:
+        model = IRA_Narrative_topics
+
+narrative_topics_schema = NarrativeTopicsSchema(many=True)
+
+
 class NarrativeSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = IRA_Narratives
+        fields = ("id", "title", "narrative", "id_topic")
 
 
 narrative_schema = NarrativeSchema()

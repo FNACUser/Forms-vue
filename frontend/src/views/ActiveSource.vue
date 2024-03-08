@@ -208,18 +208,14 @@
           <v-card>
             <v-app-bar flat color="blue">
               <v-card-title class="white--text">
-                <b>{{ $t('narrative_text.title') }}</b>
+                <b>{{ $t('active_source.narrative_topics_title') }}</b>
               </v-card-title>
             </v-app-bar>
             <v-card-text>
               <ul>
-                
-                <li> {{ $t('narrative_text.option1') }}</li>
-                <li> {{ $t('narrative_text.option2') }}</li>
-                <li> {{ $t('narrative_text.option3') }}</li>
-                <li> {{ $t('narrative_text.option4') }}</li>
-                <li> {{ $t('narrative_text.option5') }}</li>
-            
+                <div v-for="(item, i) in mainStore.narrative_topics" :key="i">
+                  <li> {{ item[`topic_${$i18n.locale}`]}}</li>
+                </div>
               </ul>
 
             </v-card-text>
@@ -458,6 +454,10 @@
                 <td class="text-xs-left" style="width:25%">
                     {{ item['title'] }}
                 </td>
+                <td class="text-truncate" style="max-width: 130px">
+                    {{ mainStore.narrative_topics[item['id_topic']-1][`topic_${$i18n.locale}`] }}
+                </td>
+                
                 <td style="width:50%">
                     {{ item['narrative'] }}
                 </td>
@@ -621,6 +621,12 @@ export default {
       defaultNarrativesHeader: [
         {
           text: 'Título',
+          align: 'start',
+          value: 'title',
+          class: "white--text"
+        },
+        {
+          text: 'Tema',
           align: 'start',
           value: 'title',
           class: "white--text"
@@ -1023,6 +1029,7 @@ async removeActor(actor){
 
       this.narratives[index]['title'] = inputObj.title;
       this.narratives[index]['narrative'] = inputObj.narrative;
+      this.narratives[index]['id_topic'] = inputObj.id_topic;
       
     },
 
@@ -1250,8 +1257,9 @@ async removeActor(actor){
         let headers = Object.assign([], defaultHeader);
 
         headers[0].text = this.$t('globals.title');
-        headers[1].text = this.$t('active_source.narrative');
-        headers[2].text = this.$t('active_source.actor_table.actions');
+        headers[1].text = this.$t('active_source.narrative_topic');
+        headers[2].text = this.$t('active_source.narrative');
+        headers[3].text = this.$t('active_source.actor_table.actions');
 
         return headers;
 

@@ -50,6 +50,8 @@
     "usage_options":"Opciones de uso",
     "narrative_title":"Título de la Narrativa",
     "narrative_description":"Texto de la Narrativa",
+    "narrative_topic":"Tema",
+    "narrative_topics_title":"Comente sobre estos temas",
     "select_resources_you_know":"Seleccione los recursos que conoce"
 
   },
@@ -71,14 +73,6 @@
 
   },
 
-  "narrative_text":{
-    "title":"Comente sobre estos temas:",
-    "option1":"¿Qué se podría hacer desde el área administrativa, técnica y comercial para hacer más eficientes los resultados y procesos de su cargo y/o área?",
-    "option2":"¿Tiene idea de otras fuentes de información sobre las cuales podamos llegar a más clientes?",
-    "option3":"¿Conoce las implicaciones que tiene el no cuidar los recursos de conocimiento, financieros y físicos en los resultados de la empresa; qué observaciones tiene para optimizar estos recursos?",
-    "option4":"¿En términos de formación que temas considera debe fortalecer o adquirir para mejorar su desempeño?",
-    "option5":"¿Qué sugiere para mejorar la claridad en los pedidos de maquinaria, y la comunicación de la expectativa del cliente vs lo que estamos ofreciendo e instalando?"
-  },
 
   "login":{
      

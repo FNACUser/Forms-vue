@@ -1,5 +1,6 @@
 # from datetime import datetime
 import pandas as pd
+import os.path
 from flask_security.utils import hash_password
 from flask_seeder import Seeder
 
@@ -17,6 +18,21 @@ class PopulateNarrativeModelsSeeder(Seeder):
 
     # run() will be called by Flask-Seeder
     def run(self):
+        
+        pathDB = getDataPath()
+        # print(pathDB)
+        excel_book = pathDB / 'IRA_data.xlsx'
+        file_exists = os.path.isfile(excel_book)
+
+        if file_exists:
+            # .-.-.-.-.-.-.-.-.-.-.--.- CREA/CARGA IRA_Narrative_topics
+
+            topicosXL = pd.read_excel(excel_book, sheet_name='Narrativas_topicos')
+
+            topicosXL.to_sql(name='IRA_Narrative_topics', con=db.engine,
+                            if_exists='append', index=False)
+
+            print('Cargó IRA_Narrative_topics...')
 
         
         narrative_network = IRA_Networks.query.filter_by(
@@ -36,5 +52,5 @@ class PopulateNarrativeModelsSeeder(Seeder):
 
         current_cycle.networks_modes.append(narrative_ira_network_mode)
 
-        print(f'Se  asocia  nuevo IRA Network_Mode con el Current Cycle...')
+        print(f'Se  asocia Narrative definida en IRA Network_Mode con el Current Cycle...')
 

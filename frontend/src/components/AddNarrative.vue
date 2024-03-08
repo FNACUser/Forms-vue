@@ -35,6 +35,17 @@
                   :rules="nameRules"
               ></v-text-field>
 
+              <v-select 
+                      
+                      v-model="selected_topic"
+                      :items="mainStore.narrative_topics"
+                      :item-text="`topic_${$i18n.locale}`" 
+                      item-value="id" 
+                      :label="$t('active_source.narrative_topic')" 
+                      clearable  
+                  >
+              </v-select>
+
               <v-textarea
                   v-model="narrative"
                   :label="$t('active_source.narrative_description')"
@@ -95,6 +106,7 @@ export default {
         title: '',
         narrative: '',
         dialog:false,
+        selected_topic:null,
        
         nameRules: [
             v => !!v || this.$t('rules.field_required'),
@@ -122,9 +134,10 @@ export default {
       handler: function (val) {
 
         if (val === 'edit') {
-          // console.log(val);
+          console.log(this.item);
           this.title = this.item.title,
-          this.narrative = this.item.narrative
+          this.narrative = this.item.narrative,
+          this.selected_topic = this.item.id_topic
         }
 
       },
@@ -203,7 +216,8 @@ export default {
                 "narrative": this.narrative,
                 "cycle_id": this.mainStore.selected_cycle,
                 "user_email":this.logged_user.email,
-                "network_mode_id":this.network_mode_id                                 
+                "network_mode_id":this.network_mode_id,
+                "id_topic": this.selected_topic                               
               };
 
               this.$axios.post(process.env.VUE_APP_BACKEND_URL+'/user/narrative/add', data)
@@ -238,7 +252,8 @@ export default {
             "narrative": this.narrative,
             "cycle_id": this.mainStore.selected_cycle,
             "user_email": this.logged_user.email,
-            "network_mode_id": this.network_mode_id
+            "network_mode_id": this.network_mode_id,
+            "id_topic": this.selected_topic  
           };
 
           this.$axios.post(process.env.VUE_APP_BACKEND_URL + '/user/narrative/update', data)

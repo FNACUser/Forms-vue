@@ -50,6 +50,8 @@
     "usage_options":"Usage options",
     "narrative_title":"Narrative's title",
     "narrative_description":"Narrative's text",
+    "narrative_topic":"Topic",
+    "narrative_topics_title":"Comment on these topics",
     "select_resources_you_know":"Select the resources you know"
 
   },
@@ -68,17 +70,8 @@
     "tools":"Tools",
     "info_tool":"Information Tool"
 
-
   },
 
-  "narrative_text":{
-    "title":"",
-    "option1":"",
-    "option2":"",
-    "option3":"",
-    "option4":"",
-    "option5":""
-  },
 
   "login":{
 

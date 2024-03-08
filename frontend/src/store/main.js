@@ -22,6 +22,7 @@ export const useMainStore = defineStore('main', {
         areas:[],
         network_modes:[],
         culture_modes:[],
+        narrative_topics:[],
 
 
         loader: false,
@@ -51,6 +52,7 @@ export const useMainStore = defineStore('main', {
       this.getNetworks();
       this.getCycles();
       this.getCultureModes();
+      this.getNarrativeTopics();
       
     },
 
@@ -126,6 +128,13 @@ export const useMainStore = defineStore('main', {
      this.cycles = cycles.data;
 
    },
+
+   async getNarrativeTopics(){
+
+    const topics = await axios.get(process.env.VUE_APP_BACKEND_URL+'/all_narrative_topics');
+    this.narrative_topics = topics.data;
+
+  },
 
    async getNetworks(){
 
