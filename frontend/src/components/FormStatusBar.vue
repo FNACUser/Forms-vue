@@ -73,14 +73,14 @@ export default {
 
     watch: {
             in_color(new_val){
-            console.log(new_val);
+            // console.log(new_val);
             this.color=new_val;
           
         },
 
       in_size(new_val){
         if (new_val) {
-            console.log(new_val)
+            // console.log(new_val)
               this.size=new_val;
           }
       }

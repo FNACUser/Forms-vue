@@ -126,10 +126,11 @@
         <div v-if="form.network_mode.network.form_type=='narrativa'">
           <gauge 
             :label="form[`name_${$i18n.locale}`]"
-            :in_value="form['gauge_value']"
-            :in_size="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 100 : 60)"
-            :in_width="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 15 : 7)"
+            :in_value="narratives.length"
+            :in_size="((current_network_mode && form.id == current_network_mode.id_network_mode) ? 'large' :'small')"
+            :in_color="form['is_concluded'] ? 'red':'green'"
             :form_status="form['is_concluded']"
+            gauge_type="button"
             mode="number"
             @click.native="setSelectedNetworkAndTheme(form)" 
           >

@@ -354,17 +354,29 @@ def reset_password():
 @token_required
 def users(current_user):
     # def users():
-    resp = User.query.order_by(User.username).all()
-    users_to_remove_str=app.config['REMOVE_USERS_FROM_LIST']
-    if( users_to_remove_str):
-        users_to_remove_list=users_to_remove_str.split(',')
-        for user_to_remove_str in users_to_remove_list:
-            user=User.query.filter_by(email=user_to_remove_str).first()
-            if(user and user in resp):
-                resp.remove(user)
+    if(app.config['INCLUDE_ONLY_THESE_PEOPLE']):
+        people_to_include=app.config['INCLUDE_ONLY_THESE_PEOPLE'].split(',')
+        # print(people_to_include)
+        resp = User.query.filter(User.documentID.in_(people_to_include)).order_by(
+        User.username.asc()).all()
+        if(current_user not in resp and not app.config['REMOVE_LOGGED_USER_FROM_LIST']):
+            resp.append(current_user)
+    else: 
+        resp = User.query.order_by(User.username.asc()).all()
+        users_to_remove_str=app.config['REMOVE_USERS_FROM_LIST']
+        if( users_to_remove_str):
+            users_to_remove_list=users_to_remove_str.split(',')
+            for user_to_remove_str in users_to_remove_list:
+                user=User.query.filter_by(email=user_to_remove_str).first()
+                if(user and user in resp):
+                    resp.remove(user)
+        if(app.config['REMOVE_LOGGED_USER_FROM_LIST'] and current_user in resp):
+            resp.remove(current_user)
                    
-    if(current_user in resp):
-        resp.remove(current_user)
+    # print(resp)
+    # print(app.config['REMOVE_LOGGED_USER_FROM_LIST'])
+    
+    
     return jsonify(users_schema.dump(resp))
 
 
