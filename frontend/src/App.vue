@@ -9,7 +9,10 @@
         >
             <v-list dense>
                 <template v-for="item in menus">
-
+                    <div 
+                        :key="item.text"
+                        v-if="item.visible"
+                    >
                     <v-list-group
                         v-if="item.children "
                         :key="item.text"
@@ -49,17 +52,17 @@
                         v-else
                         :key="item.text"
                         :to="{name:item.route}"
-
                     >
                         <v-list-item-action>
                             <v-icon>{{ item.icon }}</v-icon>
                         </v-list-item-action>
                         <v-list-item-content>
                             <v-list-item-title>
-                                {{ item.text }}
+                                {{ item.text }} 
                             </v-list-item-title>
                         </v-list-item-content>
                     </v-list-item>
+                    </div>
                 </template>
             </v-list>
         
@@ -125,17 +128,19 @@
             drawer: true,
             menus: [
                 { 
-                  icon: "mdi-crowd",
-                  text: `${this.$t('menus.active_source')}`, 
-                  route: "ActiveSource", 
-                  roles: ["Admin"]
+                    icon: "mdi-crowd",
+                    text: `${this.$t('menus.active_source')}`, 
+                    route: "ActiveSource", 
+                    roles: ["Admin"],
+                    visible:true
                 },
                 
                 {
                     icon: "mdi-account-group",
                     text: `${this.$t('menus.culture')}`, 
                     route: "Culture",
-                    roles: ["Admin"]
+                    roles: ["Admin"],
+                    visible:true
                 }
             ]
         };

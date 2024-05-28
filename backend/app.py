@@ -2,13 +2,15 @@
 from flask import Flask, jsonify, request, make_response
 from flask.cli import with_appcontext
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
+# from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from flask_seeder import FlaskSeeder
 from flask_bcrypt import Bcrypt
 from flask_security import Security
 from flask_security.utils import hash_password, verify_password
 from flask_mail import Mail, Message
+from flask_migrate import Migrate
+# from flask_user import roles_required
 
 # from flask_security import login_user, current_user, logout_user, login_required
 # from flask import url_for, current_app
@@ -59,7 +61,8 @@ app = Flask(__name__)
 
 setLogger(app)
 app.config.from_object(Config)
-cors = CORS(app, resources={r"/api/*": {"origins": [Config.CORS_ORIGINS]}})
+cors = CORS(app, resources={
+            r"/api/*": {"origins": [app.config['CORS_ORIGINS']]}})
 # app.config['CORS_HEADERS'] = 'Content-Type'
 
 db.init_app(app)
@@ -67,12 +70,14 @@ Bcrypt().init_app(app)
 Security().init_app(app, datastore=user_datastore)
 Mail().init_app(app)
 ma.init_app(app)
+migrate = Migrate(app,db)
 
 seeder = FlaskSeeder()
 seeder.init_app(app, db)
+
 # api = Api(app)
 
-seeder
+# seeder
 # custom commands
 
 
@@ -89,20 +94,27 @@ def generate_random_string(N=7):
 @with_appcontext
 @click.argument("name", nargs=1)
 @click.argument("email", nargs=1)
+@click.argument("doc_id", nargs=1)
+@click.argument("redmine_usr", nargs=1)
 @click.argument("area", nargs=1)
 @click.argument("roles", nargs=-1)
-def crear_usuario(name, email, area, roles):
+def crear_usuario(name, email, doc_id,redmine_usr, area, roles):
     try:
-
         model_area = IRA_Organization_areas.query.filter_by(
-            Organization_area=area).first()
+            Organization_area_es=area).first()
 
         if model_area:
             id_area = model_area.id_organization_area
         else:
             id_area = None
+        
+        if doc_id=='':
+            doc_id = None
+        if redmine_usr=='':
+            redmine_usr = None
+        
 
-        new_user = user_datastore.create_user(username=name, email=email, id_organization_area=id_area,
+        new_user = user_datastore.create_user(username=name, email=email, documentID=doc_id, id_organization_area=id_area, id_redmine=redmine_usr,
                                               password=hash_password(generate_random_string()))
         db.session.add(new_user)
         for role in roles:
@@ -167,6 +179,11 @@ def remover_roles_usuario(email, roles):
 def drop_create_db():
     db.drop_all()
     db.create_all()
+    
+@click.command(name="drop_db")
+@with_appcontext
+def drop_db():
+    db.drop_all()
 
 
 # CLI User/Role management
@@ -175,7 +192,9 @@ app.cli.add_command(eliminar_usuario)
 app.cli.add_command(agregar_roles_usuario)
 app.cli.add_command(remover_roles_usuario)
 
+# DB management
 app.cli.add_command(drop_create_db)
+app.cli.add_command(drop_db)
 
 
 def token_required(f):
@@ -334,9 +353,87 @@ def reset_password():
 @app.route('/api/v1/users', methods=['GET'])
 @token_required
 def users(current_user):
-    resp = User.query.order_by(User.username).all()
+    # def users():
+    if(app.config['INCLUDE_ONLY_THESE_PEOPLE']):
+        people_to_include=app.config['INCLUDE_ONLY_THESE_PEOPLE'].split(',')
+        # print(people_to_include)
+        resp = User.query.filter(User.documentID.in_(people_to_include)).order_by(
+        User.username.asc()).all()
+        if(current_user not in resp and not app.config['REMOVE_LOGGED_USER_FROM_LIST']):
+            resp.append(current_user)
+    else: 
+        resp = User.query.order_by(User.username.asc()).all()
+        users_to_remove_str=app.config['REMOVE_USERS_FROM_LIST']
+        if( users_to_remove_str):
+            users_to_remove_list=users_to_remove_str.split(',')
+            for user_to_remove_str in users_to_remove_list:
+                user=User.query.filter_by(email=user_to_remove_str).first()
+                if(user and user in resp):
+                    resp.remove(user)
+        if(app.config['REMOVE_LOGGED_USER_FROM_LIST'] and current_user in resp):
+            resp.remove(current_user)
+                   
+    # print(resp)
+    # print(app.config['REMOVE_LOGGED_USER_FROM_LIST'])
+    
+    
     return jsonify(users_schema.dump(resp))
 
+
+@app.route('/api/v1/create_user', methods=['POST'])
+@token_required
+def create_user(current_user):
+
+    if(current_user and current_user.has_role('admin')):
+        try:
+            data = request.json
+            area=IRA_Organization_areas.query.filter_by(Organization_area_es=data['area']).first()
+            role=Role.query.filter_by(name=data['role']).first()
+            new_user=User(
+                username=data['username'],
+                email=data['email'],
+                documentID=data['documentID'],
+                id_redmine=data['id_redmine'],
+                password=hash_password(generate_random_string()),
+                id_organization_area=area.id_organization_area,
+                active=1,
+                
+            )
+            db.session.add(new_user)
+            new_user.roles.append(role)
+            db.session.commit()
+            return jsonify("api_responses.user_created"),200
+        except exc.IntegrityError as ei:
+            print('Duplicidad de Email, usuario ya existe!')
+            return jsonify("api_responses.duplicated_user"),409
+        except Exception as ee:
+            print('Se presentó un problema con la creación del usuario!')
+            print(ee)
+            return jsonify("api_responses.error_creating_user"),422
+    else:
+        return jsonify("api_responses.user_not_authorized"), 401
+    
+@app.route('/api/v1/delete_user', methods=['POST'])
+@token_required
+def delete_user(current_user):
+
+    if(current_user and current_user.has_role('admin')):
+        try:
+            data = request.json
+            # role=Role.query.filter_by(name=data['role']).first()
+            target_user=User.query.filter_by(email=data['email']).first()
+            roles=target_user.roles
+            print(roles)
+            target_user.roles.remove(roles[0])
+            db.session.delete(target_user)
+            db.session.commit()
+            return jsonify("api_responses.user_deleted"),200
+        except Exception as ee:
+            print('Se presentó un problema con la eliminación del usuario!')
+            print(ee)
+            return jsonify("api_responses.error_deleting_user"),422
+    else:
+        return jsonify("api_responses.user_not_authorized"), 401
 
 @app.route('/api/v1/cycles', methods=['GET'])
 @token_required
@@ -452,6 +549,81 @@ def nodes(current_user):
     return jsonify(nodes_schema.dump(resp))
 
 
+@app.route('/api/v1/all_narrative_topics', methods=['GET'])
+@token_required
+def get_all_narrative_topics(current_user):
+
+    resp = IRA_Narrative_topics.query.all()
+    return jsonify(narrative_topics_schema.dump(resp))
+
+
+@app.route('/api/v1/user/narrative/add', methods=['POST'])
+@token_required
+def add_narrative(current_user):
+
+    data = request.json
+    new_narrative = None
+    if (data['user_email'] == current_user.email):
+
+        adjacency_input_form_code = str(
+            data['cycle_id']) + '-' + str(current_user.id) + '-' + str(data['network_mode_id'])
+
+        adjacency_input_form = IRA_Adjacency_input_form.query.get(
+            adjacency_input_form_code)
+        if (adjacency_input_form is None):
+
+            db.session.add(IRA_Adjacency_input_form(id_adjacency_input_form=adjacency_input_form_code,
+                                                    id_employee=current_user.id, id_cycle=data['cycle_id'], id_network_mode=data['network_mode_id'], Is_concluded=0))
+
+        new_narrative = IRA_Narratives(
+            title=data['title'],
+            narrative=data['narrative'],
+            id_cycle=data["cycle_id"],
+            id_employee=current_user.id,
+            id_topic=data["id_topic"]
+            )
+
+        db.session.add(new_narrative)
+        # db.session.flush()
+        db.session.commit()
+
+    return jsonify({'response': narrative_schema.dump(new_narrative), 'message': "api_responses.data_saved"})
+
+
+@app.route('/api/v1/user/narrative/update', methods=['POST'])
+@token_required
+def update_narrative(current_user):
+
+    data = request.json
+    narrative = None
+    if (data['user_email'] == current_user.email):
+
+        narrative = IRA_Narratives.query.get(data['narrative_id'])
+        narrative.title = data['title']
+        narrative.narrative = data['narrative']
+        narrative.id_topic=data["id_topic"]
+        db.session.commit()
+        return jsonify("api_responses.data_updated")
+
+    return jsonify("api_responses.data_not_updated"), 500
+
+
+@app.route('/api/v1/user/narrative/delete', methods=['DELETE'])
+@token_required
+def delete_narrative(current_user):
+
+    data = request.json
+    if (data['user_email'] == current_user.email):
+
+        narrative = IRA_Narratives.query.filter_by(
+            id_cycle=data['cycle_id'], id_employee=current_user.id).first()
+        db.session.delete(narrative)
+        db.session.commit()
+        return jsonify("api_responses.item_deleted")
+
+    return jsonify("api_responses.item_not_deleted"), 500
+
+
 @app.route('/api/v1/node/add', methods=['POST'])
 @token_required
 def add_node(current_user):
@@ -477,14 +649,6 @@ def add_node(current_user):
     network_mode = IRA_Networks_modes.query.get(data["network_mode_id"])
     nodes = network_mode.nodes
 
-    # print(current_user.id)
-    # filtered_nodes = []
-
-    # if nodes:
-    #     filtered_nodes = [e for e in nodes if e.id_employee == None or e.id_employee == current_user.id]
-
-    # print(filtered_nodes)
-
     return jsonify({'response': nodes_schema.dump(nodes), 'message': "api_responses.data_saved"})
 
 
@@ -493,7 +657,7 @@ def add_node(current_user):
 def delete_node(current_user):
 
     data = request.json
-    print(data)
+    # print(data)
     if (data['user_email'] == current_user.email):
 
         # deleted_relations = nodes_vs_networks_modes.delete().where(id_node = data['item_id'])
@@ -528,6 +692,44 @@ def delete_node(current_user):
         nodes = network_mode.nodes
 
         return jsonify({'response': nodes_schema.dump(nodes), 'message': "api_responses.item_deleted"})
+
+    return jsonify("api_responses.item_not_deleted"), 500
+
+
+@app.route('/api/v1/selected_tool', methods=['DELETE'])
+@token_required
+def delete_selected_tool(current_user):
+
+    data = request.json
+    # print(data)
+    if (data['user_email'] == current_user.email):
+
+        adjacency_input_forms_ids = IRA_Adjacency_input_form.query\
+            .with_entities(IRA_Adjacency_input_form.id_adjacency_input_form)\
+            .filter_by(id_cycle=data['cycle_id'], id_employee=current_user.id, id_network_mode=data['network_mode_id'])\
+            .all()
+        adjacency_codes = list(itertools.chain(*adjacency_input_forms_ids))
+
+        if (adjacency_codes):
+            for code in adjacency_codes:
+                existing_responses = IRA_Responses.query.filter_by(
+                    id_adjacency_input_form=code).all()
+                for response in existing_responses:
+                    if (response):
+                        current_response = json.loads(response.Response)
+                        # print(current_response)
+                        existing_item = next(
+                            filter(lambda x: x['item_id'] == data['item_id'], current_response), None)
+                        if (existing_item is not None):
+                            current_response = list(
+                                filter(lambda x: x['item_id'] != data['item_id'], current_response))
+                            response.Response = json.dumps(current_response)
+
+        db.session.commit()
+        existing_responses = IRA_Responses.query.filter_by(
+            id_adjacency_input_form=code).all()
+
+        return jsonify({'response': responses_schema.dump(existing_responses), 'message': "api_responses.item_deleted"})
 
     return jsonify("api_responses.item_not_deleted"), 500
 
@@ -578,6 +780,20 @@ def get_user_responses(current_user, user_id, cycle_id):
     return jsonify(responses_schema.dump(existing_responses))
 
 
+@app.route('/api/v1/user/<int:user_id>/cycle/<int:cycle_id>/narratives', methods=['GET'])
+@token_required
+def get_user_narratives(current_user, user_id, cycle_id):
+
+    user_narratives = []
+
+    # if(data['user_email']==current_user.email):
+
+    user_narratives = IRA_Narratives.query.filter_by(
+        id_cycle=cycle_id, id_employee=user_id).all()
+
+    return jsonify(narratives_schema.dump(user_narratives))
+
+
 @app.route('/api/v1/open_close_adjacency_input_form', methods=['POST'])
 @token_required
 def open_close_adjacency_input_form(current_user):
@@ -603,23 +819,34 @@ def add_interacting_actor(current_user):
     # print(data)
     if (data['user_email'] == current_user.email):
 
-        interactions = IRA_Employees_interactions.query.with_entities(IRA_Employees_interactions.id_interacting_employee).filter_by(
-            id_cycle=data['cycle_id'], id_responding_employee=current_user.id).all()
+        existing_actor = IRA_Employees_interactions.query.filter_by(
+            id_cycle=data['cycle_id'], id_responding_employee=current_user.id,id_interacting_employee=data['actor_id'] ).first()
+        
+    
+        # already_saved = list(itertools.chain(*interactions))
 
-        already_saved = list(itertools.chain(*interactions))
+        # new_ids = list(set(data['employee_ids']).difference(already_saved))  
 
-        new_ids = list(set(data['employee_ids']).difference(already_saved))
+        # if len(new_ids):
+        #     for new_id in new_ids:
+        #         db.session.add(IRA_Employees_interactions(
+        #             id_cycle=data['cycle_id'], id_responding_employee=current_user.id, id_interacting_employee=new_id))
 
-      #  print(f"New Ids={new_ids}")
-
-        if len(new_ids):
-            for new_id in new_ids:
-                db.session.add(IRA_Employees_interactions(
-                    id_cycle=data['cycle_id'], id_responding_employee=current_user.id, id_interacting_employee=new_id))
+        #     db.session.commit()
+        
+        if (existing_actor is None):
+        
+            db.session.add(IRA_Employees_interactions(
+                        id_cycle=data['cycle_id'], id_responding_employee=current_user.id, id_interacting_employee=data['actor_id']))
 
             db.session.commit()
-
-    return jsonify("api_responses.new_interacting_actor_added")
+            return jsonify("api_responses.new_interacting_actor_added")
+        else:
+            return jsonify("api_responses.new_interacting_actor_already_exists"),422
+            
+    else:
+        return jsonify("api_responses.user_not_authorized"),403
+        
 
 
 @app.route('/api/v1/delete_interacting_actor', methods=['DELETE'])
@@ -671,7 +898,8 @@ def delete_interacting_actor(current_user):
                 db.session.commit()
                 return jsonify("api_responses.interacting_actor_deleted")
 
-    return jsonify("api_responses.interacting_actor_not_deleted"), 500
+    else:
+        return jsonify("api_responses.user_not_authorized"),403
 
 
 @app.route('/api/v1/save_answer', methods=['POST'])
@@ -758,7 +986,10 @@ def save_answer(current_user):
             existing_responses = IRA_Responses.query.filter(
                 IRA_Responses.id_adjacency_input_form.in_(adjacency_codes)).all()
 
-    return jsonify({'responses': responses_schema.dump(existing_responses), 'message': "api_responses.answer_saved"})
+        return jsonify({'responses': responses_schema.dump(existing_responses), 'message': "api_responses.answer_saved"})
+    
+    else:
+        return jsonify("api_responses.user_not_authorized"),403
 
 
 def isResponseEmpty(response):
@@ -935,6 +1166,21 @@ def get_culture_user_mode_themes_totals(current_user, user_id, cycle_id, mode_id
         return jsonify(culture_theme_response_schema.dump(themes_totals))
 
     return jsonify({'message': "api_responses.no_results"})
+
+
+# -----------------------------------------------------------------------------------------------------------
+# DataWise  api routes
+# -----------------------------------------------------------------------------------------------------------
+
+@app.route('/api/v1/datawise/user_tools', methods=['GET'])
+@token_required
+def get_user_tools(current_user):
+
+    # school_roles = list(map(lambda x: x.school_role.name_en, current_user.school_roles))
+
+    resp = DW_Tools.query.all()
+    # print(resp)
+    return jsonify(dw_tools_schema.dump(resp))
 
 
 if __name__ == '__main__':

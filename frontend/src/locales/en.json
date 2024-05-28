@@ -3,10 +3,13 @@
 
     "active_source":"Active source",
     "culture":"Culture",
+    "datawise":"Datawise",
     "about":"About",
     "delete_record_title":"Delete record",
     "cancel":"Cancel",
-    "loading":"Loading..."
+    "loading":"Loading...",
+    "delete":"Delete",
+    "select_usage_options":"Select usage options"
     
   },
 
@@ -14,7 +17,13 @@
 
     "period":"Period",
     "add":"Add",
-    "cancel":"Cancel"
+    "update":"Update",
+    "edit":"Edit",
+    "delete":"Delete",
+    "cancel":"Cancel",
+    "select":"Select",
+    "title":"Title",
+    "others":"others"
 
   },
 
@@ -27,13 +36,24 @@
     "question":"Question",
     "answer":"Answer",
     "section_closed":"Section closed/completed",
+    "open_section":"Open section",
     "actor_table":{
 
       "name":"Name",
       "area":"Area",
       "actions":"Actions"
     },
-    "item_name":"{item} name"
+    "item_name":"{item} name",
+    "tools":"Tools",
+    "sources":"Sources",
+    "narrative":"Narrative",
+    "usage_options":"Usage options",
+    "narrative_title":"Narrative's title",
+    "narrative_description":"Narrative's text",
+    "narrative_topic":"Topic",
+    "narrative_topics_title":"Comment on these topics",
+    "select_resources_you_know":"Select the resources you know"
+
   },
 
   "culture":{
@@ -43,6 +63,15 @@
     "preferred":"Preferred"
 
   },
+
+  "datawise":{
+  
+    "topics":"Topics",
+    "tools":"Tools",
+    "info_tool":"Information Tool"
+
+  },
+
 
   "login":{
 
@@ -78,11 +107,14 @@
     "interacting_actor_deleted":"Interacting actor was deleted, as all answers related to it in other sections!!",
     "interacting_actor_not_deleted":"Interacting actor could not be deleted!!",
     "new_interacting_actor_added":"New interacting actor added!",
+    "new_interacting_actor_failed":"New interacting actor could not be added!",
     "answer_saved":"Your answer has been saved!",
     "form_closed":"Form closed!",
     "form_opened":"Form enabled again!",
     "no_results": "No results found!",
     "data_saved":"Data has been saved!",
+    "data_updated":"Data was successfully updated!",
+    "data_not_updated":"Data was not updated!",
     "no_adjacency_input_form_found":"Form not found!"
   
   },
@@ -93,8 +125,9 @@
     "sum_limit": "Sum should be 100!",
     "delete_record_text":"Are you sure you want to delete this record?",
     "delete_interacting_person_text":"Are you sure you want to delete this person?<br> All answers associated to this person in other sections will be deleted!",
-    "delete_item_text":"Are you sure you want to delete this {item}?<br> All answers associated to this {item} in other sections will be deleted!"
-
+    "delete_item_text":"Are you sure you want to delete this {item}?<br> All answers associated to this {item} in other sections will be deleted!",
+    "delete_tool_text":"Are you sure you want to delete this {item}?<br> All answers associated to this {item} will be deleted!",
+    "delete_narrative_text":"Are you sure you want to delete this {item}?<br> All answers associated to this {item} will be deleted!"
   },
 
   "rules":{

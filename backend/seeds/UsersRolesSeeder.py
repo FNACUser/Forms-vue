@@ -10,7 +10,7 @@ from common.Utilities import generate_random_string
 class UsersRolesSeeder(Seeder):
     def __init__(self, db=None):
         super().__init__(db=db)
-        self.priority = 2
+        self.priority = 3
 
     # run() will be called by Flask-Seeder
     def run(self):
@@ -25,19 +25,19 @@ class UsersRolesSeeder(Seeder):
             user_datastore.add_role_to_user(registered_user, encuestado)
 
         # random_pwd = generate_random_string()
-        random_pwd = '12345'
+        # random_pwd = '12345'
         # Creates my user Humberto y LG  as admin and encuestado
-        user1 = user_datastore.create_user(username='Humberto Zuluaga', email='hzuluaga@gmail.com',
-                                           password=hash_password(random_pwd))
-        db.session.add(user1)
+        # user1 = user_datastore.create_user(username='Humberto Zuluaga', email='hzuluaga@gmail.com',
+        #    password=hash_password(random_pwd))
+        # db.session.add(user1)
 
-        user2 = user_datastore.create_user(username='Luis Gabriel', email='luis.caro@finac.com',
-                                           password=hash_password(random_pwd))
+        # user2 = user_datastore.create_user(username='Luis Gabriel', email='luis.caro@finac.com',
+        #                                    password=hash_password(random_pwd))
 
-        db.session.add(user2)
+        # db.session.add(user2)
 
-        user_datastore.add_role_to_user(user1, admin)
-        user_datastore.add_role_to_user(user2, admin)
+        # user_datastore.add_role_to_user(user1, admin)
+        # user_datastore.add_role_to_user(user2, admin)
         # user_datastore.add_role_to_user(user1,encuestado)
 
         db.session.commit()

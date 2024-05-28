@@ -3,10 +3,13 @@
 
     "active_source":"Fuente Activa",
     "culture":"Cultura",
+    "datawise":"Datawise",
     "about":"Acerca de..",
     "delete_record_title":"Borrar registro",
     "cancel":"Cancelar",
-    "loading":"Cargando..."
+    "loading":"Cargando...",
+    "delete":"Borrar",
+    "select_usage_options":"Seleccionar opciones de uso"
 
   },
 
@@ -14,9 +17,14 @@
 
     "period":"Periodo",
     "add":"Agregar",
-    "cancel":"Cancelar"
+    "update":"Actualizar",
+    "edit":"Editar",
+    "delete":"Borrar",
+    "cancel":"Cancelar",
+    "select":"Seleccionar",
+    "title":"Título",
+    "others":"más"
     
-
   },
 
   "active_source":{
@@ -28,13 +36,23 @@
     "question":"Pregunta",
     "answer":"Respuesta",
     "section_closed":"Sección cerrada/completada",
+    "open_section":"Sección abierta",
     "actor_table":{
 
       "name":"Nombre",
       "area":"Area",
       "actions":"Acciones"
     },
-    "item_name":"Nombre del {item}"
+    "item_name":"Nombre del {item}",
+    "tools":"Herramientas",
+    "sources":"Fuentes",
+    "narrative":"Narrativa",
+    "usage_options":"Opciones de uso",
+    "narrative_title":"Título de la Narrativa",
+    "narrative_description":"Texto de la Narrativa",
+    "narrative_topic":"Tema",
+    "narrative_topics_title":"Comente sobre estos temas",
+    "select_resources_you_know":"Seleccione los recursos que conoce"
 
   },
 
@@ -45,6 +63,16 @@
     "preferred":"Preferido"
 
   },
+
+  "datawise":{
+  
+    "topics":"Temas",
+    "tools":"Herramientas",
+    "info_tool":"Herramienta"
+
+
+  },
+
 
   "login":{
      
@@ -80,11 +108,14 @@
     "interacting_actor_deleted":"Actor fue eliminado, así como todas las respuestas relacionadas a este en otras secciones!!",
     "interacting_actor_not_deleted":"Actor no pudo ser eliminado!!",
     "new_interacting_actor_added":"Nuevo actor ha sido agregado!",
+    "new_interacting_actor_failed":"Nuevo actor no pudo ser agregado!",
     "answer_saved":"Su respuesta ha sido guardada!",
     "form_closed":"Formulario cerrado!",
     "form_opened":"Formulario habilitado nuevamente!",
     "no_results": "No se hallaron resultados!",
     "data_saved":"Los datos han sido guardados!",
+    "data_updated":"Los datos fueron actualizados!",
+    "data_not_updated":"Los datos pudieron ser actualizados!",
     "no_adjacency_input_form_found":"No existe este formulario!"
   },
 
@@ -94,7 +125,9 @@
     "sum_limit": "La suma debe ser igual a 100!",
     "delete_record_text":"Está seguro de eliminar este registro?",
     "delete_interacting_person_text":"Está seguro de eliminar esta persona?<br> Todas las respuestas asociadas a esta persona en otras secciones serán borradas!",
-    "delete_item_text":"Está seguro de eliminar este {item}?<br> Todas las respuestas asociadas a este {item} en otras secciones serán borradas!"
+    "delete_item_text":"Está seguro de eliminar este {item}?<br> Todas las respuestas asociadas a este {item} en otras secciones serán borradas!",
+    "delete_tool_text":"Está seguro de eliminar este {item}?<br> Todas las respuestas asociadas a este {item} serán borradas!",
+    "delete_narrative_text":"Está seguro de eliminar esta {item}?<br> Todas las respuestas asociadas a esta {item} serán borradas!"
   },
 
   "rules":{

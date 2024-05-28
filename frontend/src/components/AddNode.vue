@@ -17,8 +17,10 @@
       </template>
 
       <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
-            {{ $t('globals.add') }} {{ label }}
+        <v-card-title class="headline" style="word-break: break-word">
+         
+              {{ $t('globals.add') }} {{ label }}
+       
         </v-card-title>
 
         <v-card-text>
@@ -29,30 +31,12 @@
                 >
                     <v-text-field
                         v-model="name"
-                        :counter="maxChars"
+                        
                         :rules="nameRules"
                         :label="$t('active_source.item_name',{item:`${this.label}`})"
                         required
                     ></v-text-field>
-
-                    <!-- <v-text-field
-                        v-model="name_en"
-                        :counter="maxChars"
-                        :rules="nameRules"
-                        :label="$t('globals.name_in_english')"
-                        required
-                    ></v-text-field> -->
-
-                    <!-- <v-select
-                        v-model="selected_item"
-                        :items="items"
-                        :rules="[v => !!v || 'Item is required']"
-                        label="Item"
-                        required
-                    ></v-select> -->
-
-                
-                    
+        
                 </v-form>
 
         </v-card-text>
@@ -62,19 +46,19 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            color="primary"
-            text
-            @click="saveNode"
-          >
-          {{ $t('globals.add') }}
-          </v-btn>
-
-          <v-btn
             color="default"
             text
             @click="cancel"
           >
           {{ $t('globals.cancel') }}
+          </v-btn>
+
+          <v-btn
+            color="primary"
+            text
+            @click="saveNode"
+          >
+          {{ $t('globals.add') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -93,15 +77,14 @@ export default {
 
     props:[
         'label',
-        'network_mode_id'    
+        'network_mode'    
     ],  
     data () {
       return {
-        maxChars:55,
+        maxChars:100,
         dialog: false,
         valid:false,
         name:'',
-        // name_en:'',
         items:[],
         selected_item:null,
         nameRules: [
@@ -110,8 +93,6 @@ export default {
         ]
       }
     },
-
-   
 
     computed:{
 
@@ -135,12 +116,13 @@ export default {
        
         if (this.validate()){
 
+         
           const data={
                   "name_es":this.name,
                   "name_en":this.name,
                   "user_email":this.logged_user.email,
-                  "network_mode_id":this.network_mode_id,
-                  "node_segment_id":4
+                  "network_mode_id":this.network_mode.id_network_mode,
+                  "node_segment_id":this.network_mode.id_node_segment
                                  
               };
 
@@ -148,19 +130,12 @@ export default {
                 .then(async response => {
                     //console.log(response.data.response);
 
-                    const nodes= response.data.response;
-                    
+                    const nodes= response.data.response;                 
                     this.$alertify.success(this.$t(response.data.message));
                     this.reset();
                     this.resetValidation();
-
                     this.$emit('newnode',nodes);
-
-                    
-                    // this.populateAnswers(response.data.responses);
-                    // this.updateNetworkModeGauge(this.current_network_mode);
-
-            
+                  
                   })
                 .catch(error => {
                     this.$alertify.error(this.$t(error.message));
@@ -176,7 +151,6 @@ export default {
         
       },
 
-
       cancel(){
         this.reset();
         this.resetValidation();
@@ -188,3 +162,8 @@ export default {
   }
 
 </script>
+
+<style>
+
+
+</style>
