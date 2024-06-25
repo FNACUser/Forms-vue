@@ -28,6 +28,10 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(100), unique=True, nullable=False)
     documentID = db.Column(db.String(50), unique=True, nullable=True)
     id_redmine = db.Column(db.String(100), nullable=True)
+    depends_on = db.Column(db.String(50),  nullable=True)
+    position = db.Column(db.String(100),  nullable=True)
+    entry_date = db.Column(db.DateTime, nullable=True)
+
     active = db.Column(db.Boolean)
     image_file = db.Column(db.String(20), nullable=True, default='default.jpg')
     password = db.Column(db.String(255), nullable=False)
