@@ -52,7 +52,8 @@
     "narrative_description":"Texto de la Narrativa",
     "narrative_topic":"Tema",
     "narrative_topics_title":"Comente sobre estos temas",
-    "select_resources_you_know":"Seleccione los recursos que conoce"
+    "select_resources_you_know":"Seleccione los recursos que conoce",
+    "optional":"Es optional..."
 
   },
 

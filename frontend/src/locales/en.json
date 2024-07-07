@@ -52,7 +52,8 @@
     "narrative_description":"Narrative's text",
     "narrative_topic":"Topic",
     "narrative_topics_title":"Comment on these topics",
-    "select_resources_you_know":"Select the resources you know"
+    "select_resources_you_know":"Select the resources you know",
+    "optional":"It is optional..."
 
   },
 

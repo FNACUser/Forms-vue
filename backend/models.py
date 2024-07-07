@@ -300,7 +300,7 @@ class IRA_Narrative_topics(db.Model):
 class IRA_Narratives(db.Model):
     __tablename__ = 'IRA_Narratives'
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(100), nullable=True)
     narrative = db.Column(db.Text, nullable=False)
     
     id_topic = db.Column(db.Integer,
