@@ -1,8 +1,8 @@
-"""empty message
+"""Initial migration
 
-Revision ID: 0609837d2fab
+Revision ID: 5a346f554af5
 Revises: 
-Create Date: 2023-06-20 00:36:37.253588
+Create Date: 2024-10-04 17:30:15.301858
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0609837d2fab'
+revision = '5a346f554af5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -83,6 +83,12 @@ def upgrade():
     sa.Column('End_date', sa.DateTime(), nullable=False),
     sa.Column('Is_active', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id_cycle')
+    )
+    op.create_table('IRA_Narrative_topics',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('topic_es', sa.Text(), nullable=False),
+    sa.Column('topic_en', sa.Text(), nullable=False),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('IRA_Networks',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -174,6 +180,12 @@ def upgrade():
     sa.Column('id_question', sa.Integer(), nullable=False),
     sa.Column('Question_es', sa.Text(), nullable=False),
     sa.Column('Question_en', sa.Text(), nullable=False),
+    sa.Column('short_question_es', sa.String(length=200), nullable=True),
+    sa.Column('short_question_en', sa.String(length=200), nullable=True),
+    sa.Column('help_es', sa.Text(), nullable=True),
+    sa.Column('help_en', sa.Text(), nullable=True),
+    sa.Column('acronym_es', sa.String(length=10), nullable=True),
+    sa.Column('acronym_en', sa.String(length=10), nullable=True),
     sa.Column('id_question_possible_answers', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['id_question_possible_answers'], ['IRA_Questions_possible_answers.id_question_possible_answers'], ),
     sa.PrimaryKeyConstraint('id_question')
@@ -184,6 +196,9 @@ def upgrade():
     sa.Column('email', sa.String(length=100), nullable=False),
     sa.Column('documentID', sa.String(length=50), nullable=True),
     sa.Column('id_redmine', sa.String(length=100), nullable=True),
+    sa.Column('depends_on', sa.String(length=50), nullable=True),
+    sa.Column('position', sa.String(length=100), nullable=True),
+    sa.Column('entry_date', sa.DateTime(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('image_file', sa.String(length=20), nullable=True),
     sa.Column('password', sa.String(length=255), nullable=False),
@@ -204,7 +219,7 @@ def upgrade():
     sa.Column('id_culture_mode', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['id_culture_mode'], ['CVF_Culture_modes.id'], ),
     sa.ForeignKeyConstraint(['id_cycle'], ['IRA_Cycles.id_cycle'], ),
-    sa.ForeignKeyConstraint(['id_employee'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['id_employee'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('CVF_Culture_modes_themes_questions',
@@ -267,7 +282,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['grade_id'], ['DW_Grades.id'], ),
     sa.ForeignKeyConstraint(['section_id'], ['DW_Sections.id'], ),
     sa.ForeignKeyConstraint(['subject_id'], ['DW_Subjects.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('user_id', 'grade_id', 'section_id', 'subject_id')
     )
     op.create_table('DW_users_schoolroles',
@@ -276,7 +291,7 @@ def upgrade():
     sa.Column('areas', sa.String(length=100), nullable=True),
     sa.Column('schools', sa.String(length=100), nullable=True),
     sa.ForeignKeyConstraint(['role_id'], ['DW_Roles.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('user_id', 'role_id')
     )
     op.create_table('IRA_Employees_interactions',
@@ -285,19 +300,21 @@ def upgrade():
     sa.Column('id_responding_employee', sa.Integer(), nullable=True),
     sa.Column('id_interacting_employee', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['id_cycle'], ['IRA_Cycles.id_cycle'], ),
-    sa.ForeignKeyConstraint(['id_interacting_employee'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['id_responding_employee'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['id_interacting_employee'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['id_responding_employee'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id_employee_interaction'),
     sa.UniqueConstraint('id_cycle', 'id_responding_employee', 'id_interacting_employee', name='unique_cycle_responding_interacting')
     )
     op.create_table('IRA_Narratives',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=100), nullable=False),
+    sa.Column('title', sa.String(length=100), nullable=True),
     sa.Column('narrative', sa.Text(), nullable=False),
-    sa.Column('id_employee', sa.Integer(), nullable=True),
+    sa.Column('id_topic', sa.Integer(), nullable=False),
+    sa.Column('id_employee', sa.Integer(), nullable=False),
     sa.Column('id_cycle', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['id_cycle'], ['IRA_Cycles.id_cycle'], ),
-    sa.ForeignKeyConstraint(['id_employee'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['id_employee'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['id_topic'], ['IRA_Narrative_topics.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('IRA_Networks_modes',
@@ -312,11 +329,15 @@ def upgrade():
     )
     op.create_table('IRA_Nodes',
     sa.Column('id_node', sa.Integer(), nullable=False),
-    sa.Column('Node_es', sa.String(length=100), nullable=False),
-    sa.Column('Node_en', sa.String(length=100), nullable=False),
+    sa.Column('Node_es', sa.String(length=300), nullable=False),
+    sa.Column('Node_en', sa.String(length=300), nullable=False),
+    sa.Column('theme_es', sa.String(length=100), nullable=True),
+    sa.Column('theme_en', sa.String(length=100), nullable=True),
+    sa.Column('origin_es', sa.String(length=100), nullable=True),
+    sa.Column('origin_en', sa.String(length=100), nullable=True),
     sa.Column('id_node_segment', sa.Integer(), nullable=False),
     sa.Column('id_employee', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['id_employee'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['id_employee'], ['users.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['id_node_segment'], ['IRA_Nodes_segments.id_node_segment'], ),
     sa.PrimaryKeyConstraint('id_node')
     )
@@ -326,14 +347,14 @@ def upgrade():
     sa.Column('date_posted', sa.DateTime(), nullable=False),
     sa.Column('content', sa.Text(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('roles_users',
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('role_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], )
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE')
     )
     op.create_table('CVF_Themes_responses',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -353,7 +374,7 @@ def upgrade():
     sa.Column('id_network_mode', sa.Integer(), nullable=False),
     sa.Column('Is_concluded', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['id_cycle'], ['IRA_Cycles.id_cycle'], ),
-    sa.ForeignKeyConstraint(['id_employee'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['id_employee'], ['users.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['id_network_mode'], ['IRA_Networks_modes.id_network_mode'], ),
     sa.PrimaryKeyConstraint('id_adjacency_input_form')
     )
@@ -435,6 +456,7 @@ def downgrade():
     op.drop_table('IRA_Nodes_segments_categories')
     op.drop_table('IRA_Networks_modes_themes')
     op.drop_table('IRA_Networks')
+    op.drop_table('IRA_Narrative_topics')
     op.drop_table('IRA_Cycles')
     op.drop_table('DW_Topics')
     op.drop_table('DW_ServiceUnits')
