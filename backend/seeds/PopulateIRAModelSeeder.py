@@ -68,10 +68,15 @@ class PopulateIRAModelSeeder(Seeder):
                 pd.read_excel(excel_book, sheet_name='Funcionarios')
 
             funcionariosXL['Nombre'] = funcionariosXL['Nombre'].apply(strip)
-            funcionariosXL['UsuarioRedmine'] = funcionariosXL['UsuarioRedmine'].apply(
-                strip)
-            # funcionariosXL['password'] = hash_password(generate_random_string())
-            funcionariosXL['password'] = hash_password('12345')
+            # funcionariosXL['UsuarioRedmine'] = funcionariosXL['UsuarioRedmine'].apply(
+                # strip)
+            # funcionariosXL['DependeDe'] = funcionariosXL['DependeDe'].apply(strip)
+            if not funcionariosXL['Cargo'].empty:
+                funcionariosXL['Cargo'] = funcionariosXL['Cargo'].apply(strip)
+            # funcionariosXL['Fecha Ingreso'] = funcionariosXL['Fecha Ingreso'].apply(strip)
+            
+            funcionariosXL['password'] = hash_password(generate_random_string())
+            # funcionariosXL['password'] = hash_password('12345')
             funcionariosXL['active'] = True
             funcionariosXL['image_file'] = 'default.jpg'
 
@@ -88,7 +93,10 @@ class PopulateIRAModelSeeder(Seeder):
             funcionariosXL.rename(columns={'id': 'id',
                                         'Nombre': 'username',
                                         'UsuarioRedmine': 'id_redmine',
-                                        'DocumentID':'documentID'
+                                        'DocumentID':'documentID',
+                                        'DependeDe': 'depends_on',
+                                        'Cargo': 'position',
+                                        'Fecha Ingreso': 'entry_date'
                                         },
                                 inplace=True)
             funcionariosXL.drop(

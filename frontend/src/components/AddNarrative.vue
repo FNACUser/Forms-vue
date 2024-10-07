@@ -31,8 +31,9 @@
             >
               <v-text-field
                   v-model="title"
-                  :label="$t('active_source.narrative_title')"  
-                  :rules="nameRules"
+                  :label="$t('active_source.narrative_title')"
+                  :hint="$t('active_source.optional')"
+                 
               ></v-text-field>
 
               <v-select 
@@ -42,6 +43,8 @@
                       :item-text="`topic_${$i18n.locale}`" 
                       item-value="id" 
                       :label="$t('active_source.narrative_topic')" 
+                      :rules="requiredField"
+                      
                       clearable  
                   >
               </v-select>
@@ -49,7 +52,7 @@
               <v-textarea
                   v-model="narrative"
                   :label="$t('active_source.narrative_description')"
-                  :rules="nameRules"
+                  :rules="requiredField"
                   
               ></v-textarea>
 
@@ -108,7 +111,7 @@ export default {
         dialog:false,
         selected_topic:null,
        
-        nameRules: [
+        requiredField: [
             v => !!v || this.$t('rules.field_required'),
             // v => (v && v.length <= this.maxChars) || this.$t('rules.length_max_chars', {max_chars:`${this.maxChars}`}),
           ],
